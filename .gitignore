@@ -1,0 +1,29 @@
+.env
+.venv/
+__pycache__/
+*.pyc
+data/
+*.log
+.pytest_cache/
+.ruff_cache/
+
+# Editor/OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Python packaging/tooling
+*.egg-info/
+build/
+dist/
+.mypy_cache/
+.coverage
+htmlcov/
+
+# wandb run logs
+wandb/
+
+# Chroma vector store persistence
+chroma_db/
+*.sqlite3
