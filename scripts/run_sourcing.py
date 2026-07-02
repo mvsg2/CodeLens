@@ -1,6 +1,3 @@
-from dotenv import load_dotenv
-load_dotenv()
-
 from app.sourcing import (
     clone_repo, collect_files,
     build_manifest, save_manifest, upload_to_s3
@@ -10,6 +7,7 @@ REPO_URL = "https://github.com/fastapi/fastapi"
 
 if __name__ == "__main__":
     # Step 1: Clone
+    print("Cloning repository...")
     repo_path = clone_repo(REPO_URL)
 
     # Step 2: Collect files

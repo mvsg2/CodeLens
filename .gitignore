@@ -27,3 +27,5 @@ wandb/
 # Chroma vector store persistence
 chroma_db/
 *.sqlite3
+
+*.pdf
