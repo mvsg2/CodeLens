@@ -9,13 +9,13 @@ from langchain_huggingface import HuggingFaceEmbeddings
 from sentence_transformers import CrossEncoder
 from openai import OpenAI
 
-from app.config import OPENAI_API_KEY
+from app.config import OPENAI_API_KEY, EMBEDDING_MODEL_NAME
 
 CHROMA_DIR = Path("data/chroma")
 
 # ── Embedding function (same model as pipeline) ───────
 embedding_fn = HuggingFaceEmbeddings(
-    model_name="jinaai/jina-embeddings-v2-base-code",
+    model_name=EMBEDDING_MODEL_NAME,
     model_kwargs={"trust_remote_code": True, "device": "cuda"},
     encode_kwargs={"normalize_embeddings": True}
 )
@@ -42,17 +42,31 @@ def load_documents(repo_id: str) -> list[Document]:
 
 
 # ── Build hybrid retriever ────────────────────────────
-def build_retriever(repo_id: str, documents: list[Document]) -> EnsembleRetriever:
-    # Semantic retriever
+def build_retriever(repo_id: str, documents: list[Document],
+                    source_type: str = "code",
+                    path_type: str | None = None) -> EnsembleRetriever:
+    # Semantic retriever, filtered at the Chroma level
+    conditions = [{"source_type": source_type}]
+    if path_type:
+        conditions.append({"path_type": path_type})
+    chroma_filter = conditions[0] if len(conditions) == 1 else {"$and": conditions}
+
     vectorstore = Chroma(
         collection_name="codebase",
         persist_directory=str(CHROMA_DIR / repo_id),
         embedding_function=embedding_fn
     )
-    semantic = vectorstore.as_retriever(search_kwargs={"k": 10})
+    semantic = vectorstore.as_retriever(
+        search_kwargs={"k": 10, "filter": chroma_filter}
+    )
 
-    # Keyword retriever
-    keyword = BM25Retriever.from_documents(documents)
+    # Keyword retriever over the same subset
+    filtered = [
+        d for d in documents
+        if d.metadata.get("source_type") == source_type
+        and (not path_type or d.metadata.get("path_type") == path_type)
+    ]
+    keyword = BM25Retriever.from_documents(filtered or documents)
     keyword.k = 10
 
     # 60% semantic, 40% keyword
@@ -116,12 +130,19 @@ def call_llm(prompt: str) -> str:
 
 
 # ── Main answer function ──────────────────────────────
-def answer_query(query: str, repo_id: str) -> dict:
+def answer_query(query: str, repo_id: str, source_type: str = "code",
+                 path_type: str | None = "auto", include_answer: bool = True) -> dict:
+    # "auto": code queries answer from library source; doc queries search all docs.
+    # Pass None to disable the path filter, or e.g. "examples" to target docs_src/.
+    if path_type == "auto":
+        path_type = "library" if source_type == "code" else None
+
     print(f"Loading documents for: {repo_id}")
     documents = load_documents(repo_id)
 
     print(f"Building retriever...")
-    retriever = build_retriever(repo_id, documents)
+    retriever = build_retriever(repo_id, documents,
+                                source_type=source_type, path_type=path_type)
 
     print(f"Retrieving candidates...")
     raw_results = retriever.invoke(query)
@@ -134,9 +155,13 @@ def answer_query(query: str, repo_id: str) -> dict:
     print(f"Reranking {len(candidates)} candidates...")
     top_chunks = rerank(query, candidates, top_k=5)
 
-    print(f"Calling LLM...")
-    prompt = build_prompt(query, top_chunks)
-    answer = call_llm(prompt)
+    answer = None
+    if include_answer:
+        print(f"Calling LLM...")
+        prompt = build_prompt(query, top_chunks)
+        answer = call_llm(prompt)
+    else:
+        print(f"Skipping LLM call (--no-llm)")
 
     return {
         "answer": answer,

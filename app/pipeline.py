@@ -9,7 +9,10 @@ import torch
 from tree_sitter import Language, Parser
 import tree_sitter_python as tspython
 
-from app.config import S3_BUCKET, AWS_ENDPOINT_URL, AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_DEFAULT_REGION
+from app.config import (
+    S3_BUCKET, AWS_ENDPOINT_URL, AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY,
+    AWS_DEFAULT_REGION, EMBEDDING_MODEL_NAME
+)
 import boto3
 
 # ── Setup ─────────────────────────────────────────────
@@ -17,15 +20,39 @@ parser = Parser(Language(tspython.language()))
 
 enc = tiktoken.get_encoding("cl100k_base")
 # model = SentenceTransformer("nomic-ai/nomic-embed-code")
-model = SentenceTransformer("jinaai/jina-embeddings-v2-base-code", 
+model = SentenceTransformer(EMBEDDING_MODEL_NAME,
                             trust_remote_code=True,
                             device="cuda" if torch.cuda.is_available() else "cpu")
 
 REPOS_DIR = Path("data/repos")
 MANIFESTS_DIR = Path("data/manifests")
 CHROMA_DIR = Path("data/chroma")
+STATE_DIR = Path("data/index_state")
 
 MAX_CHUNK_TOKENS = 512
+
+# Bump whenever chunking, metadata, or embedding logic changes in a way that
+# makes previously-indexed chunks stale (e.g. adding source_type/path_type).
+PIPELINE_VERSION = 2
+
+# Extensions treated as source code; everything else (.md, .txt) is documentation
+CODE_EXTENSIONS = {
+    ".py", ".js", ".ts", ".java", ".go",
+    ".cpp", ".c", ".h", ".rs", ".rb"
+}
+
+
+def get_source_type(extension: str) -> str:
+    return "code" if extension in CODE_EXTENSIONS else "doc"
+
+
+# Where a chunk lives in the repo: library source vs tests vs example snippets vs docs
+PATH_TYPE_DIRS = {"tests": "tests", "docs_src": "examples", "docs": "docs"}
+
+
+def get_path_type(rel_path: str) -> str:
+    top = rel_path.replace("\\", "/").split("/")[0]
+    return PATH_TYPE_DIRS.get(top, "library")
 
 
 # ── Token counting ────────────────────────────────────
@@ -102,6 +129,8 @@ def build_chunk(content: str, file_info: dict, chunk_type: str,
             "rel_path": file_info["rel_path"],
             "filename": file_info["filename"],
             "extension": file_info["extension"],
+            "source_type": get_source_type(file_info["extension"]),
+            "path_type": get_path_type(file_info["rel_path"]),
             "func_name": func_name or "",
             "class_name": class_name or "",
             "start_line": start_line or 0,
@@ -237,6 +266,33 @@ def upload_chroma_to_s3(repo_id: str):
     print(f"Chroma snapshot uploaded to s3://{S3_BUCKET}/vector_stores/{repo_id}/")
 
 
+# ── Change detection (skip re-encoding when nothing changed) ──
+def _state_path(repo_id: str) -> Path:
+    return STATE_DIR / f"{repo_id}.json"
+
+
+def needs_reindex(repo_id: str, manifest: dict) -> bool:
+    state_path = _state_path(repo_id)
+    if not state_path.exists():
+        return True
+
+    state = json.loads(state_path.read_text())
+    return (
+        state.get("commit_sha") != manifest["commit_sha"]
+        or state.get("pipeline_version") != PIPELINE_VERSION
+        or state.get("embedding_model") != EMBEDDING_MODEL_NAME
+    )
+
+
+def mark_indexed(repo_id: str, manifest: dict):
+    STATE_DIR.mkdir(parents=True, exist_ok=True)
+    _state_path(repo_id).write_text(json.dumps({
+        "commit_sha": manifest["commit_sha"],
+        "pipeline_version": PIPELINE_VERSION,
+        "embedding_model": EMBEDDING_MODEL_NAME,
+    }, indent=2))
+
+
 # ── Full pipeline ─────────────────────────────────────
 def run_pipeline(repo_id: str):
     manifest_path = MANIFESTS_DIR / f"{repo_id}.json"
@@ -267,5 +323,6 @@ def run_pipeline(repo_id: str):
     all_chunks = embed_chunks(all_chunks)
     store_chunks(all_chunks, repo_id)
     upload_chroma_to_s3(repo_id)
+    mark_indexed(repo_id, manifest)
 
     return len(all_chunks)
