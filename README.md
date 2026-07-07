@@ -138,6 +138,8 @@ python -m scripts.run_eval
 python -m scripts.run_ragas_eval --limit 5
 ```
 
+The ground truth these two eval stages score against lives in `app/eval.py`'s `GOLDEN_SET` — hand-written, and verifiable yourself with a plain `grep` against the cloned repo (e.g. `grep -n "def add_api_route" -r data/repos/fastapi__fastapi/fastapi/`). The generated *answers* being scored, on the other hand, come from real LLM calls — never canned or precomputed.
+
 Each of these scripts currently targets `fastapi/fastapi` by default (edit the `REPO_URL` / `REPO_ID` constant at the top of the script to point at something else, or use `run_all.py --repo <url>`, which takes it as an argument).
 
 ### Running the API server
@@ -174,6 +176,8 @@ The request body supports a few optional fields beyond `repo_url` and `question`
 | `source_type` | `"code"` / `"doc"` | `"code"` | Search source code chunks, or documentation/markdown chunks |
 | `path_type` | `"auto"` / `"library"` / `"tests"` / `"examples"` / `"docs"` | `"auto"` | Restrict retrieval to a part of the repo. `"auto"` searches only the library's own source for code questions, and all docs for doc questions — this avoids test files or tutorial snippets outranking the real implementation |
 | `include_answer` | `true` / `false` | `true` | Set to `false` to skip the OpenAI call and get back just the ranked source files — instant and free |
+
+Each entry in the response's `sources` list also carries a `relevance_score` — the cross-encoder's raw relevance score for that chunk against the question. This is a transparency signal, not a calibrated confidence percentage: it's only meaningful *relative to other sources in the same response*, not comparable across different questions. A fixed "below this number = untrustworthy" cutoff was tested against real queries and rejected — a genuinely unanswerable question scored *higher* than a genuinely correct answer to a different question, so no single threshold reliably separates good from bad matches.
 
 Example: ask a documentation question instead of a code question, without spending an LLM call:
 

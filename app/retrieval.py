@@ -105,7 +105,14 @@ def rerank(query: str, chunks: list[dict], top_k: int = 5) -> list[dict]:
         key=lambda x: x[0],
         reverse=True
     )
-    return [chunk for _, chunk in ranked[:top_k]]
+    top = []
+    for score, chunk in ranked[:top_k]:
+        # Cross-encoder relevance score, previously computed then discarded —
+        # kept here so callers can judge confidence, not just get an
+        # unqualified top-5 regardless of whether any of them are any good.
+        chunk["rerank_score"] = float(score)
+        top.append(chunk)
+    return top
 
 
 # ── Build prompt ──────────────────────────────────────
@@ -187,7 +194,15 @@ def answer_query(query: str, repo_id: str, source_type: str = "code",
                 "file": c["metadata"]["rel_path"],
                 "line": c["metadata"].get("start_line"),
                 "function": c["metadata"].get("func_name"),
-                "class": c["metadata"].get("class_name")
+                "class": c["metadata"].get("class_name"),
+                # Cross-encoder relevance score for this (query, chunk) pair.
+                # Higher (less negative) = more relevant, but only relative to
+                # other candidates for THIS query — not comparable across
+                # different queries, so this is a transparency signal, not a
+                # calibrated confidence percentage. See notes/ for why a fixed
+                # threshold on this score was tried and rejected: a real
+                # unanswerable query scored higher than a real good match.
+                "relevance_score": c["rerank_score"],
             }
             for c in top_chunks
         ],
