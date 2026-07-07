@@ -29,3 +29,6 @@ chroma_db/
 *.sqlite3
 
 *.pdf
+
+# Personal/local notes, not part of the project docs
+notes/

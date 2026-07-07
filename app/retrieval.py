@@ -1,6 +1,8 @@
 import os
+from functools import lru_cache
 from pathlib import Path
 import chromadb
+import torch
 from langchain.schema import Document
 from langchain_community.retrievers import BM25Retriever
 from langchain.retrievers import EnsembleRetriever
@@ -16,7 +18,10 @@ CHROMA_DIR = Path("data/chroma")
 # ── Embedding function (same model as pipeline) ───────
 embedding_fn = HuggingFaceEmbeddings(
     model_name=EMBEDDING_MODEL_NAME,
-    model_kwargs={"trust_remote_code": True, "device": "cuda"},
+    model_kwargs={
+        "trust_remote_code": True,
+        "device": "cuda" if torch.cuda.is_available() else "cpu",
+    },
     encode_kwargs={"normalize_embeddings": True}
 )
 
@@ -28,6 +33,14 @@ client = OpenAI(api_key=OPENAI_API_KEY)
 
 
 # ── Load documents from Chroma ────────────────────────
+# Cached per repo_id: this reads every chunk in the collection (~20k+ for
+# fastapi/fastapi), so re-running it on every single query is wasteful —
+# especially over a Docker bind-mounted volume, where repeated small reads
+# are noticeably slower than on a native filesystem. The cache only needs
+# invalidating when a repo is re-indexed, which happens in a fresh process
+# anyway (a new pipeline run / container restart), so a plain in-memory
+# cache is enough — no manual invalidation needed.
+@lru_cache(maxsize=8)
 def load_documents(repo_id: str) -> list[Document]:
     chroma_client = chromadb.PersistentClient(
         path=str(CHROMA_DIR / repo_id)
@@ -42,9 +55,16 @@ def load_documents(repo_id: str) -> list[Document]:
 
 
 # ── Build hybrid retriever ────────────────────────────
-def build_retriever(repo_id: str, documents: list[Document],
-                    source_type: str = "code",
+# Cached per (repo_id, source_type, path_type): building the BM25 index is
+# real work (tokenizing every matching chunk), and repeating it per request
+# is the other half of the redundant work removed by caching load_documents
+# above. Takes only hashable args (no documents list) so lru_cache can key
+# on them directly; it fetches documents itself via the cached function.
+@lru_cache(maxsize=32)
+def build_retriever(repo_id: str, source_type: str = "code",
                     path_type: str | None = None) -> EnsembleRetriever:
+    documents = load_documents(repo_id)
+
     # Semantic retriever, filtered at the Chroma level
     conditions = [{"source_type": source_type}]
     if path_type:
@@ -137,12 +157,8 @@ def answer_query(query: str, repo_id: str, source_type: str = "code",
     if path_type == "auto":
         path_type = "library" if source_type == "code" else None
 
-    print(f"Loading documents for: {repo_id}")
-    documents = load_documents(repo_id)
-
-    print(f"Building retriever...")
-    retriever = build_retriever(repo_id, documents,
-                                source_type=source_type, path_type=path_type)
+    print(f"Building retriever for: {repo_id} (cached after first call)...")
+    retriever = build_retriever(repo_id, source_type=source_type, path_type=path_type)
 
     print(f"Retrieving candidates...")
     raw_results = retriever.invoke(query)

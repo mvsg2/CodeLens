@@ -19,7 +19,11 @@ Sourcing and the pipeline only need to run again when the repo changes or you ch
 
 ---
 
-## Prerequisites
+## Local Development
+
+Everything here runs on your own machine. No AWS account needed, no public URL — you index a repo and query it locally.
+
+### Prerequisites
 
 - Python 3.11
 - Docker Desktop (for LocalStack, which stands in for AWS S3 locally)
@@ -27,9 +31,7 @@ Sourcing and the pipeline only need to run again when the repo changes or you ch
 - An OpenAI API key (used for the answer-generation LLM call)
 - A GitHub personal access token (used to fetch repo metadata — stars, description, default branch)
 
----
-
-## Setup
+### Setup
 
 **1. Clone this repo and create a virtual environment**
 
@@ -77,9 +79,7 @@ docker compose up -d
 
 This starts a `localstack` container exposing S3 on `http://localhost:4566`. Manifests and Chroma snapshots get uploaded here instead of real AWS.
 
----
-
-## Running everything at once
+### Running everything at once
 
 The simplest way to index a repo and see the whole system work together is:
 
@@ -114,9 +114,7 @@ python -m scripts.run_all --require-gate
 # anything on the LLM demo call, instead of just warning and continuing
 ```
 
----
-
-## Running each stage on its own
+### Running each stage on its own
 
 If you want to inspect or debug a single stage instead of the full run:
 
@@ -137,15 +135,15 @@ python -m scripts.run_eval
 
 Each of these scripts currently targets `fastapi/fastapi` by default (edit the `REPO_URL` / `REPO_ID` constant at the top of the script to point at something else, or use `run_all.py --repo <url>`, which takes it as an argument).
 
----
+### Running the API server
 
-## Running the API server
-
-Once a repo has been indexed at least once (via `run_all.py` or `run_pipeline.py`), you can serve queries over HTTP:
+Once a repo has been indexed at least once (via `run_all.py` or `run_pipeline.py`), you can serve queries over HTTP directly on your host, no Docker involved:
 
 ```bash
 python -m uvicorn app.main:app --port 8000
 ```
+
+(To run it containerized instead — the same server, started by Docker rather than by you — see "Verifying a containerized deploy" below.)
 
 Check it's alive:
 
@@ -185,9 +183,35 @@ curl -X POST http://localhost:8000/query \
       }'
 ```
 
----
+### Verifying a containerized deploy (smoke test)
 
-## Indexing a different repository
+Once `Dockerfile` and `docker-compose.yml` are wired up, bring up the containerized stack and check it behaves correctly, not just that it started:
+
+```bash
+docker compose up --build -d
+python -m scripts.smoke_test
+```
+
+`smoke_test.py` treats the running API as a black box — it never imports `app/` code, it only makes real HTTP requests to `http://localhost:8000`, the same way a real client would. It polls `/health` until the container is ready, then checks that a code query and a doc query both return correctly-typed sources with no LLM cost.
+
+**Known issue on Windows + Docker Desktop**: during development, `scripts/smoke_test.py` occasionally hit an intermittent `ReadTimeout` on one of the two `/query` calls, even though the container had already answered correctly and fast — confirmed directly from the container's own logs. Multiple fixes were tried (forcing IPv4 over `localhost`, restarting the WSL2/Docker network bridge, switching the script to a shared `requests.Session()`), and none reliably eliminated it. The pattern strongly points to flakiness in Docker Desktop's Windows↔WSL2 network bridge itself, not the application — every request the server received was processed correctly in a couple of milliseconds, with zero exceptions, every single time. This is expected to not reproduce in CI or real AWS deployment, since neither runs through that Windows/WSL2 translation layer at all.
+
+If `smoke_test.py` hangs on your machine, verify the app itself is actually fine with a few manual `curl` calls instead. Note PowerShell aliases `curl` to `Invoke-WebRequest` — use `curl.exe` to get the real binary:
+
+```powershell
+# Code question — expect fastapi/param_functions.py, fastapi/dependencies/utils.py
+curl.exe -s -X POST http://localhost:8000/query -H "Content-Type: application/json" -d '{\"repo_url\": \"https://github.com/fastapi/fastapi\", \"question\": \"How does dependency injection work?\", \"include_answer\": false}'
+
+# Code question — expect fastapi/security/*.py
+curl.exe -s -X POST http://localhost:8000/query -H "Content-Type: application/json" -d '{\"repo_url\": \"https://github.com/fastapi/fastapi\", \"question\": \"Where is authentication handled?\", \"include_answer\": false}'
+
+# Doc question — expect docs/en/docs/tutorial/index.md
+curl.exe -s -X POST http://localhost:8000/query -H "Content-Type: application/json" -d '{\"repo_url\": \"https://github.com/fastapi/fastapi\", \"question\": \"How do I install FastAPI with its standard optional dependencies?\", \"source_type\": \"doc\", \"include_answer\": false}'
+```
+
+If these consistently return correct, fast responses, the app is working — the smoke test's occasional hang is environment noise, not a regression.
+
+### Indexing a different repository
 
 The API and CLI both work off a `repo_url`. To index and query a new repo:
 
@@ -196,6 +220,12 @@ python -m scripts.run_all --repo https://github.com/<owner>/<repo>
 ```
 
 Then query it with that same URL in `repo_url` — the server converts it internally into a folder name (`owner__repo`) that maps to its own Chroma collection, so different repos never mix data.
+
+---
+
+## Production-Grade Deployment
+
+Not built yet. This section will cover taking CodeLens from the local-only setup above to a real, publicly reachable deployment: automated CI/CD, real AWS infrastructure (ECR, ECS Fargate, an Application Load Balancer, RDS with pgvector, S3, SQS, IAM), a public API endpoint, and production monitoring. See the TODO list below for the current plan.
 
 ---
 
@@ -228,9 +258,9 @@ Then query it with that same URL in `repo_url` — the server converts it intern
 ## TODO
 
 - [ ] LLM-based answer-quality evaluation (faithfulness / answer relevance / context precision & recall via RAGAS)
-- [ ] Containerize the app (Dockerfile) and the reindex worker
-- [ ] Local "deployment rehearsal": run the containerized stack against LocalStack, smoke-test `/health` and `/query`
-- [ ] Automated CI/CD (lint → unit tests → integration tests → eval gate → build → push → deploy)
+- [x] Containerize the app (Dockerfile) — reindex worker still needs one
+- [x] Local "deployment rehearsal": containerized stack running against LocalStack, `scripts/smoke_test.py` checks `/health` and `/query`
+- [ ] Automated CI/CD (lint → unit tests → integration tests → eval gate → smoke test → build → push → deploy)
 - [ ] Migrate the vector store from local Chroma files to pgvector on RDS (needed before running more than one API instance)
 - [ ] Real AWS deployment (ECR, ECS Fargate, ALB, RDS, S3, SQS, IAM) and a public API endpoint
 - [ ] GitHub webhook → SQS → `worker/reindex_worker.py` for automatic re-indexing on new commits

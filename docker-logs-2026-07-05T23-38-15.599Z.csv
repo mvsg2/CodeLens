@@ -1,0 +1,896 @@
+﻿timestamp,object,message
+2026-06-12T00:04:57.932Z,welcome-to-docker,"/docker-entrypoint.sh: /docker-entrypoint.d/ is not empty, will attempt to perform configuration"
+2026-06-12T00:04:57.933Z,welcome-to-docker,/docker-entrypoint.sh: Looking for shell scripts in /docker-entrypoint.d/
+2026-06-12T00:04:57.936Z,welcome-to-docker,/docker-entrypoint.sh: Launching /docker-entrypoint.d/10-listen-on-ipv6-by-default.sh
+2026-06-12T00:04:57.958Z,welcome-to-docker,10-listen-on-ipv6-by-default.sh: info: Getting the checksum of /etc/nginx/conf.d/default.conf
+2026-06-12T00:04:57.980Z,welcome-to-docker,10-listen-on-ipv6-by-default.sh: info: Enabled listen on IPv6 in /etc/nginx/conf.d/default.conf
+2026-06-12T00:04:57.981Z,welcome-to-docker,/docker-entrypoint.sh: Sourcing /docker-entrypoint.d/15-local-resolvers.envsh
+2026-06-12T00:04:57.981Z,welcome-to-docker,/docker-entrypoint.sh: Launching /docker-entrypoint.d/20-envsubst-on-templates.sh
+2026-06-12T00:04:57.990Z,welcome-to-docker,/docker-entrypoint.sh: Launching /docker-entrypoint.d/30-tune-worker-processes.sh
+2026-06-12T00:04:57.996Z,welcome-to-docker,/docker-entrypoint.sh: Configuration complete; ready for start up
+2026-06-12T00:04:58.018Z,welcome-to-docker,"2026/06/12 00:04:58 [notice] 1#1: using the ""epoll"" event method"
+2026-06-12T00:04:58.018Z,welcome-to-docker,2026/06/12 00:04:58 [notice] 1#1: nginx/1.29.0
+2026-06-12T00:04:58.018Z,welcome-to-docker,2026/06/12 00:04:58 [notice] 1#1: built by gcc 14.2.0 (Alpine 14.2.0) 
+2026-06-12T00:04:58.018Z,welcome-to-docker,2026/06/12 00:04:58 [notice] 1#1: OS: Linux 6.18.33.1-microsoft-standard-WSL2
+2026-06-12T00:04:58.018Z,welcome-to-docker,2026/06/12 00:04:58 [notice] 1#1: getrlimit(RLIMIT_NOFILE): 1048576:1048576
+2026-06-12T00:04:58.019Z,welcome-to-docker,2026/06/12 00:04:58 [notice] 1#1: start worker processes
+2026-06-12T00:04:58.021Z,welcome-to-docker,2026/06/12 00:04:58 [notice] 1#1: start worker process 30
+2026-06-12T00:04:58.021Z,welcome-to-docker,2026/06/12 00:04:58 [notice] 1#1: start worker process 31
+2026-06-12T00:04:58.023Z,welcome-to-docker,2026/06/12 00:04:58 [notice] 1#1: start worker process 32
+2026-06-12T00:04:58.024Z,welcome-to-docker,2026/06/12 00:04:58 [notice] 1#1: start worker process 33
+2026-06-12T00:04:58.025Z,welcome-to-docker,2026/06/12 00:04:58 [notice] 1#1: start worker process 34
+2026-06-12T00:04:58.026Z,welcome-to-docker,2026/06/12 00:04:58 [notice] 1#1: start worker process 35
+2026-06-12T00:04:58.027Z,welcome-to-docker,2026/06/12 00:04:58 [notice] 1#1: start worker process 36
+2026-06-12T00:04:58.028Z,welcome-to-docker,2026/06/12 00:04:58 [notice] 1#1: start worker process 37
+2026-06-12T00:04:58.029Z,welcome-to-docker,2026/06/12 00:04:58 [notice] 1#1: start worker process 38
+2026-06-12T00:04:58.030Z,welcome-to-docker,2026/06/12 00:04:58 [notice] 1#1: start worker process 39
+2026-06-12T00:04:58.031Z,welcome-to-docker,2026/06/12 00:04:58 [notice] 1#1: start worker process 40
+2026-06-12T00:04:58.033Z,welcome-to-docker,2026/06/12 00:04:58 [notice] 1#1: start worker process 41
+2026-06-12T00:04:58.035Z,welcome-to-docker,2026/06/12 00:04:58 [notice] 1#1: start worker process 42
+2026-06-12T00:04:58.037Z,welcome-to-docker,2026/06/12 00:04:58 [notice] 1#1: start worker process 43
+2026-06-12T00:04:58.040Z,welcome-to-docker,2026/06/12 00:04:58 [notice] 1#1: start worker process 44
+2026-06-12T00:04:58.042Z,welcome-to-docker,2026/06/12 00:04:58 [notice] 1#1: start worker process 45
+2026-06-12T00:04:58.044Z,welcome-to-docker,2026/06/12 00:04:58 [notice] 1#1: start worker process 46
+2026-06-12T00:04:58.045Z,welcome-to-docker,2026/06/12 00:04:58 [notice] 1#1: start worker process 47
+2026-06-12T00:04:58.048Z,welcome-to-docker,2026/06/12 00:04:58 [notice] 1#1: start worker process 48
+2026-06-12T00:04:58.050Z,welcome-to-docker,2026/06/12 00:04:58 [notice] 1#1: start worker process 49
+2026-06-12T00:04:58.052Z,welcome-to-docker,2026/06/12 00:04:58 [notice] 1#1: start worker process 50
+2026-06-12T00:04:58.054Z,welcome-to-docker,2026/06/12 00:04:58 [notice] 1#1: start worker process 51
+2026-06-12T00:04:58.057Z,welcome-to-docker,2026/06/12 00:04:58 [notice] 1#1: start worker process 52
+2026-06-12T00:04:58.060Z,welcome-to-docker,2026/06/12 00:04:58 [notice] 1#1: start worker process 53
+2026-06-12T00:04:58.063Z,welcome-to-docker,2026/06/12 00:04:58 [notice] 1#1: start worker process 54
+2026-06-12T00:04:58.065Z,welcome-to-docker,2026/06/12 00:04:58 [notice] 1#1: start worker process 55
+2026-06-12T00:04:58.068Z,welcome-to-docker,2026/06/12 00:04:58 [notice] 1#1: start worker process 56
+2026-06-12T00:04:58.071Z,welcome-to-docker,2026/06/12 00:04:58 [notice] 1#1: start worker process 57
+2026-06-12T00:04:58.074Z,welcome-to-docker,2026/06/12 00:04:58 [notice] 1#1: start worker process 58
+2026-06-12T00:04:58.077Z,welcome-to-docker,2026/06/12 00:04:58 [notice] 1#1: start worker process 59
+2026-06-12T00:04:58.082Z,welcome-to-docker,2026/06/12 00:04:58 [notice] 1#1: start worker process 60
+2026-06-12T00:04:58.085Z,welcome-to-docker,2026/06/12 00:04:58 [notice] 1#1: start worker process 61
+2026-06-16T11:31:53.188Z,welcome-to-docker,"172.17.0.1 - - [16/Jun/2026:11:31:53 +0000] ""GET / HTTP/1.1"" 200 651 ""-"" ""Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36"" ""-"""
+2026-06-16T11:31:53.375Z,welcome-to-docker,"172.17.0.1 - - [16/Jun/2026:11:31:53 +0000] ""GET /static/js/main.c9e951e4.js HTTP/1.1"" 200 382506 ""http://localhost:8088/"" ""Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36"" ""-"""
+2026-06-16T11:31:53.399Z,welcome-to-docker,"172.17.0.1 - - [16/Jun/2026:11:31:53 +0000] ""GET /static/css/main.27312bf9.css HTTP/1.1"" 200 791 ""http://localhost:8088/"" ""Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36"" ""-"""
+2026-06-16T11:31:56.031Z,welcome-to-docker,"172.17.0.1 - - [16/Jun/2026:11:31:56 +0000] ""GET /favicon.ico HTTP/1.1"" 200 15086 ""http://localhost:8088/"" ""Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36"" ""-"""
+2026-06-16T11:33:26.086Z,welcome-to-docker,"2026/06/16 11:33:26 [notice] 1#1: signal 3 (SIGQUIT) received, shutting down"
+2026-06-16T11:33:26.088Z,welcome-to-docker,2026/06/16 11:33:26 [notice] 30#30: gracefully shutting down
+2026-06-16T11:33:26.089Z,welcome-to-docker,2026/06/16 11:33:26 [notice] 32#32: gracefully shutting down
+2026-06-16T11:33:26.096Z,welcome-to-docker,2026/06/16 11:33:26 [notice] 31#31: gracefully shutting down
+2026-06-16T11:33:26.098Z,welcome-to-docker,2026/06/16 11:33:26 [notice] 32#32: exiting
+2026-06-16T11:33:26.100Z,welcome-to-docker,2026/06/16 11:33:26 [notice] 35#35: gracefully shutting down
+2026-06-16T11:33:26.101Z,welcome-to-docker,2026/06/16 11:33:26 [notice] 33#33: gracefully shutting down
+2026-06-16T11:33:26.101Z,welcome-to-docker,2026/06/16 11:33:26 [notice] 36#36: gracefully shutting down
+2026-06-16T11:33:26.101Z,welcome-to-docker,2026/06/16 11:33:26 [notice] 30#30: exiting
+2026-06-16T11:33:26.101Z,welcome-to-docker,2026/06/16 11:33:26 [notice] 39#39: gracefully shutting down
+2026-06-16T11:33:26.101Z,welcome-to-docker,2026/06/16 11:33:26 [notice] 41#41: gracefully shutting down
+2026-06-16T11:33:26.102Z,welcome-to-docker,2026/06/16 11:33:26 [notice] 34#34: gracefully shutting down
+2026-06-16T11:33:26.102Z,welcome-to-docker,2026/06/16 11:33:26 [notice] 40#40: gracefully shutting down
+2026-06-16T11:33:26.103Z,welcome-to-docker,2026/06/16 11:33:26 [notice] 42#42: gracefully shutting down
+2026-06-16T11:33:26.103Z,welcome-to-docker,2026/06/16 11:33:26 [notice] 38#38: gracefully shutting down
+2026-06-16T11:33:26.103Z,welcome-to-docker,2026/06/16 11:33:26 [notice] 43#43: gracefully shutting down
+2026-06-16T11:33:26.105Z,welcome-to-docker,2026/06/16 11:33:26 [notice] 37#37: gracefully shutting down
+2026-06-16T11:33:26.105Z,welcome-to-docker,2026/06/16 11:33:26 [notice] 31#31: exiting
+2026-06-16T11:33:26.106Z,welcome-to-docker,2026/06/16 11:33:26 [notice] 45#45: gracefully shutting down
+2026-06-16T11:33:26.106Z,welcome-to-docker,2026/06/16 11:33:26 [notice] 33#33: exiting
+2026-06-16T11:33:26.107Z,welcome-to-docker,2026/06/16 11:33:26 [notice] 35#35: exiting
+2026-06-16T11:33:26.107Z,welcome-to-docker,2026/06/16 11:33:26 [notice] 44#44: gracefully shutting down
+2026-06-16T11:33:26.107Z,welcome-to-docker,2026/06/16 11:33:26 [notice] 41#41: exiting
+2026-06-16T11:33:26.107Z,welcome-to-docker,2026/06/16 11:33:26 [notice] 36#36: exiting
+2026-06-16T11:33:26.108Z,welcome-to-docker,2026/06/16 11:33:26 [notice] 46#46: gracefully shutting down
+2026-06-16T11:33:26.108Z,welcome-to-docker,2026/06/16 11:33:26 [notice] 39#39: exiting
+2026-06-16T11:33:26.108Z,welcome-to-docker,2026/06/16 11:33:26 [notice] 34#34: exiting
+2026-06-16T11:33:26.109Z,welcome-to-docker,2026/06/16 11:33:26 [notice] 47#47: gracefully shutting down
+2026-06-16T11:33:26.109Z,welcome-to-docker,2026/06/16 11:33:26 [notice] 38#38: exiting
+2026-06-16T11:33:26.110Z,welcome-to-docker,2026/06/16 11:33:26 [notice] 43#43: exiting
+2026-06-16T11:33:26.110Z,welcome-to-docker,2026/06/16 11:33:26 [notice] 42#42: exiting
+2026-06-16T11:33:26.111Z,welcome-to-docker,2026/06/16 11:33:26 [notice] 40#40: exiting
+2026-06-16T11:33:26.111Z,welcome-to-docker,2026/06/16 11:33:26 [notice] 51#51: gracefully shutting down
+2026-06-16T11:33:26.112Z,welcome-to-docker,2026/06/16 11:33:26 [notice] 52#52: gracefully shutting down
+2026-06-16T11:33:26.112Z,welcome-to-docker,2026/06/16 11:33:26 [notice] 49#49: gracefully shutting down
+2026-06-16T11:33:26.113Z,welcome-to-docker,2026/06/16 11:33:26 [notice] 53#53: gracefully shutting down
+2026-06-16T11:33:26.113Z,welcome-to-docker,2026/06/16 11:33:26 [notice] 50#50: gracefully shutting down
+2026-06-16T11:33:26.113Z,welcome-to-docker,2026/06/16 11:33:26 [notice] 48#48: gracefully shutting down
+2026-06-16T11:33:26.114Z,welcome-to-docker,2026/06/16 11:33:26 [notice] 37#37: exiting
+2026-06-16T11:33:26.114Z,welcome-to-docker,2026/06/16 11:33:26 [notice] 54#54: gracefully shutting down
+2026-06-16T11:33:26.114Z,welcome-to-docker,2026/06/16 11:33:26 [notice] 44#44: exiting
+2026-06-16T11:33:26.114Z,welcome-to-docker,2026/06/16 11:33:26 [notice] 55#55: gracefully shutting down
+2026-06-16T11:33:26.115Z,welcome-to-docker,2026/06/16 11:33:26 [notice] 46#46: exiting
+2026-06-16T11:33:26.116Z,welcome-to-docker,2026/06/16 11:33:26 [notice] 56#56: gracefully shutting down
+2026-06-16T11:33:26.116Z,welcome-to-docker,2026/06/16 11:33:26 [notice] 47#47: exiting
+2026-06-16T11:33:26.117Z,welcome-to-docker,2026/06/16 11:33:26 [notice] 45#45: exiting
+2026-06-16T11:33:26.118Z,welcome-to-docker,2026/06/16 11:33:26 [notice] 52#52: exiting
+2026-06-16T11:33:26.118Z,welcome-to-docker,2026/06/16 11:33:26 [notice] 51#51: exiting
+2026-06-16T11:33:26.118Z,welcome-to-docker,2026/06/16 11:33:26 [notice] 50#50: exiting
+2026-06-16T11:33:26.119Z,welcome-to-docker,2026/06/16 11:33:26 [notice] 57#57: gracefully shutting down
+2026-06-16T11:33:26.120Z,welcome-to-docker,2026/06/16 11:33:26 [notice] 48#48: exiting
+2026-06-16T11:33:26.120Z,welcome-to-docker,2026/06/16 11:33:26 [notice] 53#53: exiting
+2026-06-16T11:33:26.121Z,welcome-to-docker,2026/06/16 11:33:26 [notice] 51#51: exit
+2026-06-16T11:33:26.121Z,welcome-to-docker,2026/06/16 11:33:26 [notice] 59#59: gracefully shutting down
+2026-06-16T11:33:26.121Z,welcome-to-docker,2026/06/16 11:33:26 [notice] 58#58: gracefully shutting down
+2026-06-16T11:33:26.122Z,welcome-to-docker,2026/06/16 11:33:26 [notice] 56#56: exiting
+2026-06-16T11:33:26.122Z,welcome-to-docker,2026/06/16 11:33:26 [notice] 49#49: exiting
+2026-06-16T11:33:26.122Z,welcome-to-docker,2026/06/16 11:33:26 [notice] 55#55: exiting
+2026-06-16T11:33:26.123Z,welcome-to-docker,2026/06/16 11:33:26 [notice] 54#54: exiting
+2026-06-16T11:33:26.124Z,welcome-to-docker,2026/06/16 11:33:26 [notice] 60#60: gracefully shutting down
+2026-06-16T11:33:26.125Z,welcome-to-docker,2026/06/16 11:33:26 [notice] 33#33: exit
+2026-06-16T11:33:26.125Z,welcome-to-docker,2026/06/16 11:33:26 [notice] 61#61: gracefully shutting down
+2026-06-16T11:33:26.125Z,welcome-to-docker,2026/06/16 11:33:26 [notice] 30#30: exit
+2026-06-16T11:33:26.125Z,welcome-to-docker,2026/06/16 11:33:26 [notice] 50#50: exit
+2026-06-16T11:33:26.126Z,welcome-to-docker,2026/06/16 11:33:26 [notice] 48#48: exit
+2026-06-16T11:33:26.126Z,welcome-to-docker,2026/06/16 11:33:26 [notice] 57#57: exiting
+2026-06-16T11:33:26.129Z,welcome-to-docker,2026/06/16 11:33:26 [notice] 59#59: exiting
+2026-06-16T11:33:26.129Z,welcome-to-docker,2026/06/16 11:33:26 [notice] 44#44: exit
+2026-06-16T11:33:26.130Z,welcome-to-docker,2026/06/16 11:33:26 [notice] 40#40: exit
+2026-06-16T11:33:26.131Z,welcome-to-docker,2026/06/16 11:33:26 [notice] 36#36: exit
+2026-06-16T11:33:26.131Z,welcome-to-docker,2026/06/16 11:33:26 [notice] 52#52: exit
+2026-06-16T11:33:26.131Z,welcome-to-docker,2026/06/16 11:33:26 [notice] 31#31: exit
+2026-06-16T11:33:26.131Z,welcome-to-docker,2026/06/16 11:33:26 [notice] 58#58: exiting
+2026-06-16T11:33:26.131Z,welcome-to-docker,2026/06/16 11:33:26 [notice] 54#54: exit
+2026-06-16T11:33:26.131Z,welcome-to-docker,2026/06/16 11:33:26 [notice] 61#61: exiting
+2026-06-16T11:33:26.131Z,welcome-to-docker,2026/06/16 11:33:26 [notice] 34#34: exit
+2026-06-16T11:33:26.131Z,welcome-to-docker,2026/06/16 11:33:26 [notice] 37#37: exit
+2026-06-16T11:33:26.131Z,welcome-to-docker,2026/06/16 11:33:26 [notice] 45#45: exit
+2026-06-16T11:33:26.131Z,welcome-to-docker,2026/06/16 11:33:26 [notice] 32#32: exit
+2026-06-16T11:33:26.132Z,welcome-to-docker,2026/06/16 11:33:26 [notice] 39#39: exit
+2026-06-16T11:33:26.132Z,welcome-to-docker,2026/06/16 11:33:26 [notice] 42#42: exit
+2026-06-16T11:33:26.133Z,welcome-to-docker,2026/06/16 11:33:26 [notice] 38#38: exit
+2026-06-16T11:33:26.134Z,welcome-to-docker,2026/06/16 11:33:26 [notice] 55#55: exit
+2026-06-16T11:33:26.134Z,welcome-to-docker,2026/06/16 11:33:26 [notice] 47#47: exit
+2026-06-16T11:33:26.134Z,welcome-to-docker,2026/06/16 11:33:26 [notice] 41#41: exit
+2026-06-16T11:33:26.134Z,welcome-to-docker,2026/06/16 11:33:26 [notice] 43#43: exit
+2026-06-16T11:33:26.134Z,welcome-to-docker,2026/06/16 11:33:26 [notice] 53#53: exit
+2026-06-16T11:33:26.134Z,welcome-to-docker,2026/06/16 11:33:26 [notice] 49#49: exit
+2026-06-16T11:33:26.134Z,welcome-to-docker,2026/06/16 11:33:26 [notice] 46#46: exit
+2026-06-16T11:33:26.134Z,welcome-to-docker,2026/06/16 11:33:26 [notice] 57#57: exit
+2026-06-16T11:33:26.134Z,welcome-to-docker,2026/06/16 11:33:26 [notice] 35#35: exit
+2026-06-16T11:33:26.134Z,welcome-to-docker,2026/06/16 11:33:26 [notice] 56#56: exit
+2026-06-16T11:33:26.134Z,welcome-to-docker,2026/06/16 11:33:26 [notice] 59#59: exit
+2026-06-16T11:33:26.134Z,welcome-to-docker,2026/06/16 11:33:26 [notice] 61#61: exit
+2026-06-16T11:33:26.135Z,welcome-to-docker,2026/06/16 11:33:26 [notice] 60#60: exiting
+2026-06-16T11:33:26.135Z,welcome-to-docker,2026/06/16 11:33:26 [notice] 58#58: exit
+2026-06-16T11:33:26.137Z,welcome-to-docker,2026/06/16 11:33:26 [notice] 60#60: exit
+2026-06-16T11:33:26.283Z,welcome-to-docker,2026/06/16 11:33:26 [notice] 1#1: signal 17 (SIGCHLD) received from 32
+2026-06-16T11:33:26.284Z,welcome-to-docker,2026/06/16 11:33:26 [notice] 1#1: worker process 32 exited with code 0
+2026-06-16T11:33:26.285Z,welcome-to-docker,2026/06/16 11:33:26 [notice] 1#1: signal 29 (SIGIO) received
+2026-06-16T11:33:26.301Z,welcome-to-docker,2026/06/16 11:33:26 [notice] 1#1: signal 17 (SIGCHLD) received from 39
+2026-06-16T11:33:26.301Z,welcome-to-docker,2026/06/16 11:33:26 [notice] 1#1: worker process 39 exited with code 0
+2026-06-16T11:33:26.303Z,welcome-to-docker,2026/06/16 11:33:26 [notice] 1#1: signal 29 (SIGIO) received
+2026-06-16T11:33:26.320Z,welcome-to-docker,2026/06/16 11:33:26 [notice] 1#1: signal 17 (SIGCHLD) received from 49
+2026-06-16T11:33:26.320Z,welcome-to-docker,2026/06/16 11:33:26 [notice] 1#1: worker process 49 exited with code 0
+2026-06-16T11:33:26.320Z,welcome-to-docker,2026/06/16 11:33:26 [notice] 1#1: worker process 37 exited with code 0
+2026-06-16T11:33:26.320Z,welcome-to-docker,2026/06/16 11:33:26 [notice] 1#1: worker process 52 exited with code 0
+2026-06-16T11:33:26.322Z,welcome-to-docker,2026/06/16 11:33:26 [notice] 1#1: signal 29 (SIGIO) received
+2026-06-16T11:33:26.323Z,welcome-to-docker,2026/06/16 11:33:26 [notice] 1#1: signal 17 (SIGCHLD) received from 52
+2026-06-16T11:33:26.323Z,welcome-to-docker,2026/06/16 11:33:26 [notice] 1#1: worker process 33 exited with code 0
+2026-06-16T11:33:26.323Z,welcome-to-docker,2026/06/16 11:33:26 [notice] 1#1: worker process 34 exited with code 0
+2026-06-16T11:33:26.323Z,welcome-to-docker,2026/06/16 11:33:26 [notice] 1#1: worker process 35 exited with code 0
+2026-06-16T11:33:26.323Z,welcome-to-docker,2026/06/16 11:33:26 [notice] 1#1: worker process 36 exited with code 0
+2026-06-16T11:33:26.323Z,welcome-to-docker,2026/06/16 11:33:26 [notice] 1#1: worker process 38 exited with code 0
+2026-06-16T11:33:26.323Z,welcome-to-docker,2026/06/16 11:33:26 [notice] 1#1: worker process 40 exited with code 0
+2026-06-16T11:33:26.323Z,welcome-to-docker,2026/06/16 11:33:26 [notice] 1#1: worker process 41 exited with code 0
+2026-06-16T11:33:26.323Z,welcome-to-docker,2026/06/16 11:33:26 [notice] 1#1: worker process 42 exited with code 0
+2026-06-16T11:33:26.323Z,welcome-to-docker,2026/06/16 11:33:26 [notice] 1#1: worker process 43 exited with code 0
+2026-06-16T11:33:26.323Z,welcome-to-docker,2026/06/16 11:33:26 [notice] 1#1: worker process 44 exited with code 0
+2026-06-16T11:33:26.323Z,welcome-to-docker,2026/06/16 11:33:26 [notice] 1#1: worker process 45 exited with code 0
+2026-06-16T11:33:26.323Z,welcome-to-docker,2026/06/16 11:33:26 [notice] 1#1: worker process 47 exited with code 0
+2026-06-16T11:33:26.323Z,welcome-to-docker,2026/06/16 11:33:26 [notice] 1#1: worker process 48 exited with code 0
+2026-06-16T11:33:26.323Z,welcome-to-docker,2026/06/16 11:33:26 [notice] 1#1: worker process 50 exited with code 0
+2026-06-16T11:33:26.323Z,welcome-to-docker,2026/06/16 11:33:26 [notice] 1#1: worker process 51 exited with code 0
+2026-06-16T11:33:26.323Z,welcome-to-docker,2026/06/16 11:33:26 [notice] 1#1: worker process 53 exited with code 0
+2026-06-16T11:33:26.324Z,welcome-to-docker,2026/06/16 11:33:26 [notice] 1#1: worker process 54 exited with code 0
+2026-06-16T11:33:26.324Z,welcome-to-docker,2026/06/16 11:33:26 [notice] 1#1: worker process 55 exited with code 0
+2026-06-16T11:33:26.324Z,welcome-to-docker,2026/06/16 11:33:26 [notice] 1#1: worker process 56 exited with code 0
+2026-06-16T11:33:26.324Z,welcome-to-docker,2026/06/16 11:33:26 [notice] 1#1: worker process 57 exited with code 0
+2026-06-16T11:33:26.324Z,welcome-to-docker,2026/06/16 11:33:26 [notice] 1#1: worker process 58 exited with code 0
+2026-06-16T11:33:26.324Z,welcome-to-docker,2026/06/16 11:33:26 [notice] 1#1: worker process 59 exited with code 0
+2026-06-16T11:33:26.324Z,welcome-to-docker,2026/06/16 11:33:26 [notice] 1#1: worker process 60 exited with code 0
+2026-06-16T11:33:26.324Z,welcome-to-docker,2026/06/16 11:33:26 [notice] 1#1: worker process 61 exited with code 0
+2026-06-16T11:33:26.325Z,welcome-to-docker,2026/06/16 11:33:26 [notice] 1#1: signal 29 (SIGIO) received
+2026-06-16T11:33:26.325Z,welcome-to-docker,2026/06/16 11:33:26 [notice] 1#1: signal 17 (SIGCHLD) received from 47
+2026-06-16T11:33:26.327Z,welcome-to-docker,2026/06/16 11:33:26 [notice] 1#1: signal 17 (SIGCHLD) received from 31
+2026-06-16T11:33:26.327Z,welcome-to-docker,2026/06/16 11:33:26 [notice] 1#1: worker process 31 exited with code 0
+2026-06-16T11:33:26.328Z,welcome-to-docker,2026/06/16 11:33:26 [notice] 1#1: worker process 46 exited with code 0
+2026-06-16T11:33:26.328Z,welcome-to-docker,2026/06/16 11:33:26 [notice] 1#1: signal 29 (SIGIO) received
+2026-06-16T11:33:26.328Z,welcome-to-docker,2026/06/16 11:33:26 [notice] 1#1: signal 17 (SIGCHLD) received from 46
+2026-06-16T11:33:26.328Z,welcome-to-docker,2026/06/16 11:33:26 [notice] 1#1: signal 17 (SIGCHLD) received from 30
+2026-06-16T11:33:26.328Z,welcome-to-docker,2026/06/16 11:33:26 [notice] 1#1: worker process 30 exited with code 0
+2026-06-16T11:33:26.330Z,welcome-to-docker,2026/06/16 11:33:26 [notice] 1#1: exit
+2026-06-16T11:47:14.033Z,welcome-to-docker,npm warn deprecated w3c-hr-time@1.0.2: Use your platform's native performance.now() and performance.timeOrigin.
+2026-06-16T11:47:16.611Z,welcome-to-docker,"npm warn deprecated stable@0.1.8: Modern JS already guarantees Array#sort() is a stable sort, so this library is deprecated. See the compatibility table on MDN: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/sort#browser_compatibility"
+2026-06-16T11:47:16.962Z,welcome-to-docker,npm warn deprecated sourcemap-codec@1.4.8: Please use @jridgewell/sourcemap-codec instead
+2026-06-16T11:47:17.208Z,welcome-to-docker,npm warn deprecated svgo@1.3.2: This SVGO version is no longer supported. Upgrade to v2.x.x.
+2026-06-16T11:47:17.295Z,welcome-to-docker,npm warn deprecated rollup-plugin-terser@7.0.2: This package has been deprecated and is no longer maintained. Please use @rollup/plugin-terser
+2026-06-16T11:47:56.769Z,welcome-to-docker,
+2026-06-16T11:47:56.769Z,welcome-to-docker,"added 1458 packages, and audited 1459 packages in 51s"
+2026-06-16T11:47:56.769Z,welcome-to-docker,
+2026-06-16T11:47:56.769Z,welcome-to-docker,237 packages are looking for funding
+2026-06-16T11:47:56.769Z,welcome-to-docker,run `npm fund` for details
+2026-06-16T11:47:56.861Z,welcome-to-docker,
+2026-06-16T11:47:56.861Z,welcome-to-docker,"66 vulnerabilities (15 low, 21 moderate, 26 high, 4 critical)"
+2026-06-16T11:47:56.861Z,welcome-to-docker,
+2026-06-16T11:47:56.861Z,welcome-to-docker,"To address issues that do not require attention, run:"
+2026-06-16T11:47:56.861Z,welcome-to-docker,npm audit fix
+2026-06-16T11:47:56.861Z,welcome-to-docker,
+2026-06-16T11:47:56.861Z,welcome-to-docker,"To address all issues (including breaking changes), run:"
+2026-06-16T11:47:56.861Z,welcome-to-docker,npm audit fix --force
+2026-06-16T11:47:56.861Z,welcome-to-docker,
+2026-06-16T11:47:56.861Z,welcome-to-docker,Run `npm audit` for details.
+2026-06-16T11:47:56.864Z,welcome-to-docker,npm notice
+2026-06-16T11:47:56.864Z,welcome-to-docker,npm notice New major version of npm available! 10.9.8 -> 11.17.0
+2026-06-16T11:47:56.864Z,welcome-to-docker,npm notice Changelog: https://github.com/npm/cli/releases/tag/v11.17.0
+2026-06-16T11:47:56.864Z,welcome-to-docker,npm notice To update run: npm install -g npm@11.17.0
+2026-06-16T11:47:56.864Z,welcome-to-docker,npm notice
+2026-06-16T11:48:05.286Z,welcome-to-docker,
+2026-06-16T11:48:05.286Z,welcome-to-docker,added 85 packages in 8s
+2026-06-16T11:48:05.287Z,welcome-to-docker,
+2026-06-16T11:48:05.287Z,welcome-to-docker,26 packages are looking for funding
+2026-06-16T11:48:05.287Z,welcome-to-docker,run `npm fund` for details
+2026-06-16T11:48:05.598Z,welcome-to-docker,
+2026-06-16T11:48:05.598Z,welcome-to-docker,> welcome-to-docker@0.1.0 build
+2026-06-16T11:48:05.598Z,welcome-to-docker,> react-scripts build
+2026-06-16T11:48:08.342Z,welcome-to-docker,Creating an optimized production build...
+2026-06-16T11:48:08.616Z,welcome-to-docker,Browserslist: caniuse-lite is outdated. Please run:
+2026-06-16T11:48:08.616Z,welcome-to-docker,npx update-browserslist-db@latest
+2026-06-16T11:48:08.616Z,welcome-to-docker,Why you should do it regularly: https://github.com/browserslist/update-db#readme
+2026-06-16T11:48:28.817Z,welcome-to-docker,Browserslist: caniuse-lite is outdated. Please run:
+2026-06-16T11:48:28.817Z,welcome-to-docker,npx update-browserslist-db@latest
+2026-06-16T11:48:28.817Z,welcome-to-docker,Why you should do it regularly: https://github.com/browserslist/update-db#readme
+2026-06-16T11:48:29.941Z,welcome-to-docker,Compiled successfully.
+2026-06-16T11:48:29.941Z,welcome-to-docker,File sizes after gzip:
+2026-06-16T11:48:29.972Z,welcome-to-docker,99.88 kB  build/static/js/main.c9e951e4.js
+2026-06-16T11:48:29.972Z,welcome-to-docker,506 B     build/static/css/main.27312bf9.css
+2026-06-16T11:48:29.972Z,welcome-to-docker,
+2026-06-16T11:48:29.973Z,welcome-to-docker,The project was built assuming it is hosted at /.
+2026-06-16T11:48:29.973Z,welcome-to-docker,You can control this with the homepage field in your package.json.
+2026-06-16T11:48:29.973Z,welcome-to-docker,
+2026-06-16T11:48:29.973Z,welcome-to-docker,The build folder is ready to be deployed.
+2026-06-16T11:48:29.973Z,welcome-to-docker,You may serve it with a static server:
+2026-06-16T11:48:29.973Z,welcome-to-docker,
+2026-06-16T11:48:29.973Z,welcome-to-docker,serve -s build
+2026-06-16T11:48:29.973Z,welcome-to-docker,
+2026-06-16T11:48:29.973Z,welcome-to-docker,Find out more about deployment here:
+2026-06-16T11:48:29.974Z,welcome-to-docker,https://cra.link/deployment
+2026-06-16T11:48:29.974Z,welcome-to-docker,
+2026-06-16T11:58:03.492Z,First-Docker-Image, INFO  Accepting connections at http://localhost:3000
+2026-06-16T11:58:28.931Z,First-Docker-Image, HTTP  6/16/2026 11:58:28 AM 172.17.0.1 GET /
+2026-06-16T11:58:28.955Z,First-Docker-Image, HTTP  6/16/2026 11:58:28 AM 172.17.0.1 Returned 200 in 82 ms
+2026-06-16T11:58:29.340Z,First-Docker-Image, HTTP  6/16/2026 11:58:29 AM 172.17.0.1 GET /static/js/main.c9e951e4.js
+2026-06-16T11:58:29.359Z,First-Docker-Image, HTTP  6/16/2026 11:58:29 AM 172.17.0.1 Returned 200 in 19 ms
+2026-06-16T11:58:29.363Z,First-Docker-Image, HTTP  6/16/2026 11:58:29 AM 172.17.0.1 GET /static/css/main.27312bf9.css
+2026-06-16T11:58:29.372Z,First-Docker-Image, HTTP  6/16/2026 11:58:29 AM 172.17.0.1 Returned 200 in 9 ms
+2026-06-16T11:58:31.469Z,First-Docker-Image, HTTP  6/16/2026 11:58:31 AM 172.17.0.1 GET /favicon.ico
+2026-06-16T11:58:31.477Z,First-Docker-Image, HTTP  6/16/2026 11:58:31 AM 172.17.0.1 Returned 200 in 8 ms
+2026-06-16T12:01:34.210Z,reverent_sanderson,PRI * HTTP/2.0
+2026-06-16T12:01:34.210Z,reverent_sanderson,
+2026-06-16T12:01:34.210Z,reverent_sanderson,SM
+2026-06-16T12:01:34.210Z,reverent_sanderson,
+2026-06-16T12:01:34.212Z,reverent_sanderson,"time=""2026-06-16T12:01:34Z"" level=error msg=""fatal error: Unavailable: connection error: desc = \""error reading server preface: EOF\""\ngithub.com/moby/buildkit/util/stack.Enable\n\t/src/util/stack/stack.go:82\ngithub.com/moby/buildkit/util/grpcerrors.FromGRPC\n\t/src/util/grpcerrors/grpcerrors.go:264\ngithub.com/moby/buildkit/util/grpcerrors.UnaryClientInterceptor\n\t/src/util/grpcerrors/intercept.go:41\ngoogle.golang.org/grpc.(*ClientConn).Invoke\n\t/src/vendor/google.golang.org/grpc/call.go:35\ngithub.com/moby/buildkit/frontend/gateway/pb.(*lLBBridgeClient).Ping\n\t/src/frontend/gateway/pb/gateway_grpc.pb.go:155\ngithub.com/moby/buildkit/frontend/gateway/grpcclient.New\n\t/src/frontend/gateway/grpcclient/client.go:52\ngithub.com/moby/buildkit/frontend/gateway/grpcclient.current\n\t/src/frontend/gateway/grpcclient/client.go:88\ngithub.com/moby/buildkit/frontend/gateway/grpcclient.RunFromEnvironment\n\t/src/frontend/gateway/grpcclient/client.go:103\nmain.main\n\t/src/frontend/dockerfile/cmd/dockerfile-frontend/main.go:30\nruntime.main\n\t/usr/local/go/src/runtime/proc.go:290\nruntime.goexit\n\t/usr/local/go/src/runtime/asm_amd64.s:1771\nfailed to initialize client from environment\ngithub.com/moby/buildkit/frontend/gateway/grpcclient.RunFromEnvironment\n\t/src/frontend/gateway/grpcclient/client.go:105\nmain.main\n\t/src/frontend/dockerfile/cmd/dockerfile-frontend/main.go:30\nruntime.main\n\t/usr/local/go/src/runtime/proc.go:290\nruntime.goexit\n\t/usr/local/go/src/runtime/asm_amd64.s:1771"""
+2026-06-16T12:01:34.214Z,reverent_sanderson,"panic: failed to initialize client from environment: Unavailable: connection error: desc = ""error reading server preface: EOF"""
+2026-06-16T12:01:34.214Z,reverent_sanderson,
+2026-06-16T12:01:34.214Z,reverent_sanderson,goroutine 1 [running]:
+2026-06-16T12:01:34.214Z,reverent_sanderson,main.main()
+2026-06-16T12:01:34.214Z,reverent_sanderson,	/src/frontend/dockerfile/cmd/dockerfile-frontend/main.go:32 +0x233
+2026-06-16T12:01:34.315Z,reverent_sanderson,        
+2026-06-16T12:07:37.007Z,app,
+2026-06-16T12:07:37.007Z,app,"added 140 packages, and audited 141 packages in 6s"
+2026-06-16T12:07:37.007Z,app,17 packages are looking for funding
+2026-06-16T12:07:37.007Z,app,run `npm fund` for details
+2026-06-16T12:07:37.051Z,app,
+2026-06-16T12:07:37.051Z,app,"16 vulnerabilities (3 low, 3 moderate, 9 high, 1 critical)"
+2026-06-16T12:07:37.051Z,app,
+2026-06-16T12:07:37.051Z,app,"To address all issues, run:"
+2026-06-16T12:07:37.051Z,app,npm audit fix
+2026-06-16T12:07:37.051Z,app,
+2026-06-16T12:07:37.051Z,app,Run `npm audit` for details.
+2026-06-16T12:07:37.052Z,app,npm notice
+2026-06-16T12:07:37.052Z,app,npm notice New major version of npm available! 9.3.1 -> 11.17.0
+2026-06-16T12:07:37.052Z,app,npm notice Changelog: <https://github.com/npm/cli/releases/tag/v11.17.0>
+2026-06-16T12:07:37.052Z,app,npm notice
+2026-06-16T12:07:37.053Z,app,Run `npm install -g npm@11.17.0` to update!
+2026-06-16T12:07:37.053Z,app,npm notice
+2026-06-16T12:07:41.095Z,app,npm WARN EBADENGINE Unsupported engine {
+2026-06-16T12:07:41.095Z,app,"npm WARN EBADENGINE   package: 'minimatch@10.2.5',"
+2026-06-16T12:07:41.095Z,app,"npm WARN EBADENGINE   required: { node: '18 || 20 || >=22' },"
+2026-06-16T12:07:41.095Z,app,npm WARN
+2026-06-16T12:07:41.095Z,app,"EBADENGINE   current: { node: 'v19.5.0', npm: '9.3.1' }"
+2026-06-16T12:07:41.095Z,app,npm WARN EBADENGINE }
+2026-06-16T12:07:41.097Z,app,npm WARN EBADENGINE Unsupported engine {
+2026-06-16T12:07:41.097Z,app,npm WARN
+2026-06-16T12:07:41.097Z,app,"EBADENGINE   package: 'brace-expansion@5.0.6',"
+2026-06-16T12:07:41.097Z,app,npm WARN
+2026-06-16T12:07:41.097Z,app,"EBADENGINE   required: { node: '18 || 20 || >=22' },"
+2026-06-16T12:07:41.097Z,app,npm WARN
+2026-06-16T12:07:41.099Z,app,"EBADENGINE   current: { node: 'v19.5.0', npm: '9.3.1' }"
+2026-06-16T12:07:41.099Z,app,npm WARN EBADENGINE }
+2026-06-16T12:07:41.100Z,app,npm WARN EBADENGINE Unsupported engine {
+2026-06-16T12:07:41.100Z,app,"npm WARN EBADENGINE   package: 'balanced-match@4.0.4',"
+2026-06-16T12:07:41.100Z,app,npm
+2026-06-16T12:07:41.100Z,app,"WARN EBADENGINE   required: { node: '18 || 20 || >=22' },"
+2026-06-16T12:07:41.100Z,app,"npm WARN EBADENGINE   current: { node: 'v19.5.0', npm: '9.3.1' }"
+2026-06-16T12:07:41.100Z,app,npm WARN
+2026-06-16T12:07:41.100Z,app,EBADENGINE }
+2026-06-16T12:07:42.027Z,app,
+2026-06-16T12:07:42.027Z,app,added 28 packages in 3s
+2026-06-16T12:07:42.027Z,app,
+2026-06-16T12:07:42.027Z,app,5 packages are looking for funding
+2026-06-16T12:07:42.027Z,app,run `npm fund` for details
+2026-06-16T12:07:42.028Z,app,npm
+2026-06-16T12:07:42.028Z,app,notice
+2026-06-16T12:07:42.028Z,app,npm notice New major version of npm available! 9.3.1 -> 11.17.0
+2026-06-16T12:07:42.028Z,app,npm notice Changelog: <https://github.com/npm/cli/releases/tag/v11.17.0>
+2026-06-16T12:07:42.028Z,app,npm notice Run `npm install -g npm@11.17.0` to update!
+2026-06-16T12:07:42.028Z,app,npm notice
+2026-06-16T13:34:24.449Z,app,[internal] load build definition from Dockerfile
+2026-06-16T13:34:24.456Z,app,[internal] load build definition from Dockerfile
+2026-06-16T13:34:24.599Z,app,transferring (1301 bytes)
+2026-06-16T13:34:24.647Z,app,resolve image config for docker-image://docker.io/docker/dockerfile:1
+2026-06-16T13:34:26.852Z,app,docker-image://docker.io/docker/dockerfile:1@sha256:87999aa3d42bdc6bea60565083ee17e86d1f3339802f543c0d03998580f9cb89
+2026-06-16T13:34:26.920Z,app,resolve docker.io/docker/dockerfile:1@sha256:87999aa3d42bdc6bea60565083ee17e86d1f3339802f543c0d03998580f9cb89
+2026-06-16T13:34:26.930Z,app,docker-image://docker.io/docker/dockerfile:1@sha256:87999aa3d42bdc6bea60565083ee17e86d1f3339802f543c0d03998580f9cb89
+2026-06-16T13:34:27.705Z,app,[internal] load metadata for docker.io/library/node:19.5.0-alpine
+2026-06-16T13:34:28.884Z,app,[internal] load .dockerignore
+2026-06-16T13:34:28.885Z,app,[internal] load .dockerignore
+2026-06-16T13:34:29.042Z,app,[stage-0 1/7] FROM docker.io/library/node:19.5.0-alpine@sha256:4619ec6c9a43ab4edfa12cf96745319c3ca43aff9dd630ab20e684dd3632318e
+2026-06-16T13:34:29.043Z,app,[internal] load build context
+2026-06-16T13:34:29.116Z,app,resolve docker.io/library/node:19.5.0-alpine@sha256:4619ec6c9a43ab4edfa12cf96745319c3ca43aff9dd630ab20e684dd3632318e
+2026-06-16T13:34:29.118Z,app,[internal] load build context
+2026-06-16T13:34:29.134Z,app,transferring (395 bytes)
+2026-06-16T13:34:29.158Z,app,[stage-0 2/7] WORKDIR /usr/src/app
+2026-06-16T13:34:29.158Z,app,"[stage-0 3/7] RUN --mount=type=bind,source=package.json,target=package.json     --mount=type=bind,source=package-lock.json,target=package-lock.json     --mount=type=cache,target=/root/.npm     npm ci --include=dev"
+2026-06-16T13:34:29.158Z,app,[stage-0 4/7] COPY .npmrc .
+2026-06-16T13:34:29.158Z,app,[stage-0 5/7] RUN npm install -g nodemon
+2026-06-16T13:34:29.158Z,app,[stage-0 6/7] COPY . .
+2026-06-16T13:34:29.158Z,app,[stage-0 7/7] RUN  chown -R node /usr/src/app
+2026-06-16T13:34:29.167Z,app,exporting to image
+2026-06-16T13:34:29.178Z,app,exporting layers
+2026-06-16T13:34:29.185Z,app,exporting manifest sha256:71e3d8b101288b47421c225ea07ff0b7d56759d1e9c797eb033ce2e2c83f2313
+2026-06-16T13:34:29.190Z,app,exporting config sha256:9fce2ad71c553be0f835706586e841de246cd0852ad8d0ce1de64f1ab6bd9474
+2026-06-16T13:34:29.294Z,app,exporting attestation manifest sha256:9b26897780fe36246b9915ca41c006d855d01a0eda8d32dc179a6fb7aea78599
+2026-06-16T13:34:29.323Z,app,exporting manifest list sha256:2ed1e733290cf450edfb1967591bf8fef260ae7051bffa3c8dcdd58298de8a56
+2026-06-16T13:34:29.343Z,app,naming to docker.io/library/multi-container-app-todo-app:latest
+2026-06-16T13:34:29.368Z,app,unpacking to docker.io/library/multi-container-app-todo-app:latest
+2026-06-16T13:50:53.123Z,First-Docker-Image,
+2026-06-16T13:50:53.143Z,First-Docker-Image, INFO  Gracefully shutting down. Please wait...
+2026-06-16T14:48:51.381Z,app,[internal] load build definition from Dockerfile
+2026-06-16T14:48:51.386Z,app,[internal] load build definition from Dockerfile
+2026-06-16T14:48:51.450Z,app,transferring (1301 bytes)
+2026-06-16T14:48:51.488Z,app,resolve image config for docker-image://docker.io/docker/dockerfile:1
+2026-06-16T14:48:53.398Z,app,docker-image://docker.io/docker/dockerfile:1@sha256:87999aa3d42bdc6bea60565083ee17e86d1f3339802f543c0d03998580f9cb89
+2026-06-16T14:48:53.477Z,app,resolve docker.io/docker/dockerfile:1@sha256:87999aa3d42bdc6bea60565083ee17e86d1f3339802f543c0d03998580f9cb89
+2026-06-16T14:48:53.484Z,app,docker-image://docker.io/docker/dockerfile:1@sha256:87999aa3d42bdc6bea60565083ee17e86d1f3339802f543c0d03998580f9cb89
+2026-06-16T14:48:54.366Z,app,[internal] load metadata for docker.io/library/node:19.5.0-alpine
+2026-06-16T14:48:55.812Z,app,[internal] load .dockerignore
+2026-06-16T14:48:55.814Z,app,[internal] load .dockerignore
+2026-06-16T14:48:55.971Z,app,[internal] load build context
+2026-06-16T14:48:55.973Z,app,[stage-0 1/7] FROM docker.io/library/node:19.5.0-alpine@sha256:4619ec6c9a43ab4edfa12cf96745319c3ca43aff9dd630ab20e684dd3632318e
+2026-06-16T14:48:56.037Z,app,resolve docker.io/library/node:19.5.0-alpine@sha256:4619ec6c9a43ab4edfa12cf96745319c3ca43aff9dd630ab20e684dd3632318e
+2026-06-16T14:48:56.039Z,app,[internal] load build context
+2026-06-16T14:48:56.063Z,app,transferring (395 bytes)
+2026-06-16T14:48:56.086Z,app,[stage-0 2/7] WORKDIR /usr/src/app
+2026-06-16T14:48:56.086Z,app,"[stage-0 3/7] RUN --mount=type=bind,source=package.json,target=package.json     --mount=type=bind,source=package-lock.json,target=package-lock.json     --mount=type=cache,target=/root/.npm     npm ci --include=dev"
+2026-06-16T14:48:56.086Z,app,[stage-0 4/7] COPY .npmrc .
+2026-06-16T14:48:56.086Z,app,[stage-0 5/7] RUN npm install -g nodemon
+2026-06-16T14:48:56.086Z,app,[stage-0 6/7] COPY . .
+2026-06-16T14:48:56.086Z,app,[stage-0 7/7] RUN  chown -R node /usr/src/app
+2026-06-16T14:48:56.096Z,app,exporting to image
+2026-06-16T14:48:56.112Z,app,exporting layers
+2026-06-16T14:48:56.122Z,app,exporting manifest sha256:71e3d8b101288b47421c225ea07ff0b7d56759d1e9c797eb033ce2e2c83f2313
+2026-06-16T14:48:56.127Z,app,exporting config sha256:9fce2ad71c553be0f835706586e841de246cd0852ad8d0ce1de64f1ab6bd9474
+2026-06-16T14:48:56.278Z,app,exporting attestation manifest sha256:554143fe2201f82a562108ea09e8b762269971fb8f853d879b733924f3a7a967
+2026-06-16T14:48:56.316Z,app,exporting manifest list sha256:0a596da2571eda9abb3683f78f4f333806c9e5413bf3fe1638a4d490113316a6
+2026-06-16T14:48:56.321Z,app,naming to docker.io/library/multi-container-app-todo-app:latest
+2026-06-16T14:48:56.349Z,app,unpacking to docker.io/library/multi-container-app-todo-app:latest
+2026-06-16T15:18:27.870Z,app,[internal] load build definition from Dockerfile
+2026-06-16T15:18:27.874Z,app,[internal] load build definition from Dockerfile
+2026-06-16T15:18:27.913Z,app,transferring (1301 bytes)
+2026-06-16T15:18:27.948Z,app,resolve image config for docker-image://docker.io/docker/dockerfile:1
+2026-06-16T15:18:30.252Z,app,docker-image://docker.io/docker/dockerfile:1@sha256:87999aa3d42bdc6bea60565083ee17e86d1f3339802f543c0d03998580f9cb89
+2026-06-16T15:18:30.314Z,app,resolve docker.io/docker/dockerfile:1@sha256:87999aa3d42bdc6bea60565083ee17e86d1f3339802f543c0d03998580f9cb89
+2026-06-16T15:18:30.321Z,app,docker-image://docker.io/docker/dockerfile:1@sha256:87999aa3d42bdc6bea60565083ee17e86d1f3339802f543c0d03998580f9cb89
+2026-06-16T15:18:30.945Z,app,[internal] load metadata for docker.io/library/node:19.5.0-alpine
+2026-06-16T15:18:32.196Z,app,[internal] load .dockerignore
+2026-06-16T15:18:32.197Z,app,[internal] load .dockerignore
+2026-06-16T15:18:32.325Z,app,[stage-0 1/7] FROM docker.io/library/node:19.5.0-alpine@sha256:4619ec6c9a43ab4edfa12cf96745319c3ca43aff9dd630ab20e684dd3632318e
+2026-06-16T15:18:32.325Z,app,[internal] load build context
+2026-06-16T15:18:32.380Z,app,resolve docker.io/library/node:19.5.0-alpine@sha256:4619ec6c9a43ab4edfa12cf96745319c3ca43aff9dd630ab20e684dd3632318e
+2026-06-16T15:18:32.381Z,app,[internal] load build context
+2026-06-16T15:18:32.407Z,app,transferring (4620 bytes)
+2026-06-16T15:18:32.432Z,app,[stage-0 2/7] WORKDIR /usr/src/app
+2026-06-16T15:18:32.432Z,app,"[stage-0 3/7] RUN --mount=type=bind,source=package.json,target=package.json     --mount=type=bind,source=package-lock.json,target=package-lock.json     --mount=type=cache,target=/root/.npm     npm ci --include=dev"
+2026-06-16T15:18:32.432Z,app,[stage-0 4/7] COPY .npmrc .
+2026-06-16T15:18:32.432Z,app,[stage-0 5/7] RUN npm install -g nodemon
+2026-06-16T15:18:32.432Z,app,[stage-0 6/7] COPY . .
+2026-06-16T15:18:32.432Z,app,[stage-0 7/7] RUN  chown -R node /usr/src/app
+2026-06-16T15:18:32.441Z,app,exporting to image
+2026-06-16T15:18:32.455Z,app,exporting layers
+2026-06-16T15:18:32.463Z,app,exporting manifest sha256:71e3d8b101288b47421c225ea07ff0b7d56759d1e9c797eb033ce2e2c83f2313
+2026-06-16T15:18:32.467Z,app,exporting config sha256:9fce2ad71c553be0f835706586e841de246cd0852ad8d0ce1de64f1ab6bd9474
+2026-06-16T15:18:32.568Z,app,exporting attestation manifest sha256:20c1d6dafff1b6d43701c56f2f1496effe599d038ad68677d7b9b1d47117c288
+2026-06-16T15:18:32.594Z,app,exporting manifest list sha256:6d2691ff32a858560f46cddada3fc53fe9e8c805ab593b584791967f9f4ee4b0
+2026-06-16T15:18:32.599Z,app,naming to docker.io/library/multi-container-app-todo-app:latest
+2026-06-16T15:18:32.624Z,app,unpacking to docker.io/library/multi-container-app-todo-app:latest
+2026-06-16T15:18:35.237Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:18:35.231+00:00""},""s"":""I"",  ""c"":""NETWORK"",  ""id"":4915701, ""ctx"":""main"",""msg"":""Initialized wire specification"",""attr"":{""spec"":{""incomingExternalClient"":{""minWireVersion"":0,""maxWireVersion"":17},""incomingInternalClient"":{""minWireVersion"":0,""maxWireVersion"":17},""outgoing"":{""minWireVersion"":6,""maxWireVersion"":17},""isInternalClient"":true}}}"
+2026-06-16T15:18:35.240Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:18:35.239+00:00""},""s"":""I"",  ""c"":""CONTROL"",  ""id"":23285,   ""ctx"":""main"",""msg"":""Automatically disabling TLS 1.0, to force-enable TLS 1.0 specify --sslDisabledProtocols 'none'""}"
+2026-06-16T15:18:35.243Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:18:35.243+00:00""},""s"":""I"",  ""c"":""NETWORK"",  ""id"":4648601, ""ctx"":""main"",""msg"":""Implicit TCP FastOpen unavailable. If TCP FastOpen is required, set tcpFastOpenServer, tcpFastOpenClient, and tcpFastOpenQueueSize.""}"
+2026-06-16T15:18:35.266Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:18:35.265+00:00""},""s"":""I"",  ""c"":""REPL"",     ""id"":5123008, ""ctx"":""main"",""msg"":""Successfully registered PrimaryOnlyService"",""attr"":{""service"":""TenantMigrationDonorService"",""namespace"":""config.tenantMigrationDonors""}}"
+2026-06-16T15:18:35.266Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:18:35.265+00:00""},""s"":""I"",  ""c"":""REPL"",     ""id"":5123008, ""ctx"":""main"",""msg"":""Successfully registered PrimaryOnlyService"",""attr"":{""service"":""TenantMigrationRecipientService"",""namespace"":""config.tenantMigrationRecipients""}}"
+2026-06-16T15:18:35.266Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:18:35.265+00:00""},""s"":""I"",  ""c"":""REPL"",     ""id"":5123008, ""ctx"":""main"",""msg"":""Successfully registered PrimaryOnlyService"",""attr"":{""service"":""ShardSplitDonorService"",""namespace"":""config.tenantSplitDonors""}}"
+2026-06-16T15:18:35.266Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:18:35.265+00:00""},""s"":""I"",  ""c"":""CONTROL"",  ""id"":5945603, ""ctx"":""main"",""msg"":""Multi threading initialized""}"
+2026-06-16T15:18:35.268Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:18:35.268+00:00""},""s"":""I"",  ""c"":""CONTROL"",  ""id"":4615611, ""ctx"":""initandlisten"",""msg"":""MongoDB starting"",""attr"":{""pid"":1,""port"":27017,""dbPath"":""/data/db"",""architecture"":""64-bit"",""host"":""1a7bd0c2163f""}}"
+2026-06-16T15:18:35.268Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:18:35.268+00:00""},""s"":""I"",  ""c"":""CONTROL"",  ""id"":23403,   ""ctx"":""initandlisten"",""msg"":""Build Info"",""attr"":{""buildInfo"":{""version"":""6.0.28"",""gitVersion"":""ef888a6df901622004aeb4b7362e007b8c4299da"",""openSSLVersion"":""OpenSSL 3.0.2 15 Mar 2022"",""modules"":[],""allocator"":""tcmalloc"",""environment"":{""distmod"":""ubuntu2204"",""distarch"":""x86_64"",""target_arch"":""x86_64""}}}}"
+2026-06-16T15:18:35.268Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:18:35.268+00:00""},""s"":""I"",  ""c"":""CONTROL"",  ""id"":51765,   ""ctx"":""initandlisten"",""msg"":""Operating System"",""attr"":{""os"":{""name"":""Ubuntu"",""version"":""22.04""}}}"
+2026-06-16T15:18:35.269Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:18:35.268+00:00""},""s"":""I"",  ""c"":""CONTROL"",  ""id"":21951,   ""ctx"":""initandlisten"",""msg"":""Options set by command line"",""attr"":{""options"":{""net"":{""bindIp"":""*""}}}}"
+2026-06-16T15:18:35.281Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:18:35.280+00:00""},""s"":""I"",  ""c"":""STORAGE"",  ""id"":22297,   ""ctx"":""initandlisten"",""msg"":""Using the XFS filesystem is strongly recommended with the WiredTiger storage engine. See http://dochub.mongodb.org/core/prodnotes-filesystem"",""tags"":[""startupWarnings""]}"
+2026-06-16T15:18:35.283Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:18:35.283+00:00""},""s"":""I"",  ""c"":""STORAGE"",  ""id"":22315,   ""ctx"":""initandlisten"",""msg"":""Opening WiredTiger"",""attr"":{""config"":""create,cache_size=3248M,session_max=33000,eviction=(threads_min=4,threads_max=4),config_base=false,statistics=(fast),log=(enabled=true,remove=true,path=journal,compressor=snappy),builtin_extension_config=(zstd=(compression_level=6)),file_manager=(close_idle_time=600,close_scan_interval=10,close_handle_minimum=2000),statistics_log=(wait=0),json_output=(error,message),verbose=[recovery_progress:1,checkpoint_progress:1,compact_progress:1,backup:0,checkpoint:0,compact:0,evict:0,history_store:0,recovery:0,rts:0,salvage:0,tiered:0,timestamp:0,transaction:0,verify:0,log:0],""}}"
+2026-06-16T15:18:35.599Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:18:35.599+00:00""},""s"":""I"",  ""c"":""WTRECOV"",  ""id"":22430,   ""ctx"":""initandlisten"",""msg"":""WiredTiger message"",""attr"":{""message"":{""ts_sec"":1781623115,""ts_usec"":599183,""thread"":""1:0x7637357f6cc0"",""session_name"":""txn-recover"",""category"":""WT_VERB_RECOVERY_PROGRESS"",""category_id"":30,""verbose_level"":""DEBUG"",""verbose_level_id"":1,""msg"":""recovery log replay has successfully finished and ran for 2 milliseconds""}}}"
+2026-06-16T15:18:35.600Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:18:35.599+00:00""},""s"":""I"",  ""c"":""WTRECOV"",  ""id"":22430,   ""ctx"":""initandlisten"",""msg"":""WiredTiger message"",""attr"":{""message"":{""ts_sec"":1781623115,""ts_usec"":599387,""thread"":""1:0x7637357f6cc0"",""session_name"":""txn-recover"",""category"":""WT_VERB_RECOVERY_PROGRESS"",""category_id"":30,""verbose_level"":""DEBUG"",""verbose_level_id"":1,""msg"":""Set global recovery timestamp: (0, 0)""}}}"
+2026-06-16T15:18:35.600Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:18:35.599+00:00""},""s"":""I"",  ""c"":""WTRECOV"",  ""id"":22430,   ""ctx"":""initandlisten"",""msg"":""WiredTiger message"",""attr"":{""message"":{""ts_sec"":1781623115,""ts_usec"":599407,""thread"":""1:0x7637357f6cc0"",""session_name"":""txn-recover"",""category"":""WT_VERB_RECOVERY_PROGRESS"",""category_id"":30,""verbose_level"":""DEBUG"",""verbose_level_id"":1,""msg"":""Set global oldest timestamp: (0, 0)""}}}"
+2026-06-16T15:18:35.600Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:18:35.599+00:00""},""s"":""I"",  ""c"":""WTRECOV"",  ""id"":22430,   ""ctx"":""initandlisten"",""msg"":""WiredTiger message"",""attr"":{""message"":{""ts_sec"":1781623115,""ts_usec"":599457,""thread"":""1:0x7637357f6cc0"",""session_name"":""txn-recover"",""category"":""WT_VERB_RECOVERY_PROGRESS"",""category_id"":30,""verbose_level"":""DEBUG"",""verbose_level_id"":1,""msg"":""recovery was completed successfully and took 2ms, including 2ms for the log replay, 0ms for the rollback to stable, and 0ms for the checkpoint.""}}}"
+2026-06-16T15:18:35.626Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:18:35.626+00:00""},""s"":""I"",  ""c"":""STORAGE"",  ""id"":4795906, ""ctx"":""initandlisten"",""msg"":""WiredTiger opened"",""attr"":{""durationMillis"":343}}"
+2026-06-16T15:18:35.627Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:18:35.626+00:00""},""s"":""I"",  ""c"":""RECOVERY"", ""id"":23987,   ""ctx"":""initandlisten"",""msg"":""WiredTiger recoveryTimestamp"",""attr"":{""recoveryTimestamp"":{""$timestamp"":{""t"":0,""i"":0}}}}"
+2026-06-16T15:18:35.678Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:18:35.678+00:00""},""s"":""W"",  ""c"":""CONTROL"",  ""id"":22120,   ""ctx"":""initandlisten"",""msg"":""Access control is not enabled for the database. Read and write access to data and configuration is unrestricted"",""tags"":[""startupWarnings""]}"
+2026-06-16T15:18:35.680Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:18:35.680+00:00""},""s"":""W"",  ""c"":""CONTROL"",  ""id"":5123300, ""ctx"":""initandlisten"",""msg"":""vm.max_map_count is too low"",""attr"":{""currentValue"":262144,""recommendedMinimum"":1677720,""maxConns"":838860},""tags"":[""startupWarnings""]}"
+2026-06-16T15:18:35.686Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:18:35.684+00:00""},""s"":""I"",  ""c"":""STORAGE"",  ""id"":20320,   ""ctx"":""initandlisten"",""msg"":""createCollection"",""attr"":{""namespace"":""admin.system.version"",""uuidDisposition"":""provided"",""uuid"":{""uuid"":{""$uuid"":""fcea0780-7bb7-4646-a7ba-b28567fd11ab""}},""options"":{""uuid"":{""$uuid"":""fcea0780-7bb7-4646-a7ba-b28567fd11ab""}}}}"
+2026-06-16T15:18:35.726Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:18:35.726+00:00""},""s"":""I"",  ""c"":""INDEX"",    ""id"":20345,   ""ctx"":""initandlisten"",""msg"":""Index build: done building"",""attr"":{""buildUUID"":null,""collectionUUID"":{""uuid"":{""$uuid"":""fcea0780-7bb7-4646-a7ba-b28567fd11ab""}},""namespace"":""admin.system.version"",""index"":""_id_"",""ident"":""index-1--4260333269004027165"",""collectionIdent"":""collection-0--4260333269004027165"",""commitTimestamp"":null}}"
+2026-06-16T15:18:35.732Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:18:35.731+00:00""},""s"":""I"",  ""c"":""REPL"",     ""id"":20459,   ""ctx"":""initandlisten"",""msg"":""Setting featureCompatibilityVersion"",""attr"":{""newVersion"":""6.0""}}"
+2026-06-16T15:18:35.734Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:18:35.733+00:00""},""s"":""I"",  ""c"":""REPL"",     ""id"":5853300, ""ctx"":""initandlisten"",""msg"":""current featureCompatibilityVersion value"",""attr"":{""featureCompatibilityVersion"":""6.0"",""context"":""setFCV""}}"
+2026-06-16T15:18:35.734Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:18:35.733+00:00""},""s"":""I"",  ""c"":""NETWORK"",  ""id"":4915702, ""ctx"":""initandlisten"",""msg"":""Updated wire specification"",""attr"":{""oldSpec"":{""incomingExternalClient"":{""minWireVersion"":0,""maxWireVersion"":17},""incomingInternalClient"":{""minWireVersion"":0,""maxWireVersion"":17},""outgoing"":{""minWireVersion"":6,""maxWireVersion"":17},""isInternalClient"":true},""newSpec"":{""incomingExternalClient"":{""minWireVersion"":0,""maxWireVersion"":17},""incomingInternalClient"":{""minWireVersion"":17,""maxWireVersion"":17},""outgoing"":{""minWireVersion"":17,""maxWireVersion"":17},""isInternalClient"":true}}}"
+2026-06-16T15:18:35.736Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:18:35.735+00:00""},""s"":""I"",  ""c"":""NETWORK"",  ""id"":4915702, ""ctx"":""initandlisten"",""msg"":""Updated wire specification"",""attr"":{""oldSpec"":{""incomingExternalClient"":{""minWireVersion"":0,""maxWireVersion"":17},""incomingInternalClient"":{""minWireVersion"":17,""maxWireVersion"":17},""outgoing"":{""minWireVersion"":17,""maxWireVersion"":17},""isInternalClient"":true},""newSpec"":{""incomingExternalClient"":{""minWireVersion"":0,""maxWireVersion"":17},""incomingInternalClient"":{""minWireVersion"":17,""maxWireVersion"":17},""outgoing"":{""minWireVersion"":17,""maxWireVersion"":17},""isInternalClient"":true}}}"
+2026-06-16T15:18:35.736Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:18:35.735+00:00""},""s"":""I"",  ""c"":""REPL"",     ""id"":5853300, ""ctx"":""initandlisten"",""msg"":""current featureCompatibilityVersion value"",""attr"":{""featureCompatibilityVersion"":""6.0"",""context"":""startup""}}"
+2026-06-16T15:18:35.737Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:18:35.737+00:00""},""s"":""I"",  ""c"":""STORAGE"",  ""id"":5071100, ""ctx"":""initandlisten"",""msg"":""Clearing temp directory""}"
+2026-06-16T15:18:35.738Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:18:35.738+00:00""},""s"":""I"",  ""c"":""CONTROL"",  ""id"":20536,   ""ctx"":""initandlisten"",""msg"":""Flow Control is enabled on this deployment""}"
+2026-06-16T15:18:35.780Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:18:35.779+00:00""},""s"":""I"",  ""c"":""FTDC"",     ""id"":20625,   ""ctx"":""initandlisten"",""msg"":""Initializing full-time diagnostic data capture"",""attr"":{""dataDirectory"":""/data/db/diagnostic.data""}}"
+2026-06-16T15:18:35.802Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:18:35.801+00:00""},""s"":""I"",  ""c"":""STORAGE"",  ""id"":20320,   ""ctx"":""initandlisten"",""msg"":""createCollection"",""attr"":{""namespace"":""local.startup_log"",""uuidDisposition"":""generated"",""uuid"":{""uuid"":{""$uuid"":""abe07e05-5536-473c-96a7-525191b8ccef""}},""options"":{""capped"":true,""size"":10485760}}}"
+2026-06-16T15:18:35.828Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:18:35.828+00:00""},""s"":""I"",  ""c"":""INDEX"",    ""id"":20345,   ""ctx"":""initandlisten"",""msg"":""Index build: done building"",""attr"":{""buildUUID"":null,""collectionUUID"":{""uuid"":{""$uuid"":""abe07e05-5536-473c-96a7-525191b8ccef""}},""namespace"":""local.startup_log"",""index"":""_id_"",""ident"":""index-3--4260333269004027165"",""collectionIdent"":""collection-2--4260333269004027165"",""commitTimestamp"":null}}"
+2026-06-16T15:18:35.828Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:18:35.828+00:00""},""s"":""I"",  ""c"":""REPL"",     ""id"":6015317, ""ctx"":""initandlisten"",""msg"":""Setting new configuration state"",""attr"":{""newState"":""ConfigReplicationDisabled"",""oldState"":""ConfigPreStart""}}"
+2026-06-16T15:18:35.830Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:18:35.830+00:00""},""s"":""I"",  ""c"":""STORAGE"",  ""id"":22262,   ""ctx"":""initandlisten"",""msg"":""Timestamp monitor starting""}"
+2026-06-16T15:18:35.842Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:18:35.842+00:00""},""s"":""I"",  ""c"":""NETWORK"",  ""id"":23015,   ""ctx"":""listener"",""msg"":""Listening on"",""attr"":{""address"":""/tmp/mongodb-27017.sock""}}"
+2026-06-16T15:18:35.842Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:18:35.842+00:00""},""s"":""I"",  ""c"":""NETWORK"",  ""id"":23015,   ""ctx"":""listener"",""msg"":""Listening on"",""attr"":{""address"":""0.0.0.0""}}"
+2026-06-16T15:18:35.842Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:18:35.842+00:00""},""s"":""I"",  ""c"":""NETWORK"",  ""id"":23016,   ""ctx"":""listener"",""msg"":""Waiting for connections"",""attr"":{""port"":27017,""ssl"":""off""}}"
+2026-06-16T15:18:35.842Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:18:35.842+00:00""},""s"":""I"",  ""c"":""CONTROL"",  ""id"":8423403, ""ctx"":""initandlisten"",""msg"":""mongod startup complete"",""attr"":{""Summary of time elapsed"":{""Startup from clean shutdown?"":true,""Statistics"":{""Transport layer setup"":""0 ms"",""Run initial syncer crash recovery"":""0 ms"",""Create storage engine lock file in the data directory"":""0 ms"",""Create storage engine lock file in the data directory"":""0 ms"",""Get metadata describing storage engine"":""0 ms"",""Get metadata describing storage engine"":""0 ms"",""Create storage engine"":""0 ms"",""Create storage engine"":""383 ms"",""Write current PID to file"":""0 ms"",""Write current PID to file"":""0 ms"",""Write a new metadata for storage engine"":""0 ms"",""Write a new metadata for storage engine"":""10 ms"",""Initialize FCV before rebuilding indexes"":""0 ms"",""Initialize FCV before rebuilding indexes"":""2 ms"",""Drop abandoned idents and get back indexes that need to be rebuilt or builds that need to be restarted"":""0 ms"",""Drop abandoned idents and get back indexes that need to be rebuilt or builds that need to be restarted"":""0 ms"",""Rebuild indexes for collections"":""0 ms"",""Rebuild indexes for collections"":""0 ms"",""Build user and roles graph"":""0 ms"",""Set up the background thread pool responsible for waiting for opTimes to be majority committed"":""0 ms"",""Start up the replication coordinator"":""0 ms"",""Start transport layer"":""1 ms"",""_initAndListen total elapsed time"":""574 ms""}}}}"
+2026-06-16T15:18:35.848Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:18:35.847+00:00""},""s"":""I"",  ""c"":""CONTROL"",  ""id"":20712,   ""ctx"":""LogicalSessionCacheReap"",""msg"":""Sessions collection is not set up; waiting until next sessions reap interval"",""attr"":{""error"":""NamespaceNotFound: config.system.sessions does not exist""}}"
+2026-06-16T15:18:35.854Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:18:35.853+00:00""},""s"":""I"",  ""c"":""STORAGE"",  ""id"":20320,   ""ctx"":""LogicalSessionCacheRefresh"",""msg"":""createCollection"",""attr"":{""namespace"":""config.system.sessions"",""uuidDisposition"":""generated"",""uuid"":{""uuid"":{""$uuid"":""139603f9-a7b2-4407-b44b-99776d978900""}},""options"":{}}}"
+2026-06-16T15:18:35.900Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:18:35.900+00:00""},""s"":""I"",  ""c"":""INDEX"",    ""id"":20345,   ""ctx"":""LogicalSessionCacheRefresh"",""msg"":""Index build: done building"",""attr"":{""buildUUID"":null,""collectionUUID"":{""uuid"":{""$uuid"":""139603f9-a7b2-4407-b44b-99776d978900""}},""namespace"":""config.system.sessions"",""index"":""_id_"",""ident"":""index-5--4260333269004027165"",""collectionIdent"":""collection-4--4260333269004027165"",""commitTimestamp"":null}}"
+2026-06-16T15:18:35.900Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:18:35.900+00:00""},""s"":""I"",  ""c"":""INDEX"",    ""id"":20345,   ""ctx"":""LogicalSessionCacheRefresh"",""msg"":""Index build: done building"",""attr"":{""buildUUID"":null,""collectionUUID"":{""uuid"":{""$uuid"":""139603f9-a7b2-4407-b44b-99776d978900""}},""namespace"":""config.system.sessions"",""index"":""lsidTTLIndex"",""ident"":""index-6--4260333269004027165"",""collectionIdent"":""collection-4--4260333269004027165"",""commitTimestamp"":null}}"
+2026-06-16T15:18:37.386Z,multi-container-app/todo-app,
+2026-06-16T15:18:37.387Z,multi-container-app/todo-app,> multi-container-apps@1.0.0 dev
+2026-06-16T15:18:37.387Z,multi-container-app/todo-app,"> nodemon -e js,ejs server.js"
+2026-06-16T15:18:37.387Z,multi-container-app/todo-app,
+2026-06-16T15:18:38.010Z,multi-container-app/todo-app,[33m[nodemon] 3.0.1[39m
+2026-06-16T15:18:38.010Z,multi-container-app/todo-app,"[33m[nodemon] to restart at any time, enter `rs`[39m"
+2026-06-16T15:18:38.011Z,multi-container-app/todo-app,[33m[nodemon] watching path(s): *.*[39m
+2026-06-16T15:18:38.011Z,multi-container-app/todo-app,"[33m[nodemon] watching extensions: js,ejs[39m"
+2026-06-16T15:18:38.013Z,multi-container-app/todo-app,[32m[nodemon] starting `node server.js`[39m
+2026-06-16T15:18:39.742Z,multi-container-app/todo-app,Server listening on port 3000
+2026-06-16T15:18:39.748Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:18:39.747+00:00""},""s"":""I"",  ""c"":""NETWORK"",  ""id"":22943,   ""ctx"":""listener"",""msg"":""Connection accepted"",""attr"":{""remote"":""172.18.0.3:60448"",""uuid"":""d98798ab-6616-4014-8015-a98de0d10bd1"",""connectionId"":1,""connectionCount"":1}}"
+2026-06-16T15:18:39.755Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:18:39.754+00:00""},""s"":""I"",  ""c"":""NETWORK"",  ""id"":51800,   ""ctx"":""conn1"",""msg"":""client metadata"",""attr"":{""remote"":""172.18.0.3:60448"",""client"":""conn1"",""negotiatedCompressors"":[],""doc"":{""driver"":{""name"":""nodejs|Mongoose"",""version"":""5.9.0|7.6.4""},""platform"":""Node.js v19.5.0, LE"",""os"":{""name"":""linux"",""architecture"":""x64"",""version"":""6.18.33.1-microsoft-standard-WSL2"",""type"":""Linux""}}}}"
+2026-06-16T15:18:39.769Z,multi-container-app/todo-app,Mongodb Connected
+2026-06-16T15:18:39.776Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:18:39.775+00:00""},""s"":""I"",  ""c"":""NETWORK"",  ""id"":22943,   ""ctx"":""listener"",""msg"":""Connection accepted"",""attr"":{""remote"":""172.18.0.3:60454"",""uuid"":""98ebae68-d7ba-4300-a76e-8384680dd18a"",""connectionId"":2,""connectionCount"":2}}"
+2026-06-16T15:18:39.777Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:18:39.777+00:00""},""s"":""I"",  ""c"":""NETWORK"",  ""id"":51800,   ""ctx"":""conn2"",""msg"":""client metadata"",""attr"":{""remote"":""172.18.0.3:60454"",""client"":""conn2"",""negotiatedCompressors"":[],""doc"":{""driver"":{""name"":""nodejs|Mongoose"",""version"":""5.9.0|7.6.4""},""platform"":""Node.js v19.5.0, LE"",""os"":{""name"":""linux"",""architecture"":""x64"",""version"":""6.18.33.1-microsoft-standard-WSL2"",""type"":""Linux""}}}}"
+2026-06-16T15:18:39.783Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:18:39.783+00:00""},""s"":""I"",  ""c"":""STORAGE"",  ""id"":20320,   ""ctx"":""conn2"",""msg"":""createCollection"",""attr"":{""namespace"":""todoapp.todos"",""uuidDisposition"":""generated"",""uuid"":{""uuid"":{""$uuid"":""7fb5c85f-79a2-4168-b09f-8b23261823d5""}},""options"":{}}}"
+2026-06-16T15:18:39.809Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:18:39.808+00:00""},""s"":""I"",  ""c"":""INDEX"",    ""id"":20345,   ""ctx"":""conn2"",""msg"":""Index build: done building"",""attr"":{""buildUUID"":null,""collectionUUID"":{""uuid"":{""$uuid"":""7fb5c85f-79a2-4168-b09f-8b23261823d5""}},""namespace"":""todoapp.todos"",""index"":""_id_"",""ident"":""index-8--4260333269004027165"",""collectionIdent"":""collection-7--4260333269004027165"",""commitTimestamp"":null}}"
+2026-06-16T15:18:45.606Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:18:45.606+00:00""},""s"":""I"",  ""c"":""-"",        ""id"":20883,   ""ctx"":""conn1"",""msg"":""Interrupted operation as its client disconnected"",""attr"":{""opId"":69}}"
+2026-06-16T15:18:45.607Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:18:45.607+00:00""},""s"":""I"",  ""c"":""NETWORK"",  ""id"":22944,   ""ctx"":""conn2"",""msg"":""Connection ended"",""attr"":{""remote"":""172.18.0.3:60454"",""uuid"":""98ebae68-d7ba-4300-a76e-8384680dd18a"",""connectionId"":2,""connectionCount"":1}}"
+2026-06-16T15:18:45.608Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:18:45.607+00:00""},""s"":""I"",  ""c"":""NETWORK"",  ""id"":22944,   ""ctx"":""conn1"",""msg"":""Connection ended"",""attr"":{""remote"":""172.18.0.3:60448"",""uuid"":""d98798ab-6616-4014-8015-a98de0d10bd1"",""connectionId"":1,""connectionCount"":0}}"
+2026-06-16T15:18:45.640Z,multi-container-app/todo-app,npm notice 
+2026-06-16T15:18:45.640Z,multi-container-app/todo-app,npm notice New major version of npm available! 9.3.1 -> 11.17.0
+2026-06-16T15:18:45.641Z,multi-container-app/todo-app,npm notice Changelog: <https://github.com/npm/cli/releases/tag/v11.17.0>
+2026-06-16T15:18:45.641Z,multi-container-app/todo-app,npm notice Run `npm install -g npm@11.17.0` to update!
+2026-06-16T15:18:45.642Z,multi-container-app/todo-app,npm notice 
+2026-06-16T15:18:46.288Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:18:46.287+00:00""},""s"":""I"",  ""c"":""CONTROL"",  ""id"":23377,   ""ctx"":""SignalHandler"",""msg"":""Received signal"",""attr"":{""signal"":15,""error"":""Terminated""}}"
+2026-06-16T15:18:46.288Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:18:46.288+00:00""},""s"":""I"",  ""c"":""CONTROL"",  ""id"":23378,   ""ctx"":""SignalHandler"",""msg"":""Signal was sent by kill(2)"",""attr"":{""pid"":0,""uid"":0}}"
+2026-06-16T15:18:46.288Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:18:46.288+00:00""},""s"":""I"",  ""c"":""CONTROL"",  ""id"":23381,   ""ctx"":""SignalHandler"",""msg"":""will terminate after current cmd ends""}"
+2026-06-16T15:18:46.288Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:18:46.288+00:00""},""s"":""I"",  ""c"":""REPL"",     ""id"":4784900, ""ctx"":""SignalHandler"",""msg"":""Stepping down the ReplicationCoordinator for shutdown"",""attr"":{""waitTimeMillis"":15000}}"
+2026-06-16T15:18:46.289Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:18:46.288+00:00""},""s"":""I"",  ""c"":""REPL"",     ""id"":4794602, ""ctx"":""SignalHandler"",""msg"":""Attempting to enter quiesce mode""}"
+2026-06-16T15:18:46.289Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:18:46.288+00:00""},""s"":""I"",  ""c"":""-"",        ""id"":6371601, ""ctx"":""SignalHandler"",""msg"":""Shutting down the FLE Crud thread pool""}"
+2026-06-16T15:18:46.289Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:18:46.289+00:00""},""s"":""I"",  ""c"":""COMMAND"",  ""id"":4784901, ""ctx"":""SignalHandler"",""msg"":""Shutting down the MirrorMaestro""}"
+2026-06-16T15:18:46.289Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:18:46.289+00:00""},""s"":""I"",  ""c"":""SHARDING"", ""id"":4784902, ""ctx"":""SignalHandler"",""msg"":""Shutting down the WaitForMajorityService""}"
+2026-06-16T15:18:46.291Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:18:46.290+00:00""},""s"":""I"",  ""c"":""CONTROL"",  ""id"":4784903, ""ctx"":""SignalHandler"",""msg"":""Shutting down the LogicalSessionCache""}"
+2026-06-16T15:18:46.292Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:18:46.292+00:00""},""s"":""I"",  ""c"":""NETWORK"",  ""id"":20562,   ""ctx"":""SignalHandler"",""msg"":""Shutdown: going to close listening sockets""}"
+2026-06-16T15:18:46.292Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:18:46.292+00:00""},""s"":""I"",  ""c"":""NETWORK"",  ""id"":23017,   ""ctx"":""listener"",""msg"":""removing socket file"",""attr"":{""path"":""/tmp/mongodb-27017.sock""}}"
+2026-06-16T15:18:46.293Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:18:46.293+00:00""},""s"":""I"",  ""c"":""NETWORK"",  ""id"":4784905, ""ctx"":""SignalHandler"",""msg"":""Shutting down the global connection pool""}"
+2026-06-16T15:18:46.293Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:18:46.293+00:00""},""s"":""I"",  ""c"":""CONTROL"",  ""id"":4784906, ""ctx"":""SignalHandler"",""msg"":""Shutting down the FlowControlTicketholder""}"
+2026-06-16T15:18:46.293Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:18:46.293+00:00""},""s"":""I"",  ""c"":""-"",        ""id"":20520,   ""ctx"":""SignalHandler"",""msg"":""Stopping further Flow Control ticket acquisitions.""}"
+2026-06-16T15:18:46.294Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:18:46.293+00:00""},""s"":""I"",  ""c"":""CONTROL"",  ""id"":4784908, ""ctx"":""SignalHandler"",""msg"":""Shutting down the PeriodicThreadToAbortExpiredTransactions""}"
+2026-06-16T15:18:46.294Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:18:46.294+00:00""},""s"":""I"",  ""c"":""REPL"",     ""id"":4784909, ""ctx"":""SignalHandler"",""msg"":""Shutting down the ReplicationCoordinator""}"
+2026-06-16T15:18:46.294Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:18:46.294+00:00""},""s"":""I"",  ""c"":""SHARDING"", ""id"":4784910, ""ctx"":""SignalHandler"",""msg"":""Shutting down the ShardingInitializationMongoD""}"
+2026-06-16T15:18:46.294Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:18:46.294+00:00""},""s"":""I"",  ""c"":""REPL"",     ""id"":4784911, ""ctx"":""SignalHandler"",""msg"":""Enqueuing the ReplicationStateTransitionLock for shutdown""}"
+2026-06-16T15:18:46.294Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:18:46.294+00:00""},""s"":""I"",  ""c"":""-"",        ""id"":4784912, ""ctx"":""SignalHandler"",""msg"":""Killing all operations for shutdown""}"
+2026-06-16T15:18:46.295Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:18:46.294+00:00""},""s"":""I"",  ""c"":""-"",        ""id"":4695300, ""ctx"":""SignalHandler"",""msg"":""Interrupted all currently running operations"",""attr"":{""opsKilled"":3}}"
+2026-06-16T15:18:46.295Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:18:46.294+00:00""},""s"":""I"",  ""c"":""TENANT_M"", ""id"":5093807, ""ctx"":""SignalHandler"",""msg"":""Shutting down all TenantMigrationAccessBlockers on global shutdown""}"
+2026-06-16T15:18:46.295Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:18:46.294+00:00""},""s"":""I"",  ""c"":""COMMAND"",  ""id"":4784913, ""ctx"":""SignalHandler"",""msg"":""Shutting down all open transactions""}"
+2026-06-16T15:18:46.295Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:18:46.294+00:00""},""s"":""I"",  ""c"":""REPL"",     ""id"":4784914, ""ctx"":""SignalHandler"",""msg"":""Acquiring the ReplicationStateTransitionLock for shutdown""}"
+2026-06-16T15:18:46.295Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:18:46.294+00:00""},""s"":""I"",  ""c"":""INDEX"",    ""id"":4784915, ""ctx"":""SignalHandler"",""msg"":""Shutting down the IndexBuildsCoordinator""}"
+2026-06-16T15:18:46.295Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:18:46.295+00:00""},""s"":""I"",  ""c"":""NETWORK"",  ""id"":4784918, ""ctx"":""SignalHandler"",""msg"":""Shutting down the ReplicaSetMonitor""}"
+2026-06-16T15:18:46.295Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:18:46.295+00:00""},""s"":""I"",  ""c"":""SHARDING"", ""id"":4784921, ""ctx"":""SignalHandler"",""msg"":""Shutting down the MigrationUtilExecutor""}"
+2026-06-16T15:18:46.296Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:18:46.296+00:00""},""s"":""I"",  ""c"":""ASIO"",     ""id"":22582,   ""ctx"":""MigrationUtil-TaskExecutor"",""msg"":""Killing all outstanding egress activity.""}"
+2026-06-16T15:18:46.296Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:18:46.296+00:00""},""s"":""I"",  ""c"":""COMMAND"",  ""id"":4784923, ""ctx"":""SignalHandler"",""msg"":""Shutting down the ServiceEntryPoint""}"
+2026-06-16T15:18:46.296Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:18:46.296+00:00""},""s"":""I"",  ""c"":""CONTROL"",  ""id"":4784927, ""ctx"":""SignalHandler"",""msg"":""Shutting down the HealthLog""}"
+2026-06-16T15:18:46.296Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:18:46.296+00:00""},""s"":""I"",  ""c"":""CONTROL"",  ""id"":4784928, ""ctx"":""SignalHandler"",""msg"":""Shutting down the TTL monitor""}"
+2026-06-16T15:18:46.296Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:18:46.296+00:00""},""s"":""I"",  ""c"":""INDEX"",    ""id"":3684100, ""ctx"":""SignalHandler"",""msg"":""Shutting down TTL collection monitor thread""}"
+2026-06-16T15:18:46.297Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:18:46.296+00:00""},""s"":""I"",  ""c"":""INDEX"",    ""id"":3684101, ""ctx"":""SignalHandler"",""msg"":""Finished shutting down TTL collection monitor thread""}"
+2026-06-16T15:18:46.297Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:18:46.296+00:00""},""s"":""I"",  ""c"":""CONTROL"",  ""id"":6278511, ""ctx"":""SignalHandler"",""msg"":""Shutting down the Change Stream Expired Pre-images Remover""}"
+2026-06-16T15:18:46.297Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:18:46.296+00:00""},""s"":""I"",  ""c"":""CONTROL"",  ""id"":4784929, ""ctx"":""SignalHandler"",""msg"":""Acquiring the global lock for shutdown""}"
+2026-06-16T15:18:46.297Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:18:46.296+00:00""},""s"":""I"",  ""c"":""CONTROL"",  ""id"":4784930, ""ctx"":""SignalHandler"",""msg"":""Shutting down the storage engine""}"
+2026-06-16T15:18:46.297Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:18:46.297+00:00""},""s"":""I"",  ""c"":""STORAGE"",  ""id"":22320,   ""ctx"":""SignalHandler"",""msg"":""Shutting down journal flusher thread""}"
+2026-06-16T15:18:46.297Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:18:46.297+00:00""},""s"":""I"",  ""c"":""STORAGE"",  ""id"":22321,   ""ctx"":""SignalHandler"",""msg"":""Finished shutting down journal flusher thread""}"
+2026-06-16T15:18:46.297Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:18:46.297+00:00""},""s"":""I"",  ""c"":""STORAGE"",  ""id"":22322,   ""ctx"":""SignalHandler"",""msg"":""Shutting down checkpoint thread""}"
+2026-06-16T15:18:46.298Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:18:46.297+00:00""},""s"":""I"",  ""c"":""STORAGE"",  ""id"":22323,   ""ctx"":""SignalHandler"",""msg"":""Finished shutting down checkpoint thread""}"
+2026-06-16T15:18:46.298Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:18:46.297+00:00""},""s"":""I"",  ""c"":""STORAGE"",  ""id"":22261,   ""ctx"":""SignalHandler"",""msg"":""Timestamp monitor shutting down""}"
+2026-06-16T15:18:46.298Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:18:46.298+00:00""},""s"":""I"",  ""c"":""STORAGE"",  ""id"":20282,   ""ctx"":""SignalHandler"",""msg"":""Deregistering all the collections""}"
+2026-06-16T15:18:46.298Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:18:46.298+00:00""},""s"":""I"",  ""c"":""STORAGE"",  ""id"":22317,   ""ctx"":""SignalHandler"",""msg"":""WiredTigerKVEngine shutting down""}"
+2026-06-16T15:18:46.298Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:18:46.298+00:00""},""s"":""I"",  ""c"":""STORAGE"",  ""id"":22318,   ""ctx"":""SignalHandler"",""msg"":""Shutting down session sweeper thread""}"
+2026-06-16T15:18:46.299Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:18:46.298+00:00""},""s"":""I"",  ""c"":""STORAGE"",  ""id"":22319,   ""ctx"":""SignalHandler"",""msg"":""Finished shutting down session sweeper thread""}"
+2026-06-16T15:18:46.302Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:18:46.302+00:00""},""s"":""I"",  ""c"":""STORAGE"",  ""id"":4795902, ""ctx"":""SignalHandler"",""msg"":""Closing WiredTiger"",""attr"":{""closeConfig"":""leak_memory=true,""}}"
+2026-06-16T15:18:46.307Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:18:46.306+00:00""},""s"":""I"",  ""c"":""WTCHKPT"",  ""id"":22430,   ""ctx"":""SignalHandler"",""msg"":""WiredTiger message"",""attr"":{""message"":{""ts_sec"":1781623126,""ts_usec"":306728,""thread"":""1:0x7637357f5640"",""session_name"":""close_ckpt"",""category"":""WT_VERB_CHECKPOINT_PROGRESS"",""category_id"":6,""verbose_level"":""DEBUG"",""verbose_level_id"":1,""msg"":""saving checkpoint snapshot min: 41, snapshot max: 41 snapshot count: 0, oldest timestamp: (0, 0) , meta checkpoint timestamp: (0, 0) base write gen: 1""}}}"
+2026-06-16T15:18:46.347Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:18:46.346+00:00""},""s"":""I"",  ""c"":""WTRECOV"",  ""id"":22430,   ""ctx"":""SignalHandler"",""msg"":""WiredTiger message"",""attr"":{""message"":{""ts_sec"":1781623126,""ts_usec"":346309,""thread"":""1:0x7637357f5640"",""session_name"":""WT_CONNECTION.close"",""category"":""WT_VERB_RECOVERY_PROGRESS"",""category_id"":30,""verbose_level"":""DEBUG"",""verbose_level_id"":1,""msg"":""shutdown checkpoint has successfully finished and ran for 43 milliseconds""}}}"
+2026-06-16T15:18:46.347Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:18:46.347+00:00""},""s"":""I"",  ""c"":""WTRECOV"",  ""id"":22430,   ""ctx"":""SignalHandler"",""msg"":""WiredTiger message"",""attr"":{""message"":{""ts_sec"":1781623126,""ts_usec"":347038,""thread"":""1:0x7637357f5640"",""session_name"":""WT_CONNECTION.close"",""category"":""WT_VERB_RECOVERY_PROGRESS"",""category_id"":30,""verbose_level"":""DEBUG"",""verbose_level_id"":1,""msg"":""shutdown was completed successfully and took 44ms, including 0ms for the rollback to stable, and 43ms for the checkpoint.""}}}"
+2026-06-16T15:18:46.366Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:18:46.365+00:00""},""s"":""I"",  ""c"":""STORAGE"",  ""id"":4795901, ""ctx"":""SignalHandler"",""msg"":""WiredTiger closed"",""attr"":{""durationMillis"":63}}"
+2026-06-16T15:18:46.366Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:18:46.365+00:00""},""s"":""I"",  ""c"":""STORAGE"",  ""id"":22279,   ""ctx"":""SignalHandler"",""msg"":""shutdown: removing fs lock...""}"
+2026-06-16T15:18:46.366Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:18:46.365+00:00""},""s"":""I"",  ""c"":""-"",        ""id"":4784931, ""ctx"":""SignalHandler"",""msg"":""Dropping the scope cache for shutdown""}"
+2026-06-16T15:18:46.366Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:18:46.365+00:00""},""s"":""I"",  ""c"":""FTDC"",     ""id"":20626,   ""ctx"":""SignalHandler"",""msg"":""Shutting down full-time diagnostic data capture""}"
+2026-06-16T15:18:46.370Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:18:46.370+00:00""},""s"":""I"",  ""c"":""CONTROL"",  ""id"":20565,   ""ctx"":""SignalHandler"",""msg"":""Now exiting""}"
+2026-06-16T15:18:46.371Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:18:46.371+00:00""},""s"":""I"",  ""c"":""CONTROL"",  ""id"":8423404, ""ctx"":""SignalHandler"",""msg"":""mongod shutdown complete"",""attr"":{""Summary of time elapsed"":{""Statistics"":{""Enter terminal shutdown"":""0 ms"",""Step down the replication coordinator for shutdown"":""0 ms"",""Time spent in quiesce mode"":""0 ms"",""Shut down FLE Crud subsystem"":""0 ms"",""Shut down MirrorMaestro"":""1 ms"",""Shut down WaitForMajorityService"":""0 ms"",""Shut down the logical session cache"":""1 ms"",""Shut down the transport layer"":""2 ms"",""Shut down the global connection pool"":""1 ms"",""Shut down the flow control ticket holder"":""0 ms"",""Kill all operations for shutdown"":""0 ms"",""Shut down all tenant migration access blockers on global shutdown"":""0 ms"",""Shut down all open transactions"":""0 ms"",""Acquire the RSTL for shutdown"":""0 ms"",""Shut down the IndexBuildsCoordinator and wait for index builds to finish"":""0 ms"",""Shut down the replica set monitor"":""1 ms"",""Shut down the migration util executor"":""1 ms"",""Shut down the health log"":""0 ms"",""Shut down the TTL monitor"":""0 ms"",""Shut down expired pre-images remover"":""0 ms"",""Shut down the storage engine"":""69 ms"",""Shut down full-time data capture"":""0 ms"",""shutdownTask total elapsed time"":""82 ms""}}}}"
+2026-06-16T15:18:46.371Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:18:46.371+00:00""},""s"":""I"",  ""c"":""CONTROL"",  ""id"":23138,   ""ctx"":""SignalHandler"",""msg"":""Shutting down"",""attr"":{""exitCode"":0}}"
+2026-06-16T15:18:58.671Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:18:58.670+00:00""},""s"":""I"",  ""c"":""NETWORK"",  ""id"":4915701, ""ctx"":""-"",""msg"":""Initialized wire specification"",""attr"":{""spec"":{""incomingExternalClient"":{""minWireVersion"":0,""maxWireVersion"":17},""incomingInternalClient"":{""minWireVersion"":0,""maxWireVersion"":17},""outgoing"":{""minWireVersion"":6,""maxWireVersion"":17},""isInternalClient"":true}}}"
+2026-06-16T15:18:58.672Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:18:58.672+00:00""},""s"":""I"",  ""c"":""CONTROL"",  ""id"":23285,   ""ctx"":""main"",""msg"":""Automatically disabling TLS 1.0, to force-enable TLS 1.0 specify --sslDisabledProtocols 'none'""}"
+2026-06-16T15:18:58.676Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:18:58.676+00:00""},""s"":""I"",  ""c"":""NETWORK"",  ""id"":4648601, ""ctx"":""main"",""msg"":""Implicit TCP FastOpen unavailable. If TCP FastOpen is required, set tcpFastOpenServer, tcpFastOpenClient, and tcpFastOpenQueueSize.""}"
+2026-06-16T15:18:58.680Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:18:58.680+00:00""},""s"":""I"",  ""c"":""REPL"",     ""id"":5123008, ""ctx"":""main"",""msg"":""Successfully registered PrimaryOnlyService"",""attr"":{""service"":""TenantMigrationDonorService"",""namespace"":""config.tenantMigrationDonors""}}"
+2026-06-16T15:18:58.680Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:18:58.680+00:00""},""s"":""I"",  ""c"":""REPL"",     ""id"":5123008, ""ctx"":""main"",""msg"":""Successfully registered PrimaryOnlyService"",""attr"":{""service"":""TenantMigrationRecipientService"",""namespace"":""config.tenantMigrationRecipients""}}"
+2026-06-16T15:18:58.680Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:18:58.680+00:00""},""s"":""I"",  ""c"":""REPL"",     ""id"":5123008, ""ctx"":""main"",""msg"":""Successfully registered PrimaryOnlyService"",""attr"":{""service"":""ShardSplitDonorService"",""namespace"":""config.tenantSplitDonors""}}"
+2026-06-16T15:18:58.680Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:18:58.680+00:00""},""s"":""I"",  ""c"":""CONTROL"",  ""id"":5945603, ""ctx"":""main"",""msg"":""Multi threading initialized""}"
+2026-06-16T15:18:58.682Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:18:58.682+00:00""},""s"":""I"",  ""c"":""CONTROL"",  ""id"":4615611, ""ctx"":""initandlisten"",""msg"":""MongoDB starting"",""attr"":{""pid"":1,""port"":27017,""dbPath"":""/data/db"",""architecture"":""64-bit"",""host"":""1a7bd0c2163f""}}"
+2026-06-16T15:18:58.682Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:18:58.682+00:00""},""s"":""I"",  ""c"":""CONTROL"",  ""id"":23403,   ""ctx"":""initandlisten"",""msg"":""Build Info"",""attr"":{""buildInfo"":{""version"":""6.0.28"",""gitVersion"":""ef888a6df901622004aeb4b7362e007b8c4299da"",""openSSLVersion"":""OpenSSL 3.0.2 15 Mar 2022"",""modules"":[],""allocator"":""tcmalloc"",""environment"":{""distmod"":""ubuntu2204"",""distarch"":""x86_64"",""target_arch"":""x86_64""}}}}"
+2026-06-16T15:18:58.682Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:18:58.682+00:00""},""s"":""I"",  ""c"":""CONTROL"",  ""id"":51765,   ""ctx"":""initandlisten"",""msg"":""Operating System"",""attr"":{""os"":{""name"":""Ubuntu"",""version"":""22.04""}}}"
+2026-06-16T15:18:58.682Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:18:58.682+00:00""},""s"":""I"",  ""c"":""CONTROL"",  ""id"":21951,   ""ctx"":""initandlisten"",""msg"":""Options set by command line"",""attr"":{""options"":{""net"":{""bindIp"":""*""}}}}"
+2026-06-16T15:18:58.687Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:18:58.687+00:00""},""s"":""I"",  ""c"":""STORAGE"",  ""id"":22270,   ""ctx"":""initandlisten"",""msg"":""Storage engine to use detected by data files"",""attr"":{""dbpath"":""/data/db"",""storageEngine"":""wiredTiger""}}"
+2026-06-16T15:18:58.687Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:18:58.687+00:00""},""s"":""I"",  ""c"":""STORAGE"",  ""id"":22297,   ""ctx"":""initandlisten"",""msg"":""Using the XFS filesystem is strongly recommended with the WiredTiger storage engine. See http://dochub.mongodb.org/core/prodnotes-filesystem"",""tags"":[""startupWarnings""]}"
+2026-06-16T15:18:58.687Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:18:58.687+00:00""},""s"":""I"",  ""c"":""STORAGE"",  ""id"":22315,   ""ctx"":""initandlisten"",""msg"":""Opening WiredTiger"",""attr"":{""config"":""create,cache_size=3248M,session_max=33000,eviction=(threads_min=4,threads_max=4),config_base=false,statistics=(fast),log=(enabled=true,remove=true,path=journal,compressor=snappy),builtin_extension_config=(zstd=(compression_level=6)),file_manager=(close_idle_time=600,close_scan_interval=10,close_handle_minimum=2000),statistics_log=(wait=0),json_output=(error,message),verbose=[recovery_progress:1,checkpoint_progress:1,compact_progress:1,backup:0,checkpoint:0,compact:0,evict:0,history_store:0,recovery:0,rts:0,salvage:0,tiered:0,timestamp:0,transaction:0,verify:0,log:0],""}}"
+2026-06-16T15:18:58.974Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:18:58.973+00:00""},""s"":""I"",  ""c"":""WTRECOV"",  ""id"":22430,   ""ctx"":""initandlisten"",""msg"":""WiredTiger message"",""attr"":{""message"":{""ts_sec"":1781623138,""ts_usec"":973268,""thread"":""1:0x758e1c760cc0"",""session_name"":""txn-recover"",""category"":""WT_VERB_RECOVERY_PROGRESS"",""category_id"":30,""verbose_level"":""DEBUG"",""verbose_level_id"":1,""msg"":""Recovering log 1 through 2""}}}"
+2026-06-16T15:18:59.171Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:18:59.170+00:00""},""s"":""I"",  ""c"":""WTRECOV"",  ""id"":22430,   ""ctx"":""initandlisten"",""msg"":""WiredTiger message"",""attr"":{""message"":{""ts_sec"":1781623139,""ts_usec"":170375,""thread"":""1:0x758e1c760cc0"",""session_name"":""txn-recover"",""category"":""WT_VERB_RECOVERY_PROGRESS"",""category_id"":30,""verbose_level"":""DEBUG"",""verbose_level_id"":1,""msg"":""Recovering log 2 through 2""}}}"
+2026-06-16T15:18:59.378Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:18:59.378+00:00""},""s"":""I"",  ""c"":""WTRECOV"",  ""id"":22430,   ""ctx"":""initandlisten"",""msg"":""WiredTiger message"",""attr"":{""message"":{""ts_sec"":1781623139,""ts_usec"":378120,""thread"":""1:0x758e1c760cc0"",""session_name"":""txn-recover"",""category"":""WT_VERB_RECOVERY_PROGRESS"",""category_id"":30,""verbose_level"":""DEBUG"",""verbose_level_id"":1,""msg"":""Main recovery loop: starting at 1/28672 to 2/256""}}}"
+2026-06-16T15:18:59.426Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:18:59.426+00:00""},""s"":""I"",  ""c"":""WTRECOV"",  ""id"":22430,   ""ctx"":""initandlisten"",""msg"":""WiredTiger message"",""attr"":{""message"":{""ts_sec"":1781623139,""ts_usec"":426308,""thread"":""1:0x758e1c760cc0"",""session_name"":""txn-recover"",""category"":""WT_VERB_RECOVERY_PROGRESS"",""category_id"":30,""verbose_level"":""DEBUG"",""verbose_level_id"":1,""msg"":""Recovering log 1 through 2""}}}"
+2026-06-16T15:18:59.458Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:18:59.458+00:00""},""s"":""I"",  ""c"":""WTRECOV"",  ""id"":22430,   ""ctx"":""initandlisten"",""msg"":""WiredTiger message"",""attr"":{""message"":{""ts_sec"":1781623139,""ts_usec"":458337,""thread"":""1:0x758e1c760cc0"",""session_name"":""txn-recover"",""category"":""WT_VERB_RECOVERY_PROGRESS"",""category_id"":30,""verbose_level"":""DEBUG"",""verbose_level_id"":1,""msg"":""Recovering log 2 through 2""}}}"
+2026-06-16T15:18:59.479Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:18:59.479+00:00""},""s"":""I"",  ""c"":""WTRECOV"",  ""id"":22430,   ""ctx"":""initandlisten"",""msg"":""WiredTiger message"",""attr"":{""message"":{""ts_sec"":1781623139,""ts_usec"":478977,""thread"":""1:0x758e1c760cc0"",""session_name"":""txn-recover"",""category"":""WT_VERB_RECOVERY_PROGRESS"",""category_id"":30,""verbose_level"":""DEBUG"",""verbose_level_id"":1,""msg"":""recovery log replay has successfully finished and ran for 506 milliseconds""}}}"
+2026-06-16T15:18:59.479Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:18:59.479+00:00""},""s"":""I"",  ""c"":""WTRECOV"",  ""id"":22430,   ""ctx"":""initandlisten"",""msg"":""WiredTiger message"",""attr"":{""message"":{""ts_sec"":1781623139,""ts_usec"":479172,""thread"":""1:0x758e1c760cc0"",""session_name"":""txn-recover"",""category"":""WT_VERB_RECOVERY_PROGRESS"",""category_id"":30,""verbose_level"":""DEBUG"",""verbose_level_id"":1,""msg"":""Set global recovery timestamp: (0, 0)""}}}"
+2026-06-16T15:18:59.479Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:18:59.479+00:00""},""s"":""I"",  ""c"":""WTRECOV"",  ""id"":22430,   ""ctx"":""initandlisten"",""msg"":""WiredTiger message"",""attr"":{""message"":{""ts_sec"":1781623139,""ts_usec"":479229,""thread"":""1:0x758e1c760cc0"",""session_name"":""txn-recover"",""category"":""WT_VERB_RECOVERY_PROGRESS"",""category_id"":30,""verbose_level"":""DEBUG"",""verbose_level_id"":1,""msg"":""Set global oldest timestamp: (0, 0)""}}}"
+2026-06-16T15:18:59.480Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:18:59.480+00:00""},""s"":""I"",  ""c"":""WTRECOV"",  ""id"":22430,   ""ctx"":""initandlisten"",""msg"":""WiredTiger message"",""attr"":{""message"":{""ts_sec"":1781623139,""ts_usec"":480160,""thread"":""1:0x758e1c760cc0"",""session_name"":""txn-recover"",""category"":""WT_VERB_RECOVERY_PROGRESS"",""category_id"":30,""verbose_level"":""DEBUG"",""verbose_level_id"":1,""msg"":""recovery rollback to stable has successfully finished and ran for 0 milliseconds""}}}"
+2026-06-16T15:18:59.484Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:18:59.484+00:00""},""s"":""I"",  ""c"":""WTCHKPT"",  ""id"":22430,   ""ctx"":""initandlisten"",""msg"":""WiredTiger message"",""attr"":{""message"":{""ts_sec"":1781623139,""ts_usec"":484345,""thread"":""1:0x758e1c760cc0"",""session_name"":""WT_SESSION.checkpoint"",""category"":""WT_VERB_CHECKPOINT_PROGRESS"",""category_id"":6,""verbose_level"":""DEBUG"",""verbose_level_id"":1,""msg"":""saving checkpoint snapshot min: 1, snapshot max: 1 snapshot count: 0, oldest timestamp: (0, 0) , meta checkpoint timestamp: (0, 0) base write gen: 7""}}}"
+2026-06-16T15:18:59.501Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:18:59.500+00:00""},""s"":""I"",  ""c"":""WTRECOV"",  ""id"":22430,   ""ctx"":""initandlisten"",""msg"":""WiredTiger message"",""attr"":{""message"":{""ts_sec"":1781623139,""ts_usec"":500823,""thread"":""1:0x758e1c760cc0"",""session_name"":""txn-recover"",""category"":""WT_VERB_RECOVERY_PROGRESS"",""category_id"":30,""verbose_level"":""DEBUG"",""verbose_level_id"":1,""msg"":""recovery checkpoint has successfully finished and ran for 20 milliseconds""}}}"
+2026-06-16T15:18:59.501Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:18:59.501+00:00""},""s"":""I"",  ""c"":""WTRECOV"",  ""id"":22430,   ""ctx"":""initandlisten"",""msg"":""WiredTiger message"",""attr"":{""message"":{""ts_sec"":1781623139,""ts_usec"":501019,""thread"":""1:0x758e1c760cc0"",""session_name"":""txn-recover"",""category"":""WT_VERB_RECOVERY_PROGRESS"",""category_id"":30,""verbose_level"":""DEBUG"",""verbose_level_id"":1,""msg"":""recovery was completed successfully and took 528ms, including 506ms for the log replay, 0ms for the rollback to stable, and 20ms for the checkpoint.""}}}"
+2026-06-16T15:18:59.506Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:18:59.506+00:00""},""s"":""I"",  ""c"":""STORAGE"",  ""id"":4795906, ""ctx"":""initandlisten"",""msg"":""WiredTiger opened"",""attr"":{""durationMillis"":819}}"
+2026-06-16T15:18:59.506Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:18:59.506+00:00""},""s"":""I"",  ""c"":""RECOVERY"", ""id"":23987,   ""ctx"":""initandlisten"",""msg"":""WiredTiger recoveryTimestamp"",""attr"":{""recoveryTimestamp"":{""$timestamp"":{""t"":0,""i"":0}}}}"
+2026-06-16T15:18:59.521Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:18:59.520+00:00""},""s"":""W"",  ""c"":""CONTROL"",  ""id"":22120,   ""ctx"":""initandlisten"",""msg"":""Access control is not enabled for the database. Read and write access to data and configuration is unrestricted"",""tags"":[""startupWarnings""]}"
+2026-06-16T15:18:59.523Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:18:59.523+00:00""},""s"":""W"",  ""c"":""CONTROL"",  ""id"":5123300, ""ctx"":""initandlisten"",""msg"":""vm.max_map_count is too low"",""attr"":{""currentValue"":262144,""recommendedMinimum"":1677720,""maxConns"":838860},""tags"":[""startupWarnings""]}"
+2026-06-16T15:18:59.528Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:18:59.527+00:00""},""s"":""I"",  ""c"":""NETWORK"",  ""id"":4915702, ""ctx"":""initandlisten"",""msg"":""Updated wire specification"",""attr"":{""oldSpec"":{""incomingExternalClient"":{""minWireVersion"":0,""maxWireVersion"":17},""incomingInternalClient"":{""minWireVersion"":0,""maxWireVersion"":17},""outgoing"":{""minWireVersion"":6,""maxWireVersion"":17},""isInternalClient"":true},""newSpec"":{""incomingExternalClient"":{""minWireVersion"":0,""maxWireVersion"":17},""incomingInternalClient"":{""minWireVersion"":17,""maxWireVersion"":17},""outgoing"":{""minWireVersion"":17,""maxWireVersion"":17},""isInternalClient"":true}}}"
+2026-06-16T15:18:59.528Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:18:59.527+00:00""},""s"":""I"",  ""c"":""REPL"",     ""id"":5853300, ""ctx"":""initandlisten"",""msg"":""current featureCompatibilityVersion value"",""attr"":{""featureCompatibilityVersion"":""6.0"",""context"":""startup""}}"
+2026-06-16T15:18:59.528Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:18:59.528+00:00""},""s"":""I"",  ""c"":""STORAGE"",  ""id"":5071100, ""ctx"":""initandlisten"",""msg"":""Clearing temp directory""}"
+2026-06-16T15:18:59.530Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:18:59.530+00:00""},""s"":""I"",  ""c"":""CONTROL"",  ""id"":20536,   ""ctx"":""initandlisten"",""msg"":""Flow Control is enabled on this deployment""}"
+2026-06-16T15:18:59.558Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:18:59.557+00:00""},""s"":""I"",  ""c"":""FTDC"",     ""id"":20625,   ""ctx"":""initandlisten"",""msg"":""Initializing full-time diagnostic data capture"",""attr"":{""dataDirectory"":""/data/db/diagnostic.data""}}"
+2026-06-16T15:18:59.567Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:18:59.567+00:00""},""s"":""I"",  ""c"":""REPL"",     ""id"":6015317, ""ctx"":""initandlisten"",""msg"":""Setting new configuration state"",""attr"":{""newState"":""ConfigReplicationDisabled"",""oldState"":""ConfigPreStart""}}"
+2026-06-16T15:18:59.569Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:18:59.569+00:00""},""s"":""I"",  ""c"":""STORAGE"",  ""id"":22262,   ""ctx"":""initandlisten"",""msg"":""Timestamp monitor starting""}"
+2026-06-16T15:18:59.576Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:18:59.576+00:00""},""s"":""I"",  ""c"":""NETWORK"",  ""id"":23015,   ""ctx"":""listener"",""msg"":""Listening on"",""attr"":{""address"":""/tmp/mongodb-27017.sock""}}"
+2026-06-16T15:18:59.576Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:18:59.576+00:00""},""s"":""I"",  ""c"":""NETWORK"",  ""id"":23015,   ""ctx"":""listener"",""msg"":""Listening on"",""attr"":{""address"":""0.0.0.0""}}"
+2026-06-16T15:18:59.576Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:18:59.576+00:00""},""s"":""I"",  ""c"":""NETWORK"",  ""id"":23016,   ""ctx"":""listener"",""msg"":""Waiting for connections"",""attr"":{""port"":27017,""ssl"":""off""}}"
+2026-06-16T15:18:59.576Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:18:59.576+00:00""},""s"":""I"",  ""c"":""CONTROL"",  ""id"":8423403, ""ctx"":""initandlisten"",""msg"":""mongod startup complete"",""attr"":{""Summary of time elapsed"":{""Startup from clean shutdown?"":true,""Statistics"":{""Transport layer setup"":""0 ms"",""Run initial syncer crash recovery"":""0 ms"",""Create storage engine lock file in the data directory"":""0 ms"",""Create storage engine lock file in the data directory"":""0 ms"",""Get metadata describing storage engine"":""0 ms"",""Get metadata describing storage engine"":""0 ms"",""Validate options in metadata against current startup options"":""0 ms"",""Validate options in metadata against current startup options"":""0 ms"",""Create storage engine"":""0 ms"",""Create storage engine"":""820 ms"",""Write current PID to file"":""0 ms"",""Write current PID to file"":""10 ms"",""Initialize FCV before rebuilding indexes"":""0 ms"",""Initialize FCV before rebuilding indexes"":""4 ms"",""Drop abandoned idents and get back indexes that need to be rebuilt or builds that need to be restarted"":""0 ms"",""Drop abandoned idents and get back indexes that need to be rebuilt or builds that need to be restarted"":""0 ms"",""Rebuild indexes for collections"":""0 ms"",""Rebuild indexes for collections"":""0 ms"",""Build user and roles graph"":""0 ms"",""Set up the background thread pool responsible for waiting for opTimes to be majority committed"":""0 ms"",""Start up the replication coordinator"":""2 ms"",""Start transport layer"":""1 ms"",""_initAndListen total elapsed time"":""894 ms""}}}}"
+2026-06-16T15:19:00.392Z,multi-container-app/todo-app,
+2026-06-16T15:19:00.392Z,multi-container-app/todo-app,> multi-container-apps@1.0.0 dev
+2026-06-16T15:19:00.392Z,multi-container-app/todo-app,"> nodemon -e js,ejs server.js"
+2026-06-16T15:19:00.392Z,multi-container-app/todo-app,
+2026-06-16T15:19:00.837Z,multi-container-app/todo-app,[33m[nodemon] 3.0.1[39m
+2026-06-16T15:19:00.837Z,multi-container-app/todo-app,"[33m[nodemon] to restart at any time, enter `rs`[39m"
+2026-06-16T15:19:00.839Z,multi-container-app/todo-app,[33m[nodemon] watching path(s): *.*[39m
+2026-06-16T15:19:00.839Z,multi-container-app/todo-app,"[33m[nodemon] watching extensions: js,ejs[39m"
+2026-06-16T15:19:00.840Z,multi-container-app/todo-app,[32m[nodemon] starting `node server.js`[39m
+2026-06-16T15:19:02.083Z,multi-container-app/todo-app,Server listening on port 3000
+2026-06-16T15:19:02.086Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:19:02.086+00:00""},""s"":""I"",  ""c"":""NETWORK"",  ""id"":22943,   ""ctx"":""listener"",""msg"":""Connection accepted"",""attr"":{""remote"":""172.18.0.3:53714"",""uuid"":""1a1f824f-32ff-415c-80ce-18a4b8981d2d"",""connectionId"":1,""connectionCount"":1}}"
+2026-06-16T15:19:02.097Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:19:02.096+00:00""},""s"":""I"",  ""c"":""NETWORK"",  ""id"":51800,   ""ctx"":""conn1"",""msg"":""client metadata"",""attr"":{""remote"":""172.18.0.3:53714"",""client"":""conn1"",""negotiatedCompressors"":[],""doc"":{""driver"":{""name"":""nodejs|Mongoose"",""version"":""5.9.0|7.6.4""},""platform"":""Node.js v19.5.0, LE"",""os"":{""name"":""linux"",""architecture"":""x64"",""version"":""6.18.33.1-microsoft-standard-WSL2"",""type"":""Linux""}}}}"
+2026-06-16T15:19:02.109Z,multi-container-app/todo-app,Mongodb Connected
+2026-06-16T15:19:02.113Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:19:02.113+00:00""},""s"":""I"",  ""c"":""NETWORK"",  ""id"":22943,   ""ctx"":""listener"",""msg"":""Connection accepted"",""attr"":{""remote"":""172.18.0.3:53720"",""uuid"":""4409bce2-00ee-4dd8-8a74-2e92dd5674e9"",""connectionId"":2,""connectionCount"":2}}"
+2026-06-16T15:19:02.115Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:19:02.114+00:00""},""s"":""I"",  ""c"":""NETWORK"",  ""id"":51800,   ""ctx"":""conn2"",""msg"":""client metadata"",""attr"":{""remote"":""172.18.0.3:53720"",""client"":""conn2"",""negotiatedCompressors"":[],""doc"":{""driver"":{""name"":""nodejs|Mongoose"",""version"":""5.9.0|7.6.4""},""platform"":""Node.js v19.5.0, LE"",""os"":{""name"":""linux"",""architecture"":""x64"",""version"":""6.18.33.1-microsoft-standard-WSL2"",""type"":""Linux""}}}}"
+2026-06-16T15:19:04.787Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:19:04.786+00:00""},""s"":""I"",  ""c"":""-"",        ""id"":20883,   ""ctx"":""conn1"",""msg"":""Interrupted operation as its client disconnected"",""attr"":{""opId"":50}}"
+2026-06-16T15:19:04.787Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:19:04.787+00:00""},""s"":""I"",  ""c"":""NETWORK"",  ""id"":22944,   ""ctx"":""conn2"",""msg"":""Connection ended"",""attr"":{""remote"":""172.18.0.3:53720"",""uuid"":""4409bce2-00ee-4dd8-8a74-2e92dd5674e9"",""connectionId"":2,""connectionCount"":1}}"
+2026-06-16T15:19:04.788Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:19:04.787+00:00""},""s"":""I"",  ""c"":""NETWORK"",  ""id"":22944,   ""ctx"":""conn1"",""msg"":""Connection ended"",""attr"":{""remote"":""172.18.0.3:53714"",""uuid"":""1a1f824f-32ff-415c-80ce-18a4b8981d2d"",""connectionId"":1,""connectionCount"":0}}"
+2026-06-16T15:19:05.380Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:19:05.379+00:00""},""s"":""I"",  ""c"":""CONTROL"",  ""id"":23377,   ""ctx"":""SignalHandler"",""msg"":""Received signal"",""attr"":{""signal"":15,""error"":""Terminated""}}"
+2026-06-16T15:19:05.380Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:19:05.379+00:00""},""s"":""I"",  ""c"":""CONTROL"",  ""id"":23378,   ""ctx"":""SignalHandler"",""msg"":""Signal was sent by kill(2)"",""attr"":{""pid"":0,""uid"":0}}"
+2026-06-16T15:19:05.380Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:19:05.379+00:00""},""s"":""I"",  ""c"":""CONTROL"",  ""id"":23381,   ""ctx"":""SignalHandler"",""msg"":""will terminate after current cmd ends""}"
+2026-06-16T15:19:05.380Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:19:05.380+00:00""},""s"":""I"",  ""c"":""REPL"",     ""id"":4784900, ""ctx"":""SignalHandler"",""msg"":""Stepping down the ReplicationCoordinator for shutdown"",""attr"":{""waitTimeMillis"":15000}}"
+2026-06-16T15:19:05.380Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:19:05.380+00:00""},""s"":""I"",  ""c"":""REPL"",     ""id"":4794602, ""ctx"":""SignalHandler"",""msg"":""Attempting to enter quiesce mode""}"
+2026-06-16T15:19:05.380Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:19:05.380+00:00""},""s"":""I"",  ""c"":""-"",        ""id"":6371601, ""ctx"":""SignalHandler"",""msg"":""Shutting down the FLE Crud thread pool""}"
+2026-06-16T15:19:05.380Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:19:05.380+00:00""},""s"":""I"",  ""c"":""COMMAND"",  ""id"":4784901, ""ctx"":""SignalHandler"",""msg"":""Shutting down the MirrorMaestro""}"
+2026-06-16T15:19:05.380Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:19:05.380+00:00""},""s"":""I"",  ""c"":""SHARDING"", ""id"":4784902, ""ctx"":""SignalHandler"",""msg"":""Shutting down the WaitForMajorityService""}"
+2026-06-16T15:19:05.383Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:19:05.382+00:00""},""s"":""I"",  ""c"":""CONTROL"",  ""id"":4784903, ""ctx"":""SignalHandler"",""msg"":""Shutting down the LogicalSessionCache""}"
+2026-06-16T15:19:05.384Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:19:05.383+00:00""},""s"":""I"",  ""c"":""NETWORK"",  ""id"":20562,   ""ctx"":""SignalHandler"",""msg"":""Shutdown: going to close listening sockets""}"
+2026-06-16T15:19:05.384Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:19:05.384+00:00""},""s"":""I"",  ""c"":""NETWORK"",  ""id"":23017,   ""ctx"":""listener"",""msg"":""removing socket file"",""attr"":{""path"":""/tmp/mongodb-27017.sock""}}"
+2026-06-16T15:19:05.384Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:19:05.384+00:00""},""s"":""I"",  ""c"":""NETWORK"",  ""id"":4784905, ""ctx"":""SignalHandler"",""msg"":""Shutting down the global connection pool""}"
+2026-06-16T15:19:05.385Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:19:05.384+00:00""},""s"":""I"",  ""c"":""CONTROL"",  ""id"":4784906, ""ctx"":""SignalHandler"",""msg"":""Shutting down the FlowControlTicketholder""}"
+2026-06-16T15:19:05.385Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:19:05.384+00:00""},""s"":""I"",  ""c"":""-"",        ""id"":20520,   ""ctx"":""SignalHandler"",""msg"":""Stopping further Flow Control ticket acquisitions.""}"
+2026-06-16T15:19:05.385Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:19:05.384+00:00""},""s"":""I"",  ""c"":""CONTROL"",  ""id"":4784908, ""ctx"":""SignalHandler"",""msg"":""Shutting down the PeriodicThreadToAbortExpiredTransactions""}"
+2026-06-16T15:19:05.385Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:19:05.385+00:00""},""s"":""I"",  ""c"":""REPL"",     ""id"":4784909, ""ctx"":""SignalHandler"",""msg"":""Shutting down the ReplicationCoordinator""}"
+2026-06-16T15:19:05.385Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:19:05.385+00:00""},""s"":""I"",  ""c"":""SHARDING"", ""id"":4784910, ""ctx"":""SignalHandler"",""msg"":""Shutting down the ShardingInitializationMongoD""}"
+2026-06-16T15:19:05.385Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:19:05.385+00:00""},""s"":""I"",  ""c"":""REPL"",     ""id"":4784911, ""ctx"":""SignalHandler"",""msg"":""Enqueuing the ReplicationStateTransitionLock for shutdown""}"
+2026-06-16T15:19:05.385Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:19:05.385+00:00""},""s"":""I"",  ""c"":""-"",        ""id"":4784912, ""ctx"":""SignalHandler"",""msg"":""Killing all operations for shutdown""}"
+2026-06-16T15:19:05.385Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:19:05.385+00:00""},""s"":""I"",  ""c"":""-"",        ""id"":4695300, ""ctx"":""SignalHandler"",""msg"":""Interrupted all currently running operations"",""attr"":{""opsKilled"":3}}"
+2026-06-16T15:19:05.385Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:19:05.385+00:00""},""s"":""I"",  ""c"":""TENANT_M"", ""id"":5093807, ""ctx"":""SignalHandler"",""msg"":""Shutting down all TenantMigrationAccessBlockers on global shutdown""}"
+2026-06-16T15:19:05.385Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:19:05.385+00:00""},""s"":""I"",  ""c"":""COMMAND"",  ""id"":4784913, ""ctx"":""SignalHandler"",""msg"":""Shutting down all open transactions""}"
+2026-06-16T15:19:05.385Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:19:05.385+00:00""},""s"":""I"",  ""c"":""REPL"",     ""id"":4784914, ""ctx"":""SignalHandler"",""msg"":""Acquiring the ReplicationStateTransitionLock for shutdown""}"
+2026-06-16T15:19:05.385Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:19:05.385+00:00""},""s"":""I"",  ""c"":""INDEX"",    ""id"":4784915, ""ctx"":""SignalHandler"",""msg"":""Shutting down the IndexBuildsCoordinator""}"
+2026-06-16T15:19:05.385Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:19:05.385+00:00""},""s"":""I"",  ""c"":""NETWORK"",  ""id"":4784918, ""ctx"":""SignalHandler"",""msg"":""Shutting down the ReplicaSetMonitor""}"
+2026-06-16T15:19:05.385Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:19:05.385+00:00""},""s"":""I"",  ""c"":""SHARDING"", ""id"":4784921, ""ctx"":""SignalHandler"",""msg"":""Shutting down the MigrationUtilExecutor""}"
+2026-06-16T15:19:05.386Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:19:05.386+00:00""},""s"":""I"",  ""c"":""ASIO"",     ""id"":22582,   ""ctx"":""MigrationUtil-TaskExecutor"",""msg"":""Killing all outstanding egress activity.""}"
+2026-06-16T15:19:05.386Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:19:05.386+00:00""},""s"":""I"",  ""c"":""COMMAND"",  ""id"":4784923, ""ctx"":""SignalHandler"",""msg"":""Shutting down the ServiceEntryPoint""}"
+2026-06-16T15:19:05.386Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:19:05.386+00:00""},""s"":""I"",  ""c"":""CONTROL"",  ""id"":4784927, ""ctx"":""SignalHandler"",""msg"":""Shutting down the HealthLog""}"
+2026-06-16T15:19:05.386Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:19:05.386+00:00""},""s"":""I"",  ""c"":""CONTROL"",  ""id"":4784928, ""ctx"":""SignalHandler"",""msg"":""Shutting down the TTL monitor""}"
+2026-06-16T15:19:05.386Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:19:05.386+00:00""},""s"":""I"",  ""c"":""INDEX"",    ""id"":3684100, ""ctx"":""SignalHandler"",""msg"":""Shutting down TTL collection monitor thread""}"
+2026-06-16T15:19:05.387Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:19:05.386+00:00""},""s"":""I"",  ""c"":""INDEX"",    ""id"":3684101, ""ctx"":""SignalHandler"",""msg"":""Finished shutting down TTL collection monitor thread""}"
+2026-06-16T15:19:05.387Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:19:05.386+00:00""},""s"":""I"",  ""c"":""CONTROL"",  ""id"":6278511, ""ctx"":""SignalHandler"",""msg"":""Shutting down the Change Stream Expired Pre-images Remover""}"
+2026-06-16T15:19:05.387Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:19:05.386+00:00""},""s"":""I"",  ""c"":""CONTROL"",  ""id"":4784929, ""ctx"":""SignalHandler"",""msg"":""Acquiring the global lock for shutdown""}"
+2026-06-16T15:19:05.387Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:19:05.386+00:00""},""s"":""I"",  ""c"":""CONTROL"",  ""id"":4784930, ""ctx"":""SignalHandler"",""msg"":""Shutting down the storage engine""}"
+2026-06-16T15:19:05.387Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:19:05.386+00:00""},""s"":""I"",  ""c"":""STORAGE"",  ""id"":22320,   ""ctx"":""SignalHandler"",""msg"":""Shutting down journal flusher thread""}"
+2026-06-16T15:19:05.387Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:19:05.387+00:00""},""s"":""I"",  ""c"":""STORAGE"",  ""id"":22321,   ""ctx"":""SignalHandler"",""msg"":""Finished shutting down journal flusher thread""}"
+2026-06-16T15:19:05.387Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:19:05.387+00:00""},""s"":""I"",  ""c"":""STORAGE"",  ""id"":22322,   ""ctx"":""SignalHandler"",""msg"":""Shutting down checkpoint thread""}"
+2026-06-16T15:19:05.387Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:19:05.387+00:00""},""s"":""I"",  ""c"":""STORAGE"",  ""id"":22323,   ""ctx"":""SignalHandler"",""msg"":""Finished shutting down checkpoint thread""}"
+2026-06-16T15:19:05.387Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:19:05.387+00:00""},""s"":""I"",  ""c"":""STORAGE"",  ""id"":22261,   ""ctx"":""SignalHandler"",""msg"":""Timestamp monitor shutting down""}"
+2026-06-16T15:19:05.388Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:19:05.388+00:00""},""s"":""I"",  ""c"":""STORAGE"",  ""id"":20282,   ""ctx"":""SignalHandler"",""msg"":""Deregistering all the collections""}"
+2026-06-16T15:19:05.388Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:19:05.388+00:00""},""s"":""I"",  ""c"":""STORAGE"",  ""id"":22317,   ""ctx"":""SignalHandler"",""msg"":""WiredTigerKVEngine shutting down""}"
+2026-06-16T15:19:05.388Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:19:05.388+00:00""},""s"":""I"",  ""c"":""STORAGE"",  ""id"":22318,   ""ctx"":""SignalHandler"",""msg"":""Shutting down session sweeper thread""}"
+2026-06-16T15:19:05.389Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:19:05.388+00:00""},""s"":""I"",  ""c"":""STORAGE"",  ""id"":22319,   ""ctx"":""SignalHandler"",""msg"":""Finished shutting down session sweeper thread""}"
+2026-06-16T15:19:05.391Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:19:05.391+00:00""},""s"":""I"",  ""c"":""STORAGE"",  ""id"":4795902, ""ctx"":""SignalHandler"",""msg"":""Closing WiredTiger"",""attr"":{""closeConfig"":""leak_memory=true,""}}"
+2026-06-16T15:19:05.394Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:19:05.394+00:00""},""s"":""I"",  ""c"":""WTCHKPT"",  ""id"":22430,   ""ctx"":""SignalHandler"",""msg"":""WiredTiger message"",""attr"":{""message"":{""ts_sec"":1781623145,""ts_usec"":394528,""thread"":""1:0x758e1c75f640"",""session_name"":""close_ckpt"",""category"":""WT_VERB_CHECKPOINT_PROGRESS"",""category_id"":6,""verbose_level"":""DEBUG"",""verbose_level_id"":1,""msg"":""saving checkpoint snapshot min: 4, snapshot max: 4 snapshot count: 0, oldest timestamp: (0, 0) , meta checkpoint timestamp: (0, 0) base write gen: 7""}}}"
+2026-06-16T15:19:05.421Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:19:05.421+00:00""},""s"":""I"",  ""c"":""WTRECOV"",  ""id"":22430,   ""ctx"":""SignalHandler"",""msg"":""WiredTiger message"",""attr"":{""message"":{""ts_sec"":1781623145,""ts_usec"":421287,""thread"":""1:0x758e1c75f640"",""session_name"":""WT_CONNECTION.close"",""category"":""WT_VERB_RECOVERY_PROGRESS"",""category_id"":30,""verbose_level"":""DEBUG"",""verbose_level_id"":1,""msg"":""shutdown checkpoint has successfully finished and ran for 29 milliseconds""}}}"
+2026-06-16T15:19:05.422Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:19:05.422+00:00""},""s"":""I"",  ""c"":""WTRECOV"",  ""id"":22430,   ""ctx"":""SignalHandler"",""msg"":""WiredTiger message"",""attr"":{""message"":{""ts_sec"":1781623145,""ts_usec"":422237,""thread"":""1:0x758e1c75f640"",""session_name"":""WT_CONNECTION.close"",""category"":""WT_VERB_RECOVERY_PROGRESS"",""category_id"":30,""verbose_level"":""DEBUG"",""verbose_level_id"":1,""msg"":""shutdown was completed successfully and took 30ms, including 0ms for the rollback to stable, and 29ms for the checkpoint.""}}}"
+2026-06-16T15:19:05.444Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:19:05.443+00:00""},""s"":""I"",  ""c"":""STORAGE"",  ""id"":4795901, ""ctx"":""SignalHandler"",""msg"":""WiredTiger closed"",""attr"":{""durationMillis"":52}}"
+2026-06-16T15:19:05.444Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:19:05.443+00:00""},""s"":""I"",  ""c"":""STORAGE"",  ""id"":22279,   ""ctx"":""SignalHandler"",""msg"":""shutdown: removing fs lock...""}"
+2026-06-16T15:19:05.444Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:19:05.444+00:00""},""s"":""I"",  ""c"":""-"",        ""id"":4784931, ""ctx"":""SignalHandler"",""msg"":""Dropping the scope cache for shutdown""}"
+2026-06-16T15:19:05.444Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:19:05.444+00:00""},""s"":""I"",  ""c"":""FTDC"",     ""id"":20626,   ""ctx"":""SignalHandler"",""msg"":""Shutting down full-time diagnostic data capture""}"
+2026-06-16T15:19:05.448Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:19:05.448+00:00""},""s"":""I"",  ""c"":""CONTROL"",  ""id"":20565,   ""ctx"":""SignalHandler"",""msg"":""Now exiting""}"
+2026-06-16T15:19:05.449Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:19:05.448+00:00""},""s"":""I"",  ""c"":""CONTROL"",  ""id"":8423404, ""ctx"":""SignalHandler"",""msg"":""mongod shutdown complete"",""attr"":{""Summary of time elapsed"":{""Statistics"":{""Enter terminal shutdown"":""0 ms"",""Step down the replication coordinator for shutdown"":""0 ms"",""Time spent in quiesce mode"":""0 ms"",""Shut down FLE Crud subsystem"":""0 ms"",""Shut down MirrorMaestro"":""0 ms"",""Shut down WaitForMajorityService"":""2 ms"",""Shut down the logical session cache"":""0 ms"",""Shut down the transport layer"":""2 ms"",""Shut down the global connection pool"":""0 ms"",""Shut down the flow control ticket holder"":""0 ms"",""Kill all operations for shutdown"":""0 ms"",""Shut down all tenant migration access blockers on global shutdown"":""0 ms"",""Shut down all open transactions"":""0 ms"",""Acquire the RSTL for shutdown"":""0 ms"",""Shut down the IndexBuildsCoordinator and wait for index builds to finish"":""0 ms"",""Shut down the replica set monitor"":""0 ms"",""Shut down the migration util executor"":""1 ms"",""Shut down the health log"":""0 ms"",""Shut down the TTL monitor"":""0 ms"",""Shut down expired pre-images remover"":""0 ms"",""Shut down the storage engine"":""58 ms"",""Shut down full-time data capture"":""0 ms"",""shutdownTask total elapsed time"":""68 ms""}}}}"
+2026-06-16T15:19:05.449Z,multi-container-app/todo-database,"{""t"":{""$date"":""2026-06-16T15:19:05.449+00:00""},""s"":""I"",  ""c"":""CONTROL"",  ""id"":23138,   ""ctx"":""SignalHandler"",""msg"":""Shutting down"",""attr"":{""exitCode"":0}}"
+2026-07-02T06:40:47.635Z,codelens/localstack,
+2026-07-02T06:40:47.636Z,codelens/localstack,LocalStack version: 3.0.2
+2026-07-02T06:40:47.639Z,codelens/localstack,LocalStack build date: 2023-11-29
+2026-07-02T06:40:47.639Z,codelens/localstack,LocalStack build git hash: 60518e11
+2026-07-02T06:40:47.639Z,codelens/localstack,
+2026-07-02T06:40:47.802Z,codelens/localstack,2026-07-02T06:40:47.801  WARN --- [  MainThread] localstack.deprecations    : DEFAULT_REGION is deprecated (since 0.12.7) and will be removed in upcoming releases of LocalStack! LocalStack now has full multi-region support. This option has no effect. Please remove it from your configuration.
+2026-07-02T06:40:48.798Z,codelens/localstack,2026-07-02T06:40:48.797  INFO --- [-functhread4] hypercorn.error            : Running on https://0.0.0.0:4566 (CTRL + C to quit)
+2026-07-02T06:40:48.798Z,codelens/localstack,2026-07-02T06:40:48.797  INFO --- [-functhread4] hypercorn.error            : Running on https://0.0.0.0:4566 (CTRL + C to quit)
+2026-07-02T06:40:49.026Z,codelens/localstack,"2026-07-02T06:40:49.026  INFO --- [  MainThread] localstack.utils.bootstrap : Execution of ""start_runtime_components"" took 1206.95ms"
+2026-07-02T06:40:49.031Z,codelens/localstack,Ready.
+2026-07-02T06:44:26.294Z,codelens/localstack,"2026-07-02T06:44:26.293  INFO --- [   asgi_gw_0] localstack.utils.bootstrap : Execution of ""_load_service_plugin"" took 825.71ms"
+2026-07-02T06:44:26.294Z,codelens/localstack,"2026-07-02T06:44:26.293  INFO --- [   asgi_gw_0] localstack.utils.bootstrap : Execution of ""require"" took 826.12ms"
+2026-07-02T06:44:26.505Z,codelens/localstack,2026-07-02T06:44:26.504  INFO --- [   asgi_gw_0] localstack.request.aws     : AWS s3.HeadBucket => 404 (NoSuchBucket)
+2026-07-02T06:44:26.528Z,codelens/localstack,2026-07-02T06:44:26.528  INFO --- [   asgi_gw_0] localstack.request.aws     : AWS s3.CreateBucket => 200
+2026-07-02T06:44:26.627Z,codelens/localstack,2026-07-02T06:44:26.627  INFO --- [   asgi_gw_0] localstack.request.aws     : AWS s3.PutObject => 200
+2026-07-02T06:48:56.629Z,codelens/localstack,2026-07-02T06:48:56.627  INFO --- [   asgi_gw_0] localstack.request.aws     : AWS s3.ListBuckets => 200
+2026-07-02T06:49:27.682Z,codelens/localstack,2026-07-02T06:49:27.682  INFO --- [   asgi_gw_0] localstack.request.aws     : AWS s3.ListObjectsV2 => 200
+2026-07-02T06:49:35.536Z,codelens/localstack,2026-07-02T06:49:35.536  INFO --- [   asgi_gw_0] localstack.request.aws     : AWS s3.ListObjectsV2 => 200
+2026-07-02T06:49:55.769Z,codelens/localstack,2026-07-02T06:49:55.769  INFO --- [   asgi_gw_0] localstack.request.aws     : AWS s3.ListObjectsV2 => 200
+2026-07-02T06:50:08.755Z,codelens/localstack,2026-07-02T06:50:08.754  INFO --- [   asgi_gw_0] localstack.request.aws     : AWS s3.ListObjectsV2 => 200
+2026-07-02T06:51:08.400Z,codelens/localstack,2026-07-02T06:51:08.399  INFO --- [   asgi_gw_0] localstack.request.aws     : AWS s3.ListObjectsV2 => 200
+2026-07-02T08:19:28.755Z,codelens/localstack,2026-07-02T08:19:28.742  INFO --- [   asgi_gw_0] localstack.request.aws     : AWS s3.CreateMultipartUpload => 200
+2026-07-02T08:19:30.202Z,codelens/localstack,2026-07-02T08:19:30.202  INFO --- [   asgi_gw_0] localstack.request.aws     : AWS s3.UploadPart => 200
+2026-07-02T08:19:30.213Z,codelens/localstack,2026-07-02T08:19:30.213  INFO --- [   asgi_gw_1] localstack.request.aws     : AWS s3.UploadPart => 200
+2026-07-02T08:19:30.219Z,codelens/localstack,2026-07-02T08:19:30.214  INFO --- [   asgi_gw_9] localstack.request.aws     : AWS s3.UploadPart => 200
+2026-07-02T08:19:30.224Z,codelens/localstack,2026-07-02T08:19:30.224  INFO --- [   asgi_gw_2] localstack.request.aws     : AWS s3.UploadPart => 200
+2026-07-02T08:19:30.228Z,codelens/localstack,2026-07-02T08:19:30.228  INFO --- [   asgi_gw_4] localstack.request.aws     : AWS s3.UploadPart => 200
+2026-07-02T08:19:30.230Z,codelens/localstack,2026-07-02T08:19:30.230  INFO --- [   asgi_gw_5] localstack.request.aws     : AWS s3.UploadPart => 200
+2026-07-02T08:19:30.234Z,codelens/localstack,2026-07-02T08:19:30.234  INFO --- [   asgi_gw_8] localstack.request.aws     : AWS s3.UploadPart => 200
+2026-07-02T08:19:30.239Z,codelens/localstack,2026-07-02T08:19:30.239  INFO --- [   asgi_gw_6] localstack.request.aws     : AWS s3.UploadPart => 200
+2026-07-02T08:19:30.254Z,codelens/localstack,2026-07-02T08:19:30.254  INFO --- [   asgi_gw_7] localstack.request.aws     : AWS s3.UploadPart => 200
+2026-07-02T08:19:30.258Z,codelens/localstack,2026-07-02T08:19:30.257  INFO --- [   asgi_gw_3] localstack.request.aws     : AWS s3.UploadPart => 200
+2026-07-02T08:19:31.345Z,codelens/localstack,2026-07-02T08:19:31.344  INFO --- [   asgi_gw_0] localstack.request.aws     : AWS s3.UploadPart => 200
+2026-07-02T08:19:31.370Z,codelens/localstack,2026-07-02T08:19:31.369  INFO --- [   asgi_gw_7] localstack.request.aws     : AWS s3.UploadPart => 200
+2026-07-02T08:19:31.387Z,codelens/localstack,2026-07-02T08:19:31.386  INFO --- [   asgi_gw_8] localstack.request.aws     : AWS s3.UploadPart => 200
+2026-07-02T08:19:31.389Z,codelens/localstack,2026-07-02T08:19:31.388  INFO --- [   asgi_gw_5] localstack.request.aws     : AWS s3.UploadPart => 200
+2026-07-02T08:19:31.401Z,codelens/localstack,2026-07-02T08:19:31.400  INFO --- [   asgi_gw_4] localstack.request.aws     : AWS s3.UploadPart => 200
+2026-07-02T08:19:31.403Z,codelens/localstack,2026-07-02T08:19:31.403  INFO --- [   asgi_gw_2] localstack.request.aws     : AWS s3.UploadPart => 200
+2026-07-02T08:19:31.413Z,codelens/localstack,2026-07-02T08:19:31.413  INFO --- [   asgi_gw_9] localstack.request.aws     : AWS s3.UploadPart => 200
+2026-07-02T08:19:31.414Z,codelens/localstack,2026-07-02T08:19:31.414  INFO --- [   asgi_gw_1] localstack.request.aws     : AWS s3.UploadPart => 200
+2026-07-02T08:19:31.425Z,codelens/localstack,2026-07-02T08:19:31.424  INFO --- [   asgi_gw_6] localstack.request.aws     : AWS s3.UploadPart => 200
+2026-07-02T08:19:31.439Z,codelens/localstack,2026-07-02T08:19:31.438  INFO --- [   asgi_gw_3] localstack.request.aws     : AWS s3.UploadPart => 200
+2026-07-02T08:19:31.759Z,codelens/localstack,2026-07-02T08:19:31.759  INFO --- [   asgi_gw_4] localstack.request.aws     : AWS s3.UploadPart => 200
+2026-07-02T08:19:32.217Z,codelens/localstack,2026-07-02T08:19:32.216  INFO --- [   asgi_gw_0] localstack.request.aws     : AWS s3.UploadPart => 200
+2026-07-02T08:19:32.247Z,codelens/localstack,2026-07-02T08:19:32.246  INFO --- [   asgi_gw_8] localstack.request.aws     : AWS s3.UploadPart => 200
+2026-07-02T08:19:32.310Z,codelens/localstack,2026-07-02T08:19:32.310  INFO --- [   asgi_gw_9] localstack.request.aws     : AWS s3.UploadPart => 200
+2026-07-02T08:19:32.312Z,codelens/localstack,2026-07-02T08:19:32.310  INFO --- [   asgi_gw_6] localstack.request.aws     : AWS s3.UploadPart => 200
+2026-07-02T08:19:32.317Z,codelens/localstack,2026-07-02T08:19:32.315  INFO --- [   asgi_gw_2] localstack.request.aws     : AWS s3.UploadPart => 200
+2026-07-02T08:19:32.334Z,codelens/localstack,2026-07-02T08:19:32.334  INFO --- [   asgi_gw_3] localstack.request.aws     : AWS s3.UploadPart => 200
+2026-07-02T08:19:32.336Z,codelens/localstack,2026-07-02T08:19:32.335  INFO --- [   asgi_gw_7] localstack.request.aws     : AWS s3.UploadPart => 200
+2026-07-02T08:19:33.458Z,codelens/localstack,2026-07-02T08:19:33.457  INFO --- [   asgi_gw_1] localstack.request.aws     : AWS s3.CompleteMultipartUpload => 200
+2026-07-02T08:19:33.480Z,codelens/localstack,2026-07-02T08:19:33.479  INFO --- [   asgi_gw_4] localstack.request.aws     : AWS s3.CreateMultipartUpload => 200
+2026-07-02T08:19:34.127Z,codelens/localstack,2026-07-02T08:19:34.126  INFO --- [   asgi_gw_8] localstack.request.aws     : AWS s3.UploadPart => 200
+2026-07-02T08:19:34.367Z,codelens/localstack,2026-07-02T08:19:34.367  INFO --- [   asgi_gw_6] localstack.request.aws     : AWS s3.UploadPart => 200
+2026-07-02T08:19:34.377Z,codelens/localstack,2026-07-02T08:19:34.377  INFO --- [   asgi_gw_5] localstack.request.aws     : AWS s3.UploadPart => 200
+2026-07-02T08:19:34.381Z,codelens/localstack,2026-07-02T08:19:34.381  INFO --- [   asgi_gw_0] localstack.request.aws     : AWS s3.UploadPart => 200
+2026-07-02T08:19:34.384Z,codelens/localstack,2026-07-02T08:19:34.383  INFO --- [   asgi_gw_3] localstack.request.aws     : AWS s3.UploadPart => 200
+2026-07-02T08:19:34.397Z,codelens/localstack,2026-07-02T08:19:34.396  INFO --- [   asgi_gw_7] localstack.request.aws     : AWS s3.UploadPart => 200
+2026-07-02T08:19:34.402Z,codelens/localstack,2026-07-02T08:19:34.402  INFO --- [   asgi_gw_2] localstack.request.aws     : AWS s3.UploadPart => 200
+2026-07-02T08:19:34.406Z,codelens/localstack,2026-07-02T08:19:34.406  INFO --- [   asgi_gw_4] localstack.request.aws     : AWS s3.UploadPart => 200
+2026-07-02T08:19:34.511Z,codelens/localstack,2026-07-02T08:19:34.510  INFO --- [   asgi_gw_9] localstack.request.aws     : AWS s3.CompleteMultipartUpload => 200
+2026-07-02T08:19:34.579Z,codelens/localstack,2026-07-02T08:19:34.578  INFO --- [   asgi_gw_8] localstack.request.aws     : AWS s3.PutObject => 200
+2026-07-02T08:19:34.699Z,codelens/localstack,2026-07-02T08:19:34.698  INFO --- [   asgi_gw_5] localstack.request.aws     : AWS s3.PutObject => 200
+2026-07-02T08:19:34.770Z,codelens/localstack,2026-07-02T08:19:34.770  INFO --- [   asgi_gw_0] localstack.request.aws     : AWS s3.PutObject => 200
+2026-07-02T08:19:34.843Z,codelens/localstack,2026-07-02T08:19:34.842  INFO --- [   asgi_gw_2] localstack.request.aws     : AWS s3.PutObject => 200
+2026-07-02T08:28:09.329Z,codelens/localstack,2026-07-02T08:28:09.327  INFO --- [   asgi_gw_0] localstack.request.aws     : AWS s3.ListBuckets => 200
+2026-07-02T08:28:23.706Z,codelens/localstack,2026-07-02T08:28:23.705  INFO --- [   asgi_gw_6] localstack.request.aws     : AWS s3.ListObjectsV2 => 200
+2026-07-02T08:28:34.608Z,codelens/localstack,2026-07-02T08:28:34.608  INFO --- [   asgi_gw_7] localstack.request.aws     : AWS s3.ListObjectsV2 => 200
+2026-07-02T08:30:17.041Z,codelens/localstack,2026-07-02T08:30:17.040  INFO --- [   asgi_gw_7] localstack.request.aws     : AWS s3.ListObjectsV2 => 200
+2026-07-02T08:30:22.084Z,codelens/localstack,2026-07-02T08:30:22.083  INFO --- [   asgi_gw_9] localstack.request.aws     : AWS s3.ListObjectsV2 => 200
+2026-07-02T08:30:51.741Z,codelens/localstack,2026-07-02T08:30:51.740  INFO --- [   asgi_gw_0] localstack.request.aws     : AWS s3.ListObjectsV2 => 200
+2026-07-02T08:31:01.988Z,codelens/localstack,2026-07-02T08:31:01.987  INFO --- [   asgi_gw_1] localstack.request.aws     : AWS s3.ListObjectsV2 => 200
+2026-07-02T08:32:27.490Z,codelens/localstack,2026-07-02T08:32:27.489  INFO --- [   asgi_gw_1] localstack.request.aws     : AWS s3.ListObjectsV2 => 200
+2026-07-05T01:10:46.063Z,codelens/localstack,2026-07-05T01:10:46.052  INFO --- [   asgi_gw_7] localstack.request.aws     : AWS s3.CreateMultipartUpload => 200
+2026-07-05T01:10:48.649Z,codelens/localstack,2026-07-05T01:10:48.648  INFO --- [   asgi_gw_0] localstack.request.aws     : AWS s3.UploadPart => 200
+2026-07-05T01:10:48.657Z,codelens/localstack,2026-07-05T01:10:48.650  INFO --- [   asgi_gw_4] localstack.request.aws     : AWS s3.UploadPart => 200
+2026-07-05T01:10:48.662Z,codelens/localstack,2026-07-05T01:10:48.662  INFO --- [   asgi_gw_2] localstack.request.aws     : AWS s3.UploadPart => 200
+2026-07-05T01:10:48.671Z,codelens/localstack,2026-07-05T01:10:48.662  INFO --- [   asgi_gw_1] localstack.request.aws     : AWS s3.UploadPart => 200
+2026-07-05T01:10:48.673Z,codelens/localstack,2026-07-05T01:10:48.672  INFO --- [   asgi_gw_6] localstack.request.aws     : AWS s3.UploadPart => 200
+2026-07-05T01:10:48.677Z,codelens/localstack,2026-07-05T01:10:48.676  INFO --- [   asgi_gw_8] localstack.request.aws     : AWS s3.UploadPart => 200
+2026-07-05T01:10:48.685Z,codelens/localstack,2026-07-05T01:10:48.684  INFO --- [   asgi_gw_5] localstack.request.aws     : AWS s3.UploadPart => 200
+2026-07-05T01:10:48.687Z,codelens/localstack,2026-07-05T01:10:48.687  INFO --- [   asgi_gw_9] localstack.request.aws     : AWS s3.UploadPart => 200
+2026-07-05T01:10:48.692Z,codelens/localstack,2026-07-05T01:10:48.691  INFO --- [   asgi_gw_3] localstack.request.aws     : AWS s3.UploadPart => 200
+2026-07-05T01:10:48.703Z,codelens/localstack,2026-07-05T01:10:48.702  INFO --- [   asgi_gw_7] localstack.request.aws     : AWS s3.UploadPart => 200
+2026-07-05T01:10:49.871Z,codelens/localstack,2026-07-05T01:10:49.870  INFO --- [   asgi_gw_0] localstack.request.aws     : AWS s3.UploadPart => 200
+2026-07-05T01:10:49.882Z,codelens/localstack,2026-07-05T01:10:49.881  INFO --- [   asgi_gw_6] localstack.request.aws     : AWS s3.UploadPart => 200
+2026-07-05T01:10:49.894Z,codelens/localstack,2026-07-05T01:10:49.893  INFO --- [   asgi_gw_3] localstack.request.aws     : AWS s3.UploadPart => 200
+2026-07-05T01:10:49.909Z,codelens/localstack,2026-07-05T01:10:49.908  INFO --- [   asgi_gw_2] localstack.request.aws     : AWS s3.UploadPart => 200
+2026-07-05T01:10:49.922Z,codelens/localstack,2026-07-05T01:10:49.922  INFO --- [   asgi_gw_7] localstack.request.aws     : AWS s3.UploadPart => 200
+2026-07-05T01:10:49.931Z,codelens/localstack,2026-07-05T01:10:49.931  INFO --- [   asgi_gw_4] localstack.request.aws     : AWS s3.UploadPart => 200
+2026-07-05T01:10:49.940Z,codelens/localstack,2026-07-05T01:10:49.940  INFO --- [   asgi_gw_5] localstack.request.aws     : AWS s3.UploadPart => 200
+2026-07-05T01:10:49.949Z,codelens/localstack,2026-07-05T01:10:49.949  INFO --- [   asgi_gw_9] localstack.request.aws     : AWS s3.UploadPart => 200
+2026-07-05T01:10:49.961Z,codelens/localstack,2026-07-05T01:10:49.961  INFO --- [   asgi_gw_8] localstack.request.aws     : AWS s3.UploadPart => 200
+2026-07-05T01:10:49.966Z,codelens/localstack,2026-07-05T01:10:49.965  INFO --- [   asgi_gw_1] localstack.request.aws     : AWS s3.UploadPart => 200
+2026-07-05T01:10:50.741Z,codelens/localstack,2026-07-05T01:10:50.740  INFO --- [   asgi_gw_9] localstack.request.aws     : AWS s3.UploadPart => 200
+2026-07-05T01:10:50.915Z,codelens/localstack,2026-07-05T01:10:50.910  INFO --- [   asgi_gw_0] localstack.request.aws     : AWS s3.UploadPart => 200
+2026-07-05T01:10:50.958Z,codelens/localstack,2026-07-05T01:10:50.958  INFO --- [   asgi_gw_3] localstack.request.aws     : AWS s3.UploadPart => 200
+2026-07-05T01:10:50.960Z,codelens/localstack,2026-07-05T01:10:50.959  INFO --- [   asgi_gw_4] localstack.request.aws     : AWS s3.UploadPart => 200
+2026-07-05T01:10:50.971Z,codelens/localstack,2026-07-05T01:10:50.970  INFO --- [   asgi_gw_2] localstack.request.aws     : AWS s3.UploadPart => 200
+2026-07-05T01:10:50.986Z,codelens/localstack,2026-07-05T01:10:50.985  INFO --- [   asgi_gw_1] localstack.request.aws     : AWS s3.UploadPart => 200
+2026-07-05T01:10:50.993Z,codelens/localstack,2026-07-05T01:10:50.993  INFO --- [   asgi_gw_7] localstack.request.aws     : AWS s3.UploadPart => 200
+2026-07-05T01:10:50.995Z,codelens/localstack,2026-07-05T01:10:50.994  INFO --- [   asgi_gw_5] localstack.request.aws     : AWS s3.UploadPart => 200
+2026-07-05T01:10:52.378Z,codelens/localstack,2026-07-05T01:10:52.378  INFO --- [   asgi_gw_8] localstack.request.aws     : AWS s3.CompleteMultipartUpload => 200
+2026-07-05T01:10:52.410Z,codelens/localstack,2026-07-05T01:10:52.409  INFO --- [   asgi_gw_9] localstack.request.aws     : AWS s3.CreateMultipartUpload => 200
+2026-07-05T01:10:53.067Z,codelens/localstack,2026-07-05T01:10:53.067  INFO --- [   asgi_gw_4] localstack.request.aws     : AWS s3.UploadPart => 200
+2026-07-05T01:10:53.342Z,codelens/localstack,2026-07-05T01:10:53.341  INFO --- [   asgi_gw_2] localstack.request.aws     : AWS s3.UploadPart => 200
+2026-07-05T01:10:53.347Z,codelens/localstack,2026-07-05T01:10:53.346  INFO --- [   asgi_gw_5] localstack.request.aws     : AWS s3.UploadPart => 200
+2026-07-05T01:10:53.359Z,codelens/localstack,2026-07-05T01:10:53.359  INFO --- [   asgi_gw_6] localstack.request.aws     : AWS s3.UploadPart => 200
+2026-07-05T01:10:53.368Z,codelens/localstack,2026-07-05T01:10:53.368  INFO --- [   asgi_gw_0] localstack.request.aws     : AWS s3.UploadPart => 200
+2026-07-05T01:10:53.383Z,codelens/localstack,2026-07-05T01:10:53.383  INFO --- [   asgi_gw_7] localstack.request.aws     : AWS s3.UploadPart => 200
+2026-07-05T01:10:53.388Z,codelens/localstack,2026-07-05T01:10:53.387  INFO --- [   asgi_gw_3] localstack.request.aws     : AWS s3.UploadPart => 200
+2026-07-05T01:10:53.394Z,codelens/localstack,2026-07-05T01:10:53.393  INFO --- [   asgi_gw_8] localstack.request.aws     : AWS s3.UploadPart => 200
+2026-07-05T01:10:53.621Z,codelens/localstack,2026-07-05T01:10:53.620  INFO --- [   asgi_gw_1] localstack.request.aws     : AWS s3.CompleteMultipartUpload => 200
+2026-07-05T01:10:53.666Z,codelens/localstack,2026-07-05T01:10:53.666  INFO --- [   asgi_gw_4] localstack.request.aws     : AWS s3.PutObject => 200
+2026-07-05T01:10:53.787Z,codelens/localstack,2026-07-05T01:10:53.786  INFO --- [   asgi_gw_5] localstack.request.aws     : AWS s3.PutObject => 200
+2026-07-05T01:10:53.867Z,codelens/localstack,2026-07-05T01:10:53.867  INFO --- [   asgi_gw_0] localstack.request.aws     : AWS s3.PutObject => 200
+2026-07-05T01:10:53.908Z,codelens/localstack,2026-07-05T01:10:53.908  INFO --- [   asgi_gw_3] localstack.request.aws     : AWS s3.PutObject => 200
+2026-07-05T01:47:32.883Z,codelens/localstack,2026-07-05T01:47:32.872  INFO --- [   asgi_gw_1] localstack.request.aws     : AWS s3.CreateMultipartUpload => 200
+2026-07-05T01:47:34.771Z,codelens/localstack,2026-07-05T01:47:34.770  INFO --- [   asgi_gw_9] localstack.request.aws     : AWS s3.UploadPart => 200
+2026-07-05T01:47:34.776Z,codelens/localstack,2026-07-05T01:47:34.771  INFO --- [   asgi_gw_0] localstack.request.aws     : AWS s3.UploadPart => 200
+2026-07-05T01:47:34.780Z,codelens/localstack,2026-07-05T01:47:34.775  INFO --- [   asgi_gw_6] localstack.request.aws     : AWS s3.UploadPart => 200
+2026-07-05T01:47:34.785Z,codelens/localstack,2026-07-05T01:47:34.777  INFO --- [   asgi_gw_3] localstack.request.aws     : AWS s3.UploadPart => 200
+2026-07-05T01:47:34.787Z,codelens/localstack,2026-07-05T01:47:34.782  INFO --- [   asgi_gw_7] localstack.request.aws     : AWS s3.UploadPart => 200
+2026-07-05T01:47:34.791Z,codelens/localstack,2026-07-05T01:47:34.782  INFO --- [   asgi_gw_1] localstack.request.aws     : AWS s3.UploadPart => 200
+2026-07-05T01:47:34.792Z,codelens/localstack,2026-07-05T01:47:34.785  INFO --- [   asgi_gw_5] localstack.request.aws     : AWS s3.UploadPart => 200
+2026-07-05T01:47:34.794Z,codelens/localstack,2026-07-05T01:47:34.789  INFO --- [   asgi_gw_4] localstack.request.aws     : AWS s3.UploadPart => 200
+2026-07-05T01:47:34.805Z,codelens/localstack,2026-07-05T01:47:34.804  INFO --- [   asgi_gw_2] localstack.request.aws     : AWS s3.UploadPart => 200
+2026-07-05T01:47:34.814Z,codelens/localstack,2026-07-05T01:47:34.813  INFO --- [   asgi_gw_8] localstack.request.aws     : AWS s3.UploadPart => 200
+2026-07-05T01:47:35.957Z,codelens/localstack,2026-07-05T01:47:35.957  INFO --- [   asgi_gw_9] localstack.request.aws     : AWS s3.UploadPart => 200
+2026-07-05T01:47:35.971Z,codelens/localstack,2026-07-05T01:47:35.970  INFO --- [   asgi_gw_1] localstack.request.aws     : AWS s3.UploadPart => 200
+2026-07-05T01:47:35.983Z,codelens/localstack,2026-07-05T01:47:35.982  INFO --- [   asgi_gw_6] localstack.request.aws     : AWS s3.UploadPart => 200
+2026-07-05T01:47:35.987Z,codelens/localstack,2026-07-05T01:47:35.987  INFO --- [   asgi_gw_7] localstack.request.aws     : AWS s3.UploadPart => 200
+2026-07-05T01:47:36.010Z,codelens/localstack,2026-07-05T01:47:36.009  INFO --- [   asgi_gw_3] localstack.request.aws     : AWS s3.UploadPart => 200
+2026-07-05T01:47:36.025Z,codelens/localstack,2026-07-05T01:47:36.024  INFO --- [   asgi_gw_0] localstack.request.aws     : AWS s3.UploadPart => 200
+2026-07-05T01:47:36.032Z,codelens/localstack,2026-07-05T01:47:36.031  INFO --- [   asgi_gw_8] localstack.request.aws     : AWS s3.UploadPart => 200
+2026-07-05T01:47:36.036Z,codelens/localstack,2026-07-05T01:47:36.032  INFO --- [   asgi_gw_2] localstack.request.aws     : AWS s3.UploadPart => 200
+2026-07-05T01:47:36.038Z,codelens/localstack,2026-07-05T01:47:36.034  INFO --- [   asgi_gw_5] localstack.request.aws     : AWS s3.UploadPart => 200
+2026-07-05T01:47:36.059Z,codelens/localstack,2026-07-05T01:47:36.058  INFO --- [   asgi_gw_4] localstack.request.aws     : AWS s3.UploadPart => 200
+2026-07-05T01:47:36.961Z,codelens/localstack,2026-07-05T01:47:36.960  INFO --- [   asgi_gw_6] localstack.request.aws     : AWS s3.UploadPart => 200
+2026-07-05T01:47:37.123Z,codelens/localstack,2026-07-05T01:47:37.122  INFO --- [   asgi_gw_4] localstack.request.aws     : AWS s3.UploadPart => 200
+2026-07-05T01:47:37.129Z,codelens/localstack,2026-07-05T01:47:37.128  INFO --- [   asgi_gw_9] localstack.request.aws     : AWS s3.UploadPart => 200
+2026-07-05T01:47:37.175Z,codelens/localstack,2026-07-05T01:47:37.175  INFO --- [   asgi_gw_2] localstack.request.aws     : AWS s3.UploadPart => 200
+2026-07-05T01:47:37.184Z,codelens/localstack,2026-07-05T01:47:37.183  INFO --- [   asgi_gw_0] localstack.request.aws     : AWS s3.UploadPart => 200
+2026-07-05T01:47:37.187Z,codelens/localstack,2026-07-05T01:47:37.184  INFO --- [   asgi_gw_1] localstack.request.aws     : AWS s3.UploadPart => 200
+2026-07-05T01:47:37.189Z,codelens/localstack,2026-07-05T01:47:37.189  INFO --- [   asgi_gw_7] localstack.request.aws     : AWS s3.UploadPart => 200
+2026-07-05T01:47:37.204Z,codelens/localstack,2026-07-05T01:47:37.203  INFO --- [   asgi_gw_5] localstack.request.aws     : AWS s3.UploadPart => 200
+2026-07-05T01:47:37.215Z,codelens/localstack,2026-07-05T01:47:37.215  INFO --- [   asgi_gw_8] localstack.request.aws     : AWS s3.UploadPart => 200
+2026-07-05T01:47:37.220Z,codelens/localstack,2026-07-05T01:47:37.219  INFO --- [   asgi_gw_3] localstack.request.aws     : AWS s3.UploadPart => 200
+2026-07-05T01:47:39.862Z,codelens/localstack,2026-07-05T01:47:39.861  INFO --- [  asgi_gw_10] localstack.request.aws     : AWS s3.CompleteMultipartUpload => 200
+2026-07-05T01:47:39.892Z,codelens/localstack,2026-07-05T01:47:39.892  INFO --- [   asgi_gw_4] localstack.request.aws     : AWS s3.CreateMultipartUpload => 200
+2026-07-05T01:47:40.655Z,codelens/localstack,2026-07-05T01:47:40.654  INFO --- [   asgi_gw_2] localstack.request.aws     : AWS s3.UploadPart => 200
+2026-07-05T01:47:40.871Z,codelens/localstack,2026-07-05T01:47:40.871  INFO --- [   asgi_gw_1] localstack.request.aws     : AWS s3.UploadPart => 200
+2026-07-05T01:47:40.896Z,codelens/localstack,2026-07-05T01:47:40.895  INFO --- [   asgi_gw_5] localstack.request.aws     : AWS s3.UploadPart => 200
+2026-07-05T01:47:40.908Z,codelens/localstack,2026-07-05T01:47:40.908  INFO --- [   asgi_gw_4] localstack.request.aws     : AWS s3.UploadPart => 200
+2026-07-05T01:47:40.920Z,codelens/localstack,2026-07-05T01:47:40.919  INFO --- [   asgi_gw_3] localstack.request.aws     : AWS s3.UploadPart => 200
+2026-07-05T01:47:40.921Z,codelens/localstack,2026-07-05T01:47:40.921  INFO --- [   asgi_gw_9] localstack.request.aws     : AWS s3.UploadPart => 200
+2026-07-05T01:47:40.932Z,codelens/localstack,2026-07-05T01:47:40.931  INFO --- [   asgi_gw_0] localstack.request.aws     : AWS s3.UploadPart => 200
+2026-07-05T01:47:40.934Z,codelens/localstack,2026-07-05T01:47:40.933  INFO --- [  asgi_gw_10] localstack.request.aws     : AWS s3.UploadPart => 200
+2026-07-05T01:47:41.039Z,codelens/localstack,2026-07-05T01:47:41.038  INFO --- [   asgi_gw_8] localstack.request.aws     : AWS s3.CompleteMultipartUpload => 200
+2026-07-05T01:47:41.072Z,codelens/localstack,2026-07-05T01:47:41.071  INFO --- [   asgi_gw_7] localstack.request.aws     : AWS s3.PutObject => 200
+2026-07-05T01:47:41.136Z,codelens/localstack,2026-07-05T01:47:41.135  INFO --- [   asgi_gw_1] localstack.request.aws     : AWS s3.PutObject => 200
+2026-07-05T01:47:41.206Z,codelens/localstack,2026-07-05T01:47:41.205  INFO --- [   asgi_gw_4] localstack.request.aws     : AWS s3.PutObject => 200
+2026-07-05T01:47:41.242Z,codelens/localstack,2026-07-05T01:47:41.242  INFO --- [   asgi_gw_9] localstack.request.aws     : AWS s3.PutObject => 200
+2026-07-05T02:30:44.602Z,codelens/localstack,2026-07-05T02:30:44.591  INFO --- [   asgi_gw_8] localstack.request.aws     : AWS s3.HeadBucket => 200
+2026-07-05T02:30:44.817Z,codelens/localstack,2026-07-05T02:30:44.817  INFO --- [   asgi_gw_7] localstack.request.aws     : AWS s3.PutObject => 200
+2026-07-05T02:44:27.310Z,codelens/localstack,2026-07-05T02:44:27.301  INFO --- [  asgi_gw_10] localstack.request.aws     : AWS s3.CreateMultipartUpload => 200
+2026-07-05T02:44:29.887Z,codelens/localstack,2026-07-05T02:44:29.886  INFO --- [   asgi_gw_6] localstack.request.aws     : AWS s3.UploadPart => 200
+2026-07-05T02:44:29.894Z,codelens/localstack,2026-07-05T02:44:29.893  INFO --- [   asgi_gw_0] localstack.request.aws     : AWS s3.UploadPart => 200
+2026-07-05T02:44:29.898Z,codelens/localstack,2026-07-05T02:44:29.897  INFO --- [   asgi_gw_9] localstack.request.aws     : AWS s3.UploadPart => 200
+2026-07-05T02:44:29.902Z,codelens/localstack,2026-07-05T02:44:29.901  INFO --- [   asgi_gw_5] localstack.request.aws     : AWS s3.UploadPart => 200
+2026-07-05T02:44:29.906Z,codelens/localstack,2026-07-05T02:44:29.901  INFO --- [  asgi_gw_10] localstack.request.aws     : AWS s3.UploadPart => 200
+2026-07-05T02:44:29.912Z,codelens/localstack,2026-07-05T02:44:29.911  INFO --- [   asgi_gw_8] localstack.request.aws     : AWS s3.UploadPart => 200
+2026-07-05T02:44:29.920Z,codelens/localstack,2026-07-05T02:44:29.919  INFO --- [   asgi_gw_2] localstack.request.aws     : AWS s3.UploadPart => 200
+2026-07-05T02:44:29.925Z,codelens/localstack,2026-07-05T02:44:29.924  INFO --- [   asgi_gw_7] localstack.request.aws     : AWS s3.UploadPart => 200
+2026-07-05T02:44:29.934Z,codelens/localstack,2026-07-05T02:44:29.933  INFO --- [   asgi_gw_1] localstack.request.aws     : AWS s3.UploadPart => 200
+2026-07-05T02:44:29.957Z,codelens/localstack,2026-07-05T02:44:29.957  INFO --- [   asgi_gw_4] localstack.request.aws     : AWS s3.UploadPart => 200
+2026-07-05T02:44:31.168Z,codelens/localstack,2026-07-05T02:44:31.168  INFO --- [   asgi_gw_3] localstack.request.aws     : AWS s3.UploadPart => 200
+2026-07-05T02:44:31.171Z,codelens/localstack,2026-07-05T02:44:31.171  INFO --- [   asgi_gw_0] localstack.request.aws     : AWS s3.UploadPart => 200
+2026-07-05T02:44:31.185Z,codelens/localstack,2026-07-05T02:44:31.184  INFO --- [  asgi_gw_10] localstack.request.aws     : AWS s3.UploadPart => 200
+2026-07-05T02:44:31.188Z,codelens/localstack,2026-07-05T02:44:31.185  INFO --- [   asgi_gw_2] localstack.request.aws     : AWS s3.UploadPart => 200
+2026-07-05T02:44:31.189Z,codelens/localstack,2026-07-05T02:44:31.186  INFO --- [   asgi_gw_8] localstack.request.aws     : AWS s3.UploadPart => 200
+2026-07-05T02:44:31.195Z,codelens/localstack,2026-07-05T02:44:31.195  INFO --- [   asgi_gw_1] localstack.request.aws     : AWS s3.UploadPart => 200
+2026-07-05T02:44:31.207Z,codelens/localstack,2026-07-05T02:44:31.206  INFO --- [   asgi_gw_5] localstack.request.aws     : AWS s3.UploadPart => 200
+2026-07-05T02:44:31.211Z,codelens/localstack,2026-07-05T02:44:31.210  INFO --- [   asgi_gw_7] localstack.request.aws     : AWS s3.UploadPart => 200
+2026-07-05T02:44:31.214Z,codelens/localstack,2026-07-05T02:44:31.214  INFO --- [   asgi_gw_9] localstack.request.aws     : AWS s3.UploadPart => 200
+2026-07-05T02:44:31.234Z,codelens/localstack,2026-07-05T02:44:31.233  INFO --- [   asgi_gw_6] localstack.request.aws     : AWS s3.UploadPart => 200
+2026-07-05T02:44:32.321Z,codelens/localstack,2026-07-05T02:44:32.321  INFO --- [   asgi_gw_4] localstack.request.aws     : AWS s3.UploadPart => 200
+2026-07-05T02:44:32.343Z,codelens/localstack,2026-07-05T02:44:32.342  INFO --- [   asgi_gw_0] localstack.request.aws     : AWS s3.UploadPart => 200
+2026-07-05T02:44:32.353Z,codelens/localstack,2026-07-05T02:44:32.352  INFO --- [   asgi_gw_1] localstack.request.aws     : AWS s3.UploadPart => 200
+2026-07-05T02:44:32.360Z,codelens/localstack,2026-07-05T02:44:32.360  INFO --- [   asgi_gw_2] localstack.request.aws     : AWS s3.UploadPart => 200
+2026-07-05T02:44:32.374Z,codelens/localstack,2026-07-05T02:44:32.374  INFO --- [   asgi_gw_7] localstack.request.aws     : AWS s3.UploadPart => 200
+2026-07-05T02:44:32.394Z,codelens/localstack,2026-07-05T02:44:32.393  INFO --- [   asgi_gw_6] localstack.request.aws     : AWS s3.UploadPart => 200
+2026-07-05T02:44:32.397Z,codelens/localstack,2026-07-05T02:44:32.396  INFO --- [   asgi_gw_9] localstack.request.aws     : AWS s3.UploadPart => 200
+2026-07-05T02:44:32.402Z,codelens/localstack,2026-07-05T02:44:32.401  INFO --- [  asgi_gw_10] localstack.request.aws     : AWS s3.UploadPart => 200
+2026-07-05T02:44:32.421Z,codelens/localstack,2026-07-05T02:44:32.420  INFO --- [   asgi_gw_5] localstack.request.aws     : AWS s3.UploadPart => 200
+2026-07-05T02:44:32.448Z,codelens/localstack,2026-07-05T02:44:32.447  INFO --- [   asgi_gw_8] localstack.request.aws     : AWS s3.UploadPart => 200
+2026-07-05T02:44:33.442Z,codelens/localstack,2026-07-05T02:44:33.441  INFO --- [   asgi_gw_0] localstack.request.aws     : AWS s3.UploadPart => 200
+2026-07-05T02:44:33.479Z,codelens/localstack,2026-07-05T02:44:33.478  INFO --- [   asgi_gw_3] localstack.request.aws     : AWS s3.UploadPart => 200
+2026-07-05T02:44:33.509Z,codelens/localstack,2026-07-05T02:44:33.508  INFO --- [   asgi_gw_2] localstack.request.aws     : AWS s3.UploadPart => 200
+2026-07-05T02:44:33.548Z,codelens/localstack,2026-07-05T02:44:33.548  INFO --- [   asgi_gw_6] localstack.request.aws     : AWS s3.UploadPart => 200
+2026-07-05T02:44:33.556Z,codelens/localstack,2026-07-05T02:44:33.555  INFO --- [  asgi_gw_10] localstack.request.aws     : AWS s3.UploadPart => 200
+2026-07-05T02:44:33.581Z,codelens/localstack,2026-07-05T02:44:33.581  INFO --- [   asgi_gw_5] localstack.request.aws     : AWS s3.UploadPart => 200
+2026-07-05T02:44:33.655Z,codelens/localstack,2026-07-05T02:44:33.654  INFO --- [   asgi_gw_8] localstack.request.aws     : AWS s3.UploadPart => 200
+2026-07-05T02:44:33.661Z,codelens/localstack,2026-07-05T02:44:33.654  INFO --- [   asgi_gw_4] localstack.request.aws     : AWS s3.UploadPart => 200
+2026-07-05T02:44:33.683Z,codelens/localstack,2026-07-05T02:44:33.682  INFO --- [   asgi_gw_9] localstack.request.aws     : AWS s3.UploadPart => 200
+2026-07-05T02:44:33.729Z,codelens/localstack,2026-07-05T02:44:33.729  INFO --- [   asgi_gw_7] localstack.request.aws     : AWS s3.UploadPart => 200
+2026-07-05T02:44:34.613Z,codelens/localstack,2026-07-05T02:44:34.613  INFO --- [   asgi_gw_1] localstack.request.aws     : AWS s3.UploadPart => 200
+2026-07-05T02:44:34.678Z,codelens/localstack,2026-07-05T02:44:34.678  INFO --- [   asgi_gw_3] localstack.request.aws     : AWS s3.UploadPart => 200
+2026-07-05T02:44:34.684Z,codelens/localstack,2026-07-05T02:44:34.680  INFO --- [   asgi_gw_0] localstack.request.aws     : AWS s3.UploadPart => 200
+2026-07-05T02:44:34.747Z,codelens/localstack,2026-07-05T02:44:34.746  INFO --- [   asgi_gw_5] localstack.request.aws     : AWS s3.UploadPart => 200
+2026-07-05T02:44:34.749Z,codelens/localstack,2026-07-05T02:44:34.747  INFO --- [  asgi_gw_10] localstack.request.aws     : AWS s3.UploadPart => 200
+2026-07-05T02:44:34.765Z,codelens/localstack,2026-07-05T02:44:34.765  INFO --- [   asgi_gw_2] localstack.request.aws     : AWS s3.UploadPart => 200
+2026-07-05T02:44:34.835Z,codelens/localstack,2026-07-05T02:44:34.835  INFO --- [   asgi_gw_4] localstack.request.aws     : AWS s3.UploadPart => 200
+2026-07-05T02:44:34.894Z,codelens/localstack,2026-07-05T02:44:34.894  INFO --- [   asgi_gw_9] localstack.request.aws     : AWS s3.UploadPart => 200
+2026-07-05T02:44:34.921Z,codelens/localstack,2026-07-05T02:44:34.921  INFO --- [   asgi_gw_7] localstack.request.aws     : AWS s3.UploadPart => 200
+2026-07-05T02:44:34.953Z,codelens/localstack,2026-07-05T02:44:34.952  INFO --- [   asgi_gw_8] localstack.request.aws     : AWS s3.UploadPart => 200
+2026-07-05T02:44:35.415Z,codelens/localstack,2026-07-05T02:44:35.414  INFO --- [   asgi_gw_7] localstack.request.aws     : AWS s3.UploadPart => 200
+2026-07-05T02:44:35.677Z,codelens/localstack,2026-07-05T02:44:35.677  INFO --- [   asgi_gw_6] localstack.request.aws     : AWS s3.UploadPart => 200
+2026-07-05T02:44:35.743Z,codelens/localstack,2026-07-05T02:44:35.743  INFO --- [   asgi_gw_3] localstack.request.aws     : AWS s3.UploadPart => 200
+2026-07-05T02:44:35.747Z,codelens/localstack,2026-07-05T02:44:35.746  INFO --- [   asgi_gw_0] localstack.request.aws     : AWS s3.UploadPart => 200
+2026-07-05T02:44:35.768Z,codelens/localstack,2026-07-05T02:44:35.768  INFO --- [   asgi_gw_2] localstack.request.aws     : AWS s3.UploadPart => 200
+2026-07-05T02:44:35.773Z,codelens/localstack,2026-07-05T02:44:35.772  INFO --- [   asgi_gw_5] localstack.request.aws     : AWS s3.UploadPart => 200
+2026-07-05T02:44:35.793Z,codelens/localstack,2026-07-05T02:44:35.793  INFO --- [  asgi_gw_10] localstack.request.aws     : AWS s3.UploadPart => 200
+2026-07-05T02:44:35.803Z,codelens/localstack,2026-07-05T02:44:35.802  INFO --- [   asgi_gw_4] localstack.request.aws     : AWS s3.UploadPart => 200
+2026-07-05T02:44:35.818Z,codelens/localstack,2026-07-05T02:44:35.818  INFO --- [   asgi_gw_9] localstack.request.aws     : AWS s3.UploadPart => 200
+2026-07-05T02:44:38.255Z,codelens/localstack,2026-07-05T02:44:38.255  INFO --- [   asgi_gw_8] localstack.request.aws     : AWS s3.CompleteMultipartUpload => 200
+2026-07-05T02:44:38.315Z,codelens/localstack,2026-07-05T02:44:38.315  INFO --- [   asgi_gw_7] localstack.request.aws     : AWS s3.CreateMultipartUpload => 200
+2026-07-05T02:44:39.549Z,codelens/localstack,2026-07-05T02:44:39.548  INFO --- [   asgi_gw_8] localstack.request.aws     : AWS s3.UploadPart => 200
+2026-07-05T02:44:39.551Z,codelens/localstack,2026-07-05T02:44:39.549  INFO --- [   asgi_gw_2] localstack.request.aws     : AWS s3.UploadPart => 200
+2026-07-05T02:44:39.574Z,codelens/localstack,2026-07-05T02:44:39.573  INFO --- [   asgi_gw_4] localstack.request.aws     : AWS s3.UploadPart => 200
+2026-07-05T02:44:39.582Z,codelens/localstack,2026-07-05T02:44:39.581  INFO --- [   asgi_gw_9] localstack.request.aws     : AWS s3.UploadPart => 200
+2026-07-05T02:44:39.592Z,codelens/localstack,2026-07-05T02:44:39.591  INFO --- [   asgi_gw_6] localstack.request.aws     : AWS s3.UploadPart => 200
+2026-07-05T02:44:39.594Z,codelens/localstack,2026-07-05T02:44:39.594  INFO --- [   asgi_gw_0] localstack.request.aws     : AWS s3.UploadPart => 200
+2026-07-05T02:44:39.597Z,codelens/localstack,2026-07-05T02:44:39.594  INFO --- [  asgi_gw_10] localstack.request.aws     : AWS s3.UploadPart => 200
+2026-07-05T02:44:39.606Z,codelens/localstack,2026-07-05T02:44:39.605  INFO --- [   asgi_gw_7] localstack.request.aws     : AWS s3.UploadPart => 200
+2026-07-05T02:44:39.608Z,codelens/localstack,2026-07-05T02:44:39.608  INFO --- [   asgi_gw_3] localstack.request.aws     : AWS s3.UploadPart => 200
+2026-07-05T02:44:39.619Z,codelens/localstack,2026-07-05T02:44:39.619  INFO --- [   asgi_gw_5] localstack.request.aws     : AWS s3.UploadPart => 200
+2026-07-05T02:44:39.921Z,codelens/localstack,2026-07-05T02:44:39.920  INFO --- [   asgi_gw_8] localstack.request.aws     : AWS s3.UploadPart => 200
+2026-07-05T02:44:40.294Z,codelens/localstack,2026-07-05T02:44:40.294  INFO --- [   asgi_gw_4] localstack.request.aws     : AWS s3.UploadPart => 200
+2026-07-05T02:44:40.296Z,codelens/localstack,2026-07-05T02:44:40.295  INFO --- [   asgi_gw_6] localstack.request.aws     : AWS s3.UploadPart => 200
+2026-07-05T02:44:40.311Z,codelens/localstack,2026-07-05T02:44:40.311  INFO --- [   asgi_gw_1] localstack.request.aws     : AWS s3.UploadPart => 200
+2026-07-05T02:44:40.314Z,codelens/localstack,2026-07-05T02:44:40.313  INFO --- [   asgi_gw_3] localstack.request.aws     : AWS s3.UploadPart => 200
+2026-07-05T02:44:40.321Z,codelens/localstack,2026-07-05T02:44:40.320  INFO --- [  asgi_gw_10] localstack.request.aws     : AWS s3.UploadPart => 200
+2026-07-05T02:44:40.615Z,codelens/localstack,2026-07-05T02:44:40.614  INFO --- [   asgi_gw_2] localstack.request.aws     : AWS s3.CompleteMultipartUpload => 200
+2026-07-05T02:44:40.687Z,codelens/localstack,2026-07-05T02:44:40.687  INFO --- [   asgi_gw_0] localstack.request.aws     : AWS s3.PutObject => 200
+2026-07-05T02:44:40.801Z,codelens/localstack,2026-07-05T02:44:40.801  INFO --- [   asgi_gw_5] localstack.request.aws     : AWS s3.PutObject => 200
+2026-07-05T02:44:40.882Z,codelens/localstack,2026-07-05T02:44:40.882  INFO --- [   asgi_gw_4] localstack.request.aws     : AWS s3.PutObject => 200
+2026-07-05T02:44:40.970Z,codelens/localstack,2026-07-05T02:44:40.970  INFO --- [   asgi_gw_1] localstack.request.aws     : AWS s3.PutObject => 200
+2026-07-05T02:46:07.929Z,codelens/localstack,2026-07-05T02:46:07.927  INFO --- [   asgi_gw_0] localstack.request.aws     : AWS s3.HeadBucket => 200
+2026-07-05T02:46:08.035Z,codelens/localstack,2026-07-05T02:46:08.034  INFO --- [   asgi_gw_5] localstack.request.aws     : AWS s3.PutObject => 200

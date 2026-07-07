@@ -790,7 +790,7 @@ prometheus-client==0.20.0
 
 ```bash
 # Build and run everything
-docker compose up --build
+docker compose up --build -d
 
 # Test the API
 curl -X POST http://localhost:8000/query \
@@ -800,6 +800,22 @@ curl -X POST http://localhost:8000/query \
 # Check health
 curl http://localhost:8000/health
 ```
+
+### Smoke test before pushing anywhere
+
+A one-off curl confirms the container *started*; it doesn't confirm the
+deploy actually behaves correctly (source_type/path_type filtering, the
+LocalStack endpoint override, etc.). Run the smoke test and treat a failure
+as a hard stop before the image goes anywhere near a registry:
+
+```bash
+python -m scripts.smoke_test
+```
+
+It polls `/health` until the container is up, then checks that a code query
+and a doc query both return correctly-typed sources with no LLM cost. Exits
+non-zero on any failing check, so it can gate CI the same way the retrieval
+eval gate does.
 
 ### Push to ECR
 

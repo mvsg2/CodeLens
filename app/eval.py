@@ -8,7 +8,7 @@ This first slice scores retrieval only (hit rate / MRR on expected_sources),
 so it runs without any LLM cost. RAGAS answer-quality metrics come later.
 """
 
-from app.retrieval import load_documents, build_retriever, rerank
+from app.retrieval import build_retriever, rerank
 
 # ── Golden test set ───────────────────────────────────
 # category: localization | identifier | explanation | doc | negative | boundary
@@ -221,9 +221,6 @@ def _is_translation_miss(retrieved: str, expected: str) -> bool:
 
 def evaluate_retrieval(repo_id: str, top_k: int = 5) -> dict:
     """Score hybrid retrieval + rerank against the golden set. No LLM calls."""
-    documents = load_documents(repo_id)
-    retrievers = {}  # one per source_type, built lazily
-
     results = []
     for item in GOLDEN_SET:
         if item["category"] == "negative":
@@ -232,12 +229,12 @@ def evaluate_retrieval(repo_id: str, top_k: int = 5) -> dict:
         st = item["source_type"]
         # Same defaulting as answer_query: code answers from library source
         pt = "library" if st == "code" else None
-        if (st, pt) not in retrievers:
-            retrievers[(st, pt)] = build_retriever(
-                repo_id, documents, source_type=st, path_type=pt
-            )
+        # build_retriever is itself cached (per repo_id/source_type/path_type),
+        # so calling it per golden-set item just reuses the same retriever
+        # after the first item of each (st, pt) combo.
+        retriever = build_retriever(repo_id, source_type=st, path_type=pt)
 
-        raw = retrievers[(st, pt)].invoke(item["query"])
+        raw = retriever.invoke(item["query"])
         candidates = [{"content": d.page_content, "metadata": d.metadata} for d in raw]
         top = rerank(item["query"], candidates, top_k=top_k)
         retrieved = [_norm(c["metadata"]["rel_path"]) for c in top]

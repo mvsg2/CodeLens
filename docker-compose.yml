@@ -11,5 +11,23 @@ services:
     volumes:
       - localstack_data:/var/lib/localstack
 
+  api:
+    build: .
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    environment:
+      # overrides the .env value so the container reaches LocalStack by its
+      # service name on the compose network, not localhost
+      - AWS_ENDPOINT_URL=http://localstack:4566
+    depends_on:
+      - localstack
+    volumes:
+      # already-indexed data (manifests, Chroma DB) built by the local
+      # run_all.py / run_pipeline.py runs — this container serves queries,
+      # it does not re-encode
+      - ./data:/app/data
+
 volumes:
   localstack_data:
