@@ -151,7 +151,8 @@ def call_llm(prompt: str) -> str:
 
 # ── Main answer function ──────────────────────────────
 def answer_query(query: str, repo_id: str, source_type: str = "code",
-                 path_type: str | None = "auto", include_answer: bool = True) -> dict:
+                 path_type: str | None = "auto", include_answer: bool = True,
+                 include_context: bool = False) -> dict:
     # "auto": code queries answer from library source; doc queries search all docs.
     # Pass None to disable the path filter, or e.g. "examples" to target docs_src/.
     if path_type == "auto":
@@ -179,7 +180,7 @@ def answer_query(query: str, repo_id: str, source_type: str = "code",
     else:
         print(f"Skipping LLM call (--no-llm)")
 
-    return {
+    result = {
         "answer": answer,
         "sources": [
             {
@@ -193,3 +194,8 @@ def answer_query(query: str, repo_id: str, source_type: str = "code",
         "query": query,
         "repo": repo_id
     }
+    if include_context:
+        # Raw chunk text, not just file paths — RAGAS needs actual content to
+        # judge faithfulness/context recall against, not a filename string.
+        result["context_chunks"] = [c["content"] for c in top_chunks]
+    return result

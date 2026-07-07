@@ -1,14 +1,25 @@
-"""Eval harness (Aspect 4) — golden test set + retrieval-only scorer.
+"""Eval harness (Aspect 4) — golden test set + two scorers.
 
 The golden set is ground truth: every expected_source was verified by hand
 against the cloned repo at data/repos/fastapi__fastapi. Do NOT regenerate
 entries from system output — that bakes retrieval bugs into the truth.
 
-This first slice scores retrieval only (hit rate / MRR on expected_sources),
-so it runs without any LLM cost. RAGAS answer-quality metrics come later.
+Two independent scorers sit on top of the same golden set:
+
+- evaluate_retrieval(): retrieval only (hit rate / MRR on expected_sources).
+  No LLM calls, free, fast — safe to run on every change.
+- evaluate_answers(): RAGAS-based answer quality (faithfulness, answer
+  relevancy, context recall). Calls the real LLM for every item, both to
+  generate the answer and, internally, for RAGAS's own judge model — real
+  cost, real latency. Run this far less often (e.g. before a release), not
+  on every commit.
 """
 
-from app.retrieval import build_retriever, rerank
+from ragas import evaluate as ragas_evaluate
+from ragas.metrics import faithfulness, answer_relevancy, context_recall
+from datasets import Dataset
+
+from app.retrieval import build_retriever, rerank, answer_query
 
 # ── Golden test set ───────────────────────────────────
 # category: localization | identifier | explanation | doc | negative | boundary
@@ -271,3 +282,75 @@ def evaluate_retrieval(repo_id: str, top_k: int = 5) -> dict:
         },
         "results": results,
     }
+
+
+# ── RAGAS answer-quality scoring ──────────────────────
+ANSWER_QUALITY_THRESHOLDS = {
+    "faithfulness": 0.85,
+    "answer_relevancy": 0.80,
+    "context_recall": 0.75,
+}
+
+
+def evaluate_answers(repo_id: str, limit: int | None = None) -> dict:
+    """Score generated answers with RAGAS: faithfulness, answer relevancy,
+    context recall. Every item costs a real LLM call to generate the answer,
+    plus several more internally for RAGAS's own judge model — pass `limit`
+    to bound cost while iterating.
+
+    ground_truth is the golden set's expected_answer (a short, hand-verified
+    reference), and contexts is the actual retrieved chunk text (not file
+    paths — RAGAS needs real content to judge faithfulness/recall against).
+    """
+    items = GOLDEN_SET[:limit] if limit else GOLDEN_SET
+
+    rows = []
+    categories = []
+    for item in items:
+        result = answer_query(
+            item["query"], repo_id,
+            source_type=item["source_type"],
+            include_answer=True,
+            include_context=True,
+        )
+        rows.append({
+            "question": item["query"],
+            "answer": result["answer"],
+            "contexts": result["context_chunks"],
+            "ground_truth": item["expected_answer"],
+        })
+        categories.append(item["category"])
+
+    dataset = Dataset.from_list(rows)
+    ragas_result = ragas_evaluate(
+        dataset,
+        metrics=[faithfulness, answer_relevancy, context_recall],
+    )
+
+    df = ragas_result.to_pandas()
+    df["category"] = categories
+
+    scores = {
+        "faithfulness": float(df["faithfulness"].mean()),
+        "answer_relevancy": float(df["answer_relevancy"].mean()),
+        "context_recall": float(df["context_recall"].mean()),
+    }
+
+    by_category = {}
+    for cat in sorted(set(categories)):
+        sub = df[df["category"] == cat]
+        by_category[cat] = {
+            "faithfulness": float(sub["faithfulness"].mean()),
+            "answer_relevancy": float(sub["answer_relevancy"].mean()),
+            "context_recall": float(sub["context_recall"].mean()),
+        }
+
+    return {
+        "scores": scores,
+        "by_category": by_category,
+        "results": df.to_dict(orient="records"),
+    }
+
+
+def check_answer_gate(scores: dict) -> bool:
+    return all(scores.get(k, 0) >= v for k, v in ANSWER_QUALITY_THRESHOLDS.items())

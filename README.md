@@ -13,7 +13,7 @@ There are four stages, and each one solves a different problem:
 1. **Sourcing**: clone the target GitHub repo, filter down to indexable source files, record a manifest (file list, commit SHA), and mirror the manifest to S3 (LocalStack locally).
 2. **Pipeline (encoding)**: parse each Python file with tree-sitter, chunk it function-by-function (not naive fixed-size splitting, which would cut a function in half), embed every chunk with a code-aware embedding model, and store the vectors + metadata in a Chroma database. This is the slow, GPU-bound step, and it only needs to re-run when the repo has a new commit or the chunking/embedding logic itself changes.
 3. **Retrieval**: given a question, search the Chroma index two ways at once (semantic vector search + BM25 keyword search), merge the results, rerank the top candidates with a cross-encoder, and optionally hand the final 5 snippets to an LLM to synthesize a cited answer. This runs on every single question, in seconds.
-4. **Eval**: a hand-built set of question/answer pairs with verified correct source files, used to score retrieval quality (hit rate, MRR) without spending any LLM calls. Run this after any change to chunking, retrieval, or filtering logic to see whether it helped or hurt.
+4. **Eval**: a hand-built set of question/answer pairs with verified correct source files, scored two ways — a free, LLM-free retrieval check (hit rate, MRR), and a RAGAS-based answer-quality check (faithfulness, answer relevancy, context recall) that calls the real LLM. Run the free one after any change to chunking, retrieval, or filtering logic; run the RAGAS one before a release.
 
 Sourcing and the pipeline only need to run again when the repo changes or you change how chunks are built. Retrieval runs per-question. Eval runs whenever you want to check quality.
 
@@ -129,8 +129,13 @@ python -m scripts.run_pipeline
 python -m scripts.run_retrieval
 python -m scripts.run_retrieval --no-llm     # same, but skip the LLM call and just print sources
 
-# Stage 4 — score retrieval quality against the golden test set (no LLM cost)
+# Stage 4a — score retrieval quality against the golden test set (no LLM cost)
 python -m scripts.run_eval
+
+# Stage 4b — score answer quality with RAGAS: faithfulness, answer relevancy,
+# context recall (real LLM cost — one call per item to generate the answer,
+# plus several more for RAGAS's own judge model; use --limit to bound cost)
+python -m scripts.run_ragas_eval --limit 5
 ```
 
 Each of these scripts currently targets `fastapi/fastapi` by default (edit the `REPO_URL` / `REPO_ID` constant at the top of the script to point at something else, or use `run_all.py --repo <url>`, which takes it as an argument).
@@ -237,15 +242,16 @@ Not built yet. This section will cover taking CodeLens from the local-only setup
 │   ├── sourcing.py       clone/pull a repo, filter files, build + upload the manifest
 │   ├── pipeline.py       AST parsing, chunking, embedding, Chroma storage, change-detection state
 │   ├── retrieval.py      hybrid search (semantic + BM25), reranking, prompt building, LLM call
-│   ├── eval.py           golden test set + retrieval-only scoring (hit rate, MRR)
+│   ├── eval.py           golden test set + retrieval-only scoring (hit rate, MRR) and RAGAS answer-quality scoring
 │   ├── main.py           the FastAPI server — exposes /query and /health
 │   └── config.py         environment variables and shared constants (e.g. embedding model name)
 ├── scripts/
-│   ├── run_sourcing.py   CLI entry point for the sourcing stage
-│   ├── run_pipeline.py   CLI entry point for the encoding stage
-│   ├── run_retrieval.py  CLI entry point for asking sample questions
-│   ├── run_eval.py       CLI entry point for the quality-gate check
-│   └── run_all.py        orchestrates all four stages, skipping encoding when nothing changed
+│   ├── run_sourcing.py    CLI entry point for the sourcing stage
+│   ├── run_pipeline.py    CLI entry point for the encoding stage
+│   ├── run_retrieval.py   CLI entry point for asking sample questions
+│   ├── run_eval.py        CLI entry point for the free retrieval-only quality gate
+│   ├── run_ragas_eval.py  CLI entry point for the RAGAS answer-quality gate (real LLM cost)
+│   └── run_all.py         orchestrates all four stages, skipping encoding when nothing changed
 ├── worker/
 │   └── reindex_worker.py   (planned) background worker that re-indexes a repo when
 │                           notified of a new commit, without blocking the API
@@ -257,7 +263,7 @@ Not built yet. This section will cover taking CodeLens from the local-only setup
 
 ## TODO
 
-- [ ] LLM-based answer-quality evaluation (faithfulness / answer relevance / context precision & recall via RAGAS)
+- [x] LLM-based answer-quality evaluation (faithfulness / answer relevancy / context recall via RAGAS — `app/eval.py`'s `evaluate_answers()`, `scripts/run_ragas_eval.py`)
 - [x] Containerize the app (Dockerfile) — reindex worker still needs one
 - [x] Local "deployment rehearsal": containerized stack running against LocalStack, `scripts/smoke_test.py` checks `/health` and `/query`
 - [ ] Automated CI/CD (lint → unit tests → integration tests → eval gate → smoke test → build → push → deploy)
