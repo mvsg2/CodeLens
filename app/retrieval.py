@@ -1,4 +1,3 @@
-import os
 from functools import lru_cache
 from pathlib import Path
 import chromadb
@@ -168,7 +167,7 @@ def answer_query(query: str, repo_id: str, source_type: str = "code",
     print(f"Building retriever for: {repo_id} (cached after first call)...")
     retriever = build_retriever(repo_id, source_type=source_type, path_type=path_type)
 
-    print(f"Retrieving candidates...")
+    print("Retrieving candidates...")
     raw_results = retriever.invoke(query)
 
     candidates = [
@@ -181,11 +180,11 @@ def answer_query(query: str, repo_id: str, source_type: str = "code",
 
     answer = None
     if include_answer:
-        print(f"Calling LLM...")
+        print("Calling LLM...")
         prompt = build_prompt(query, top_chunks)
         answer = call_llm(prompt)
     else:
-        print(f"Skipping LLM call (--no-llm)")
+        print("Skipping LLM call (--no-llm)")
 
     result = {
         "answer": answer,

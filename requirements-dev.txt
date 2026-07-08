@@ -1,0 +1,6 @@
+# Lightweight deps for the lint/unit-test CI jobs — deliberately excludes
+# torch/sentence-transformers/chromadb/ragas/etc so those jobs install in
+# seconds instead of minutes. app/classify.py and app/scoring.py (the only
+# modules tests/unit/ imports) have zero dependency on the heavy stack.
+pytest==8.2.0
+ruff==0.4.0

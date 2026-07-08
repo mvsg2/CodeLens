@@ -1,0 +1,147 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch: {}
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  # The commit the golden set in app/eval.py was hand-verified against
+  # (see GOLDEN_SET's docstring). Pinning here — instead of letting
+  # app.sourcing.clone_repo pull whatever fastapi/fastapi's HEAD currently
+  # is — keeps eval results reproducible and keeps the index cache below
+  # stable across runs. Bump deliberately (and re-verify the golden set)
+  # if this is ever moved forward.
+  CODELENS_PIN_COMMIT: dd17e4f723a23854cfe4b9b6258e31efd86ea523
+  # Bump the trailing number whenever app/pipeline.py's PIPELINE_VERSION
+  # changes, so a stale cache never gets reused across an incompatible
+  # chunking/metadata format.
+  INDEX_CACHE_KEY: index-v2-dd17e4f
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - run: pip install -r requirements-dev.txt
+      - run: ruff check app/ scripts/ tests/
+
+  unit-test:
+    needs: lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - run: pip install -r requirements-dev.txt
+      # No API keys, no model downloads: tests/unit only imports
+      # app/classify.py and app/scoring.py, both dependency-free by design.
+      - run: pytest tests/unit/ -v
+
+  eval:
+    needs: unit-test
+    runs-on: ubuntu-latest
+    services:
+      localstack:
+        image: localstack/localstack:3.0
+        ports:
+          - 4566:4566
+        env:
+          SERVICES: s3,sqs,secretsmanager
+          DEFAULT_REGION: us-east-1
+    env:
+      AWS_ENDPOINT_URL: http://localhost:4566
+      AWS_ACCESS_KEY_ID: test
+      AWS_SECRET_ACCESS_KEY: test
+      AWS_DEFAULT_REGION: us-east-1
+      S3_BUCKET: codelens-bucket
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      # GitHub's own per-run token is enough for the public metadata read
+      # app.sourcing.get_repo_metadata does (GET /repos/{owner}/{repo}) —
+      # no personal PAT needed as a repo secret for this.
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      # Encoding ~20k chunks is the expensive step (see scripts/run_all.py's
+      # docstring) — cache the already-built index so runs after the first
+      # only re-embed when CODELENS_PIN_COMMIT or INDEX_CACHE_KEY actually
+      # changes, matching app.pipeline.needs_reindex's own change detection.
+      - uses: actions/cache@v4
+        with:
+          path: |
+            data/repos
+            data/manifests
+            data/chroma
+            data/index_state
+          key: ${{ env.INDEX_CACHE_KEY }}
+
+      # Cached separately since this survives even an index-cache bump
+      # (same embedding model, just re-run against new chunks).
+      - uses: actions/cache@v4
+        with:
+          path: ~/.cache/huggingface
+          key: hf-models-jina-v2-base-code-msmarco-minilm
+
+      - run: pip install -r requirements.txt
+
+      - name: Retrieval-only eval gate (free) + demo query
+        run: python -m scripts.run_all --require-gate
+
+      - name: RAGAS answer-quality eval gate (real LLM cost)
+        run: python -m scripts.run_ragas_eval
+
+  docker-build:
+    needs: unit-test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build image
+        run: docker build -t codelens-api:ci .
+
+      - name: Start container
+        run: |
+          docker run -d --name ci-api -p 8000:8000 \
+            -e OPENAI_API_KEY=ci-placeholder \
+            -e GITHUB_TOKEN=ci-placeholder \
+            codelens-api:ci
+
+      - name: Wait for /health
+        run: |
+          for i in $(seq 1 30); do
+            if curl -sf http://localhost:8000/health; then
+              echo "healthy"
+              exit 0
+            fi
+            sleep 5
+          done
+          echo "container never became healthy"
+          docker logs ci-api
+          exit 1
+
+      - name: Container logs
+        if: always()
+        run: docker logs ci-api
+
+      - name: Stop container
+        if: always()
+        run: docker rm -f ci-api

@@ -13,6 +13,7 @@ from app.config import (
     S3_BUCKET, AWS_ENDPOINT_URL, AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY,
     AWS_DEFAULT_REGION, EMBEDDING_MODEL_NAME
 )
+from app.classify import get_source_type, get_path_type
 import boto3
 
 # ── Setup ─────────────────────────────────────────────
@@ -34,26 +35,6 @@ MAX_CHUNK_TOKENS = 512
 # Bump whenever chunking, metadata, or embedding logic changes in a way that
 # makes previously-indexed chunks stale (e.g. adding source_type/path_type).
 PIPELINE_VERSION = 2
-
-# Extensions treated as source code; everything else (.md, .txt) is documentation
-CODE_EXTENSIONS = {
-    ".py", ".js", ".ts", ".java", ".go",
-    ".cpp", ".c", ".h", ".rs", ".rb"
-}
-
-
-def get_source_type(extension: str) -> str:
-    return "code" if extension in CODE_EXTENSIONS else "doc"
-
-
-# Where a chunk lives in the repo: library source vs tests vs example snippets vs docs
-PATH_TYPE_DIRS = {"tests": "tests", "docs_src": "examples", "docs": "docs"}
-
-
-def get_path_type(rel_path: str) -> str:
-    top = rel_path.replace("\\", "/").split("/")[0]
-    return PATH_TYPE_DIRS.get(top, "library")
-
 
 # ── Token counting ────────────────────────────────────
 def estimate_tokens(text: str) -> int:

@@ -40,6 +40,14 @@ def clone_repo(github_url: str) -> Path:
         print(f"Cloning {github_url} into {dest_path}")
         subprocess.run(["git", "clone", github_url, str(dest_path)], check=True)
 
+    # CI pins to the exact commit the golden set (app/eval.py) was hand-verified
+    # against, so eval results are reproducible instead of drifting whenever
+    # upstream fastapi gets a new commit.
+    pin = os.environ.get("CODELENS_PIN_COMMIT")
+    if pin:
+        print(f"CODELENS_PIN_COMMIT set — checking out {pin}")
+        subprocess.run(["git", "-C", str(dest_path), "checkout", pin], check=True)
+
     return dest_path
 
 

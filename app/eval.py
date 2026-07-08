@@ -20,6 +20,7 @@ from ragas.metrics import faithfulness, answer_relevancy, context_recall
 from datasets import Dataset
 
 from app.retrieval import build_retriever, rerank, answer_query
+from app.scoring import norm_path, is_translation_miss, ANSWER_QUALITY_THRESHOLDS, check_answer_gate  # noqa: F401
 
 # ── Golden test set ───────────────────────────────────
 # category: localization | identifier | explanation | doc | negative | boundary
@@ -217,19 +218,6 @@ GOLDEN_SET = [
 
 
 # ── Retrieval-only scoring ────────────────────────────
-def _norm(path: str) -> str:
-    return path.replace("\\", "/")
-
-
-def _is_translation_miss(retrieved: str, expected: str) -> bool:
-    # docs/en/docs/... vs docs/pt/docs/... — right page, wrong language
-    r, e = _norm(retrieved).split("/"), _norm(expected).split("/")
-    return (
-        len(r) == len(e) and len(r) > 2
-        and r[0] == e[0] == "docs" and r[1] != e[1] and r[2:] == e[2:]
-    )
-
-
 def evaluate_retrieval(repo_id: str, top_k: int = 5) -> dict:
     """Score hybrid retrieval + rerank against the golden set. No LLM calls."""
     results = []
@@ -248,14 +236,14 @@ def evaluate_retrieval(repo_id: str, top_k: int = 5) -> dict:
         raw = retriever.invoke(item["query"])
         candidates = [{"content": d.page_content, "metadata": d.metadata} for d in raw]
         top = rerank(item["query"], candidates, top_k=top_k)
-        retrieved = [_norm(c["metadata"]["rel_path"]) for c in top]
+        retrieved = [norm_path(c["metadata"]["rel_path"]) for c in top]
 
-        expected = [_norm(p) for p in item["expected_sources"]]
+        expected = [norm_path(p) for p in item["expected_sources"]]
         first_hit = next(
             (i for i, path in enumerate(retrieved) if path in expected), None
         )
         translation_miss = first_hit is None and any(
-            _is_translation_miss(r, e) for r in retrieved for e in expected
+            is_translation_miss(r, e) for r in retrieved for e in expected
         )
 
         results.append({
@@ -285,13 +273,6 @@ def evaluate_retrieval(repo_id: str, top_k: int = 5) -> dict:
 
 
 # ── RAGAS answer-quality scoring ──────────────────────
-ANSWER_QUALITY_THRESHOLDS = {
-    "faithfulness": 0.85,
-    "answer_relevancy": 0.80,
-    "context_recall": 0.75,
-}
-
-
 def evaluate_answers(repo_id: str, limit: int | None = None) -> dict:
     """Score generated answers with RAGAS: faithfulness, answer relevancy,
     context recall. Every item costs a real LLM call to generate the answer,
@@ -350,7 +331,3 @@ def evaluate_answers(repo_id: str, limit: int | None = None) -> dict:
         "by_category": by_category,
         "results": df.to_dict(orient="records"),
     }
-
-
-def check_answer_gate(scores: dict) -> bool:
-    return all(scores.get(k, 0) >= v for k, v in ANSWER_QUALITY_THRESHOLDS.items())
