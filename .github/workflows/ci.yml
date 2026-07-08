@@ -48,9 +48,12 @@ jobs:
           python-version: "3.11"
 
       - run: pip install -r requirements-dev.txt
+      # `python -m pytest` (not bare `pytest`) so the repo root is on
+      # sys.path — otherwise `from app.classify import ...` fails with
+      # ModuleNotFoundError on a clean runner with no editable install.
       # No API keys, no model downloads: tests/unit only imports
       # app/classify.py and app/scoring.py, both dependency-free by design.
-      - run: pytest tests/unit/ -v
+      - run: python -m pytest tests/unit/ -v
 
   eval:
     needs: unit-test
