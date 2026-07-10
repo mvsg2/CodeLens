@@ -11,6 +11,15 @@ concurrency:
   group: ci-${{ github.ref }}
   cancel-in-progress: true
 
+# Repo default is read-only (Settings > Actions > General > Workflow
+# permissions), so actions/cache's save step silently no-ops without this —
+# confirmed via a real run where the ~3h cold-embed cache never got saved
+# (GET /repos/.../actions/caches returned zero entries afterward).
+# actions: write is the exact scope actions/cache needs; nothing broader.
+permissions:
+  contents: read
+  actions: write
+
 env:
   # The commit the golden set in app/eval.py was hand-verified against
   # (see GOLDEN_SET's docstring). Pinning here — instead of letting
