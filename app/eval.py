@@ -15,12 +15,90 @@ Two independent scorers sit on top of the same golden set:
   on every commit.
 """
 
+import os
+
+from langchain_openai import ChatOpenAI, OpenAIEmbeddings
 from ragas import evaluate as ragas_evaluate
+from ragas.embeddings import LangchainEmbeddingsWrapper
+from ragas.llms import LangchainLLMWrapper
 from ragas.metrics import faithfulness, answer_relevancy, context_recall
+from ragas.run_config import RunConfig
 from datasets import Dataset
 
 from app.retrieval import build_retriever, rerank, answer_query
-from app.scoring import norm_path, is_translation_miss, ANSWER_QUALITY_THRESHOLDS, check_answer_gate  # noqa: F401
+from app.scoring import norm_path, is_translation_miss, function_hit, ANSWER_QUALITY_THRESHOLDS, check_answer_gate  # noqa: F401
+
+# Candidate judge models under evaluation -- see
+# scripts/smoke_tests/judge_calibration.py for the calibration process behind
+# this choice, and notes/eval-harness-and-ragas.md / codelens.md's Aspect 4
+# addendum for why an explicit judge model matters at all (RAGAS silently
+# defaults to gpt-3.5-turbo if `llm=` is never passed, which measured 86% on
+# judge_calibration.py's cases vs gpt-4o's 100%, and was observed failing to
+# parse RAGAS's own structured-output format on real multi-sentence answers).
+#
+# Each entry: model name, optional base_url (None = OpenAI's own endpoint),
+# and the env var holding the API key for that endpoint. qwen3-8b is not
+# OpenAI-hosted, so it's routed through OpenRouter's OpenAI-compatible API
+# instead -- confirmed the model slug is real via OpenRouter's own /models
+# endpoint before wiring it in (https://openrouter.ai/api/v1/models).
+# gemma-4-31b is routed through ASU Research Computing's OpenAI-compatible
+# gateway (https://openai.rc.asu.edu/v1) instead of OpenRouter -- same
+# underlying model (google/gemma-4-31b-it on OpenRouter, gemma4-31b-it on
+# ASU's endpoint -- note the different exact model-name string per
+# provider), but ASU-subsidized rather than a per-token OpenRouter charge.
+# Either backend avoids self-hosting a 31B model locally (~17-20GB VRAM
+# even 4-bit quantized) and both are reachable from CI (no GPU needed,
+# unlike local self-hosting).
+JUDGE_MODELS = {
+    "gpt-4o": {"model": "gpt-4o", "base_url": None, "api_key_env": "OPENAI_API_KEY"},
+    "gpt-5.2": {"model": "gpt-5.2", "base_url": None, "api_key_env": "OPENAI_API_KEY"},
+    "qwen3-8b": {"model": "qwen/qwen3-8b", "base_url": "https://openrouter.ai/api/v1",
+                 "api_key_env": "OPENROUTER_API_KEY"},
+    "gemma-4-31b": {"model": "gemma4-31b-it", "base_url": "https://openai.rc.asu.edu/v1",
+                     "api_key_env": "ASU_RC_API_KEY"},
+}
+DEFAULT_JUDGE = "gpt-4o"
+
+
+def build_judge(judge_name: str) -> LangchainLLMWrapper:
+    if judge_name not in JUDGE_MODELS:
+        raise ValueError(f"Unknown judge '{judge_name}'. Choices: {list(JUDGE_MODELS)}")
+    cfg = JUDGE_MODELS[judge_name]
+    api_key = os.environ.get(cfg["api_key_env"])
+    if not api_key:
+        raise RuntimeError(
+            f"Judge '{judge_name}' needs {cfg['api_key_env']} set in the environment "
+            f"(.env locally, or a repo secret in CI) -- not currently set."
+        )
+    kwargs = {"model": cfg["model"], "timeout": 120, "api_key": api_key}
+    if cfg["base_url"]:
+        kwargs["base_url"] = cfg["base_url"]
+    return LangchainLLMWrapper(ChatOpenAI(**kwargs))
+
+
+# answer_relevancy needs its own embedding model, separate from the judge
+# LLM -- ragas_evaluate()'s embeddings= param also silently defaults to
+# OpenAI if never passed, the same silent-default trap the judge llm= had.
+# Routed through ASU RC (same gateway as the gemma-4-31b judge) so
+# answer_relevancy no longer depends on OpenAI credit at all -- the only
+# remaining hard OpenAI dependency in the whole eval is gpt-4o for answer
+# generation itself (app/retrieval.py's call_llm), which is fixed by
+# design, not a swappable judge-comparison variable.
+EMBEDDING_MODEL = "qwen3-vl-embedding-8b"
+EMBEDDING_BASE_URL = "https://openai.rc.asu.edu/v1"
+EMBEDDING_API_KEY_ENV = "ASU_RC_API_KEY"
+
+
+def build_answer_relevancy_embeddings() -> LangchainEmbeddingsWrapper:
+    api_key = os.environ.get(EMBEDDING_API_KEY_ENV)
+    if not api_key:
+        raise RuntimeError(
+            f"answer_relevancy's embedding model needs {EMBEDDING_API_KEY_ENV} "
+            f"set in the environment -- not currently set."
+        )
+    return LangchainEmbeddingsWrapper(OpenAIEmbeddings(
+        model=EMBEDDING_MODEL, base_url=EMBEDDING_BASE_URL, api_key=api_key,
+    ))
 
 # ── Golden test set ───────────────────────────────────
 # category: localization | identifier | explanation | doc | negative | boundary
@@ -33,6 +111,10 @@ GOLDEN_SET = [
         "query": "Where is request routing implemented?",
         "expected_answer": "fastapi/routing.py — APIRouter.add_api_route creates an APIRoute and appends it to self.routes",
         "expected_sources": ["fastapi/routing.py", "fastapi/applications.py"],
+        "expected_functions": [
+            {"rel_path": "fastapi/routing.py", "class_name": "APIRouter", "func_name": "add_api_route"},
+            {"rel_path": "fastapi/applications.py", "class_name": "FastAPI", "func_name": "add_api_route"},
+        ],
         "source_type": "code",
         "category": "localization",
     },
@@ -40,6 +122,9 @@ GOLDEN_SET = [
         "query": "Where is OAuth2 password bearer authentication implemented?",
         "expected_answer": "fastapi/security/oauth2.py — OAuth2PasswordBearer extracts the bearer token from the Authorization header",
         "expected_sources": ["fastapi/security/oauth2.py"],
+        "expected_functions": [
+            {"rel_path": "fastapi/security/oauth2.py", "class_name": "OAuth2PasswordBearer", "func_name": "__call__"},
+        ],
         "source_type": "code",
         "category": "localization",
     },
@@ -47,6 +132,10 @@ GOLDEN_SET = [
         "query": "Where are WebSocket routes registered?",
         "expected_answer": "fastapi/routing.py — add_api_websocket_route creates an APIWebSocketRoute (also exposed on FastAPI in applications.py)",
         "expected_sources": ["fastapi/routing.py", "fastapi/applications.py"],
+        "expected_functions": [
+            {"rel_path": "fastapi/routing.py", "class_name": "APIRouter", "func_name": "add_api_websocket_route"},
+            {"rel_path": "fastapi/applications.py", "class_name": "FastAPI", "func_name": "add_api_websocket_route"},
+        ],
         "source_type": "code",
         "category": "localization",
     },
@@ -54,6 +143,9 @@ GOLDEN_SET = [
         "query": "Where are validation errors converted into HTTP responses?",
         "expected_answer": "fastapi/exception_handlers.py — request_validation_exception_handler returns a 422 JSONResponse",
         "expected_sources": ["fastapi/exception_handlers.py"],
+        "expected_functions": [
+            {"rel_path": "fastapi/exception_handlers.py", "class_name": "", "func_name": "request_validation_exception_handler"},
+        ],
         "source_type": "code",
         "category": "localization",
     },
@@ -61,6 +153,9 @@ GOLDEN_SET = [
         "query": "Where does FastAPI validate HTTP Basic auth credentials?",
         "expected_answer": "fastapi/security/http.py — HTTPBasic parses and decodes the Authorization header",
         "expected_sources": ["fastapi/security/http.py"],
+        "expected_functions": [
+            {"rel_path": "fastapi/security/http.py", "class_name": "HTTPBasic", "func_name": "__call__"},
+        ],
         "source_type": "code",
         "category": "localization",
     },
@@ -70,6 +165,10 @@ GOLDEN_SET = [
         "query": "Where is `add_api_route` defined?",
         "expected_answer": "fastapi/routing.py (APIRouter.add_api_route) and fastapi/applications.py (FastAPI.add_api_route)",
         "expected_sources": ["fastapi/routing.py", "fastapi/applications.py"],
+        "expected_functions": [
+            {"rel_path": "fastapi/routing.py", "class_name": "APIRouter", "func_name": "add_api_route"},
+            {"rel_path": "fastapi/applications.py", "class_name": "FastAPI", "func_name": "add_api_route"},
+        ],
         "source_type": "code",
         "category": "identifier",
     },
@@ -77,6 +176,9 @@ GOLDEN_SET = [
         "query": "Where is `solve_dependencies` implemented?",
         "expected_answer": "fastapi/dependencies/utils.py — async solve_dependencies resolves the dependency tree for a request",
         "expected_sources": ["fastapi/dependencies/utils.py"],
+        "expected_functions": [
+            {"rel_path": "fastapi/dependencies/utils.py", "class_name": "", "func_name": "solve_dependencies"},
+        ],
         "source_type": "code",
         "category": "identifier",
     },
@@ -84,6 +186,9 @@ GOLDEN_SET = [
         "query": "What does `jsonable_encoder` do?",
         "expected_answer": "fastapi/encoders.py — recursively converts objects (models, dataclasses, datetimes) into JSON-compatible types",
         "expected_sources": ["fastapi/encoders.py"],
+        "expected_functions": [
+            {"rel_path": "fastapi/encoders.py", "class_name": "", "func_name": "jsonable_encoder"},
+        ],
         "source_type": "code",
         "category": "identifier",
     },
@@ -91,6 +196,9 @@ GOLDEN_SET = [
         "query": "Where is `serialize_response` implemented?",
         "expected_answer": "fastapi/routing.py — serialize_response validates and serializes the return value against the response model",
         "expected_sources": ["fastapi/routing.py"],
+        "expected_functions": [
+            {"rel_path": "fastapi/routing.py", "class_name": "", "func_name": "serialize_response"},
+        ],
         "source_type": "code",
         "category": "identifier",
     },
@@ -98,6 +206,10 @@ GOLDEN_SET = [
         "query": "Where is `include_router` defined?",
         "expected_answer": "fastapi/routing.py (APIRouter.include_router) and fastapi/applications.py (FastAPI.include_router)",
         "expected_sources": ["fastapi/routing.py", "fastapi/applications.py"],
+        "expected_functions": [
+            {"rel_path": "fastapi/routing.py", "class_name": "APIRouter", "func_name": "include_router"},
+            {"rel_path": "fastapi/applications.py", "class_name": "FastAPI", "func_name": "include_router"},
+        ],
         "source_type": "code",
         "category": "identifier",
     },
@@ -107,6 +219,9 @@ GOLDEN_SET = [
         "query": "How does dependency injection resolve nested dependencies?",
         "expected_answer": "fastapi/dependencies/utils.py — solve_dependencies walks the dependant tree, awaiting sub-dependencies and caching results",
         "expected_sources": ["fastapi/dependencies/utils.py"],
+        "expected_functions": [
+            {"rel_path": "fastapi/dependencies/utils.py", "class_name": "", "func_name": "solve_dependencies"},
+        ],
         "source_type": "code",
         "category": "explanation",
     },
@@ -114,6 +229,9 @@ GOLDEN_SET = [
         "query": "How does `Depends` declare a dependency for a path operation parameter?",
         "expected_answer": "fastapi/param_functions.py — Depends returns a params.Depends marker consumed during dependant analysis",
         "expected_sources": ["fastapi/param_functions.py"],
+        "expected_functions": [
+            {"rel_path": "fastapi/param_functions.py", "class_name": "", "func_name": "Depends"},
+        ],
         "source_type": "code",
         "category": "explanation",
     },
@@ -121,6 +239,9 @@ GOLDEN_SET = [
         "query": "How are background tasks executed after a response is sent?",
         "expected_answer": "fastapi/background.py — BackgroundTasks collects tasks that Starlette runs after the response",
         "expected_sources": ["fastapi/background.py"],
+        "expected_functions": [
+            {"rel_path": "fastapi/background.py", "class_name": "BackgroundTasks", "func_name": "add_task"},
+        ],
         "source_type": "code",
         "category": "explanation",
     },
@@ -128,6 +249,10 @@ GOLDEN_SET = [
         "query": "How does FastAPI serialize the return value of a path operation against the response_model?",
         "expected_answer": "fastapi/routing.py — serialize_response uses the response field to validate then jsonable_encoder to serialize",
         "expected_sources": ["fastapi/routing.py", "fastapi/encoders.py"],
+        "expected_functions": [
+            {"rel_path": "fastapi/routing.py", "class_name": "", "func_name": "serialize_response"},
+            {"rel_path": "fastapi/encoders.py", "class_name": "", "func_name": "jsonable_encoder"},
+        ],
         "source_type": "code",
         "category": "explanation",
     },
@@ -135,6 +260,9 @@ GOLDEN_SET = [
         "query": "How does OAuth2PasswordBearer respond when no Authorization header is present?",
         "expected_answer": "fastapi/security/oauth2.py — raises 401 with WWW-Authenticate: Bearer unless auto_error is False",
         "expected_sources": ["fastapi/security/oauth2.py"],
+        "expected_functions": [
+            {"rel_path": "fastapi/security/oauth2.py", "class_name": "OAuth2PasswordBearer", "func_name": "__call__"},
+        ],
         "source_type": "code",
         "category": "explanation",
     },
@@ -246,6 +374,24 @@ def evaluate_retrieval(repo_id: str, top_k: int = 5) -> dict:
             is_translation_miss(r, e) for r in retrieved for e in expected
         )
 
+        # Function-level: did retrieval get the *specific function*, not just
+        # the right file? Only scored for items with hand-verified
+        # expected_functions (localization/identifier/explanation) -- see
+        # codelens.md's Aspect 4 addendum for why file-level hit_rate alone
+        # missed a real case (add_api_route never retrieved despite 4/5
+        # chunks being in the right file).
+        func_hit = None
+        if "expected_functions" in item:
+            retrieved_funcs = [
+                {
+                    "rel_path": c["metadata"]["rel_path"],
+                    "class_name": c["metadata"].get("class_name", ""),
+                    "func_name": c["metadata"].get("func_name", ""),
+                }
+                for c in top
+            ]
+            func_hit = function_hit(retrieved_funcs, item["expected_functions"])
+
         results.append({
             "query": item["query"],
             "category": item["category"],
@@ -253,6 +399,7 @@ def evaluate_retrieval(repo_id: str, top_k: int = 5) -> dict:
             "hit": first_hit is not None,
             "reciprocal_rank": 1 / (first_hit + 1) if first_hit is not None else 0.0,
             "translation_miss": translation_miss,
+            "function_hit": func_hit,
             "retrieved": retrieved,
             "expected": expected,
         })
@@ -262,22 +409,41 @@ def evaluate_retrieval(repo_id: str, top_k: int = 5) -> dict:
     for r in results:
         by_category.setdefault(r["category"], []).append(r["hit"])
 
+    func_scored = [r for r in results if r["function_hit"] is not None]
+    func_by_category = {}
+    for r in func_scored:
+        func_by_category.setdefault(r["category"], []).append(r["function_hit"])
+
     return {
         "hit_rate": sum(r["hit"] for r in scored) / len(scored),
         "mrr": sum(r["reciprocal_rank"] for r in scored) / len(scored),
         "by_category": {
             cat: sum(hits) / len(hits) for cat, hits in by_category.items()
         },
+        # Function-level hit rate: stricter than hit_rate, only computed over
+        # items with expected_functions ground truth (a subset of `scored`).
+        "function_hit_rate": (
+            sum(func_scored[i]["function_hit"] for i in range(len(func_scored))) / len(func_scored)
+            if func_scored else None
+        ),
+        "function_hit_rate_by_category": {
+            cat: sum(hits) / len(hits) for cat, hits in func_by_category.items()
+        },
         "results": results,
     }
 
 
 # ── RAGAS answer-quality scoring ──────────────────────
-def evaluate_answers(repo_id: str, limit: int | None = None) -> dict:
+def evaluate_answers(repo_id: str, limit: int | None = None, judge: str = DEFAULT_JUDGE) -> dict:
     """Score generated answers with RAGAS: faithfulness, answer relevancy,
     context recall. Every item costs a real LLM call to generate the answer,
     plus several more internally for RAGAS's own judge model — pass `limit`
     to bound cost while iterating.
+
+    `judge` selects which model grades the answers -- see JUDGE_MODELS.
+    This is a separate choice from the model that generates the answers
+    (always gpt-4o, per app/retrieval.py's call_llm); comparing judges here
+    is specifically about calibrating the grader, not the generator.
 
     ground_truth is the golden set's expected_answer (a short, hand-verified
     reference), and contexts is the actual retrieved chunk text (not file
@@ -303,9 +469,19 @@ def evaluate_answers(repo_id: str, limit: int | None = None) -> dict:
         categories.append(item["category"])
 
     dataset = Dataset.from_list(rows)
+    judge_llm = build_judge(judge)
+    judge_embeddings = build_answer_relevancy_embeddings()
+    # Default max_workers=16 fires that many concurrent judge calls at once --
+    # real run hit a hard 429 (gpt-4o TPM cap for this org) because RAGAS's
+    # default retry/backoff doesn't reduce concurrency between attempts, so
+    # each retry re-saturates the same per-minute ceiling. Lower concurrency
+    # trades wall-clock time for actually staying under the real limit.
     ragas_result = ragas_evaluate(
         dataset,
         metrics=[faithfulness, answer_relevancy, context_recall],
+        llm=judge_llm,
+        embeddings=judge_embeddings,
+        run_config=RunConfig(max_workers=3),
     )
 
     df = ragas_result.to_pandas()
@@ -327,6 +503,7 @@ def evaluate_answers(repo_id: str, limit: int | None = None) -> dict:
         }
 
     return {
+        "judge": judge,
         "scores": scores,
         "by_category": by_category,
         "results": df.to_dict(orient="records"),

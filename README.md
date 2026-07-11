@@ -198,14 +198,14 @@ Once `Dockerfile` and `docker-compose.yml` are wired up, bring up the containeri
 
 ```bash
 docker compose up --build -d
-python -m scripts.smoke_test
+python -m scripts.smoke_tests.deployment_smoke_test
 ```
 
-`smoke_test.py` treats the running API as a black box — it never imports `app/` code, it only makes real HTTP requests to `http://localhost:8000`, the same way a real client would. It polls `/health` until the container is ready, then checks that a code query and a doc query both return correctly-typed sources with no LLM cost.
+`deployment_smoke_test.py` (in `scripts/smoke_tests/`, alongside the other smoke-test scripts) treats the running API as a black box — it never imports `app/` code, it only makes real HTTP requests to `http://localhost:8000`, the same way a real client would. It polls `/health` until the container is ready, then checks that a code query and a doc query both return correctly-typed sources with no LLM cost.
 
-**Known issue on Windows + Docker Desktop**: during development, `scripts/smoke_test.py` occasionally hit an intermittent `ReadTimeout` on one of the two `/query` calls, even though the container had already answered correctly and fast — confirmed directly from the container's own logs. Multiple fixes were tried (forcing IPv4 over `localhost`, restarting the WSL2/Docker network bridge, switching the script to a shared `requests.Session()`), and none reliably eliminated it. The pattern strongly points to flakiness in Docker Desktop's Windows↔WSL2 network bridge itself, not the application — every request the server received was processed correctly in a couple of milliseconds, with zero exceptions, every single time. This is expected to not reproduce in CI or real AWS deployment, since neither runs through that Windows/WSL2 translation layer at all.
+**Known issue on Windows + Docker Desktop**: during development, `deployment_smoke_test.py` occasionally hit an intermittent `ReadTimeout` on one of the two `/query` calls, even though the container had already answered correctly and fast — confirmed directly from the container's own logs. Multiple fixes were tried (forcing IPv4 over `localhost`, restarting the WSL2/Docker network bridge, switching the script to a shared `requests.Session()`), and none reliably eliminated it. The pattern strongly points to flakiness in Docker Desktop's Windows↔WSL2 network bridge itself, not the application — every request the server received was processed correctly in a couple of milliseconds, with zero exceptions, every single time. This is expected to not reproduce in CI or real AWS deployment, since neither runs through that Windows/WSL2 translation layer at all.
 
-If `smoke_test.py` hangs on your machine, verify the app itself is actually fine with a few manual `curl` calls instead. Note PowerShell aliases `curl` to `Invoke-WebRequest` — use `curl.exe` to get the real binary:
+If `deployment_smoke_test.py` hangs on your machine, verify the app itself is actually fine with a few manual `curl` calls instead. Note PowerShell aliases `curl` to `Invoke-WebRequest` — use `curl.exe` to get the real binary:
 
 ```powershell
 # Code question — expect fastapi/param_functions.py, fastapi/dependencies/utils.py
@@ -247,6 +247,8 @@ Not built yet. This section will cover taking CodeLens from the local-only setup
 │   ├── pipeline.py       AST parsing, chunking, embedding, Chroma storage, change-detection state
 │   ├── retrieval.py      hybrid search (semantic + BM25), reranking, prompt building, LLM call
 │   ├── eval.py           golden test set + retrieval-only scoring (hit rate, MRR) and RAGAS answer-quality scoring
+│   ├── classify.py       pure, dependency-free chunk classification/identity (source_type, path_type, chunk_id)
+│   ├── scoring.py        pure, dependency-free eval-scoring helpers (answer-gate thresholds, path normalization)
 │   ├── main.py           the FastAPI server — exposes /query and /health
 │   └── config.py         environment variables and shared constants (e.g. embedding model name)
 ├── scripts/
@@ -255,7 +257,12 @@ Not built yet. This section will cover taking CodeLens from the local-only setup
 │   ├── run_retrieval.py   CLI entry point for asking sample questions
 │   ├── run_eval.py        CLI entry point for the free retrieval-only quality gate
 │   ├── run_ragas_eval.py  CLI entry point for the RAGAS answer-quality gate (real LLM cost)
-│   └── run_all.py         orchestrates all four stages, skipping encoding when nothing changed
+│   ├── run_all.py         orchestrates all four stages, skipping encoding when nothing changed
+│   ├── inspect_answers.py manual cross-check: generated answers next to retrieved chunks, no judge involved
+│   └── smoke_tests/
+│       ├── deployment_smoke_test.py     black-box HTTP smoke test for a running containerized deploy
+│       ├── judge_calibration.py         validates judge output quality against hand-labeled cases
+│       └── judge_endpoints_smoke_test.py  cheap connectivity check for every registered judge/embedding endpoint
 ├── worker/
 │   └── reindex_worker.py   (planned) background worker that re-indexes a repo when
 │                           notified of a new commit, without blocking the API
@@ -269,7 +276,7 @@ Not built yet. This section will cover taking CodeLens from the local-only setup
 
 - [x] LLM-based answer-quality evaluation (faithfulness / answer relevancy / context recall via RAGAS — `app/eval.py`'s `evaluate_answers()`, `scripts/run_ragas_eval.py`)
 - [x] Containerize the app (Dockerfile) — reindex worker still needs one
-- [x] Local "deployment rehearsal": containerized stack running against LocalStack, `scripts/smoke_test.py` checks `/health` and `/query`
+- [x] Local "deployment rehearsal": containerized stack running against LocalStack, `scripts/smoke_tests/deployment_smoke_test.py` checks `/health` and `/query`
 - [ ] Automated CI/CD (lint → unit tests → integration tests → eval gate → smoke test → build → push → deploy)
 - [ ] Migrate the vector store from local Chroma files to pgvector on RDS (needed before running more than one API instance)
 - [ ] Real AWS deployment (ECR, ECS Fargate, ALB, RDS, S3, SQS, IAM) and a public API endpoint

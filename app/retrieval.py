@@ -115,8 +115,19 @@ def rerank(query: str, chunks: list[dict], top_k: int = 5) -> list[dict]:
 
 
 # ── Build prompt ──────────────────────────────────────
-def build_prompt(query: str, chunks: list[dict]) -> str:
-    context_blocks = []
+def source_blocks(chunks: list[dict]) -> list[str]:
+    """[SOURCE N: path:line (func)] + code, per chunk — the exact text the
+    LLM is grounded on and instructed to cite from. Used both to build the
+    generation prompt and as RAGAS's `contexts` (see answer_query below) so
+    the faithfulness judge checks claims against the same material the
+    answer was actually grounded on, not a stripped-down version of it.
+    Splitting this out fixed a real bug: RAGAS was previously given only
+    bare chunk content with no file/line info, so it marked GPT-4o's
+    correctly-cited file paths and line numbers as "unsupported" — verified
+    by a controlled test showing faithfulness on a real example jump from
+    0.333 to 0.667 once RAGAS could see what the answer was actually citing.
+    """
+    blocks = []
     for i, chunk in enumerate(chunks):
         meta = chunk["metadata"]
         line = meta.get("start_line", "?")
@@ -124,10 +135,12 @@ def build_prompt(query: str, chunks: list[dict]) -> str:
         ref = f"{meta['rel_path']}:{line}"
         if func:
             ref += f" ({func})"
-        block = f"[SOURCE {i+1}: {ref}]\n```{meta.get('extension','').lstrip('.')}\n{chunk['content']}\n```"
-        context_blocks.append(block)
+        blocks.append(f"[SOURCE {i+1}: {ref}]\n```{meta.get('extension','').lstrip('.')}\n{chunk['content']}\n```")
+    return blocks
 
-    context = "\n\n".join(context_blocks)
+
+def build_prompt(query: str, chunks: list[dict]) -> str:
+    context = "\n\n".join(source_blocks(chunks))
 
     return f"""You are a codebase expert assistant. Answer the developer's question using ONLY the source code provided below.
 
@@ -209,7 +222,10 @@ def answer_query(query: str, repo_id: str, source_type: str = "code",
         "repo": repo_id
     }
     if include_context:
-        # Raw chunk text, not just file paths — RAGAS needs actual content to
-        # judge faithfulness/context recall against, not a filename string.
-        result["context_chunks"] = [c["content"] for c in top_chunks]
+        # Same source_blocks() the generation prompt used (file/line headers
+        # included), not just bare chunk content — RAGAS's faithfulness judge
+        # needs to see what the answer was actually grounded on, or it marks
+        # correctly-cited file paths/line numbers as unsupported. See
+        # source_blocks()'s docstring for the measured before/after.
+        result["context_chunks"] = source_blocks(top_chunks)
     return result

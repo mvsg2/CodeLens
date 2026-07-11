@@ -1,5 +1,4 @@
 import json
-import uuid
 from pathlib import Path
 
 import tiktoken
@@ -13,7 +12,7 @@ from app.config import (
     S3_BUCKET, AWS_ENDPOINT_URL, AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY,
     AWS_DEFAULT_REGION, EMBEDDING_MODEL_NAME
 )
-from app.classify import get_source_type, get_path_type
+from app.classify import get_source_type, get_path_type, chunk_id, chunk_context_header
 import boto3
 
 # ── Setup ─────────────────────────────────────────────
@@ -34,7 +33,9 @@ MAX_CHUNK_TOKENS = 512
 
 # Bump whenever chunking, metadata, or embedding logic changes in a way that
 # makes previously-indexed chunks stale (e.g. adding source_type/path_type).
-PIPELINE_VERSION = 2
+# v3: chunk_context_header() prepended to function/function_part content --
+# changes what gets embedded, not just metadata, so old chunks are stale.
+PIPELINE_VERSION = 3
 
 # ── Token counting ────────────────────────────────────
 def estimate_tokens(text: str) -> int:
@@ -64,28 +65,35 @@ def extract_functions(source_code: str) -> list[dict]:
     root = tree.root_node
     functions = []
 
-    def walk(node, class_name=None):
+    def _leading_docstring(body_node) -> str:
+        if body_node and body_node.child_count > 0:
+            first = body_node.children[0]
+            if first.type == "expression_statement" and first.children:
+                inner = first.children[0]
+                if inner.type == "string":
+                    return inner.text.decode().strip("\"' ")
+        return ""
+
+    def walk(node, class_name=None, class_docstring=""):
         if node.type == "class_definition":
             name_node = node.child_by_field_name("name")
             if name_node:
                 class_name = name_node.text.decode()
+            # Scoped to this class specifically -- used to prime method
+            # chunks with vocabulary that otherwise only lives in the class
+            # docstring / __init__'s Doc() annotations (see
+            # chunk_context_header's docstring for why this matters).
+            class_docstring = _leading_docstring(node.child_by_field_name("body"))
 
         if node.type in ("function_definition", "async_function_definition"):
             name_node = node.child_by_field_name("name")
             func_name = name_node.text.decode() if name_node else "unknown"
-
-            docstring = ""
-            body = node.child_by_field_name("body")
-            if body and body.child_count > 0:
-                first = body.children[0]
-                if first.type == "expression_statement" and first.children:
-                    inner = first.children[0]
-                    if inner.type == "string":
-                        docstring = inner.text.decode().strip("\"' ")
+            docstring = _leading_docstring(node.child_by_field_name("body"))
 
             functions.append({
                 "name": func_name,
                 "class": class_name,
+                "class_docstring": class_docstring,
                 "start_line": node.start_point[0] + 1,
                 "end_line": node.end_point[0] + 1,
                 "code": node.text.decode(),
@@ -93,7 +101,7 @@ def extract_functions(source_code: str) -> list[dict]:
             })
 
         for child in node.children:
-            walk(child, class_name)
+            walk(child, class_name, class_docstring)
 
     walk(root)
     return functions
@@ -140,18 +148,23 @@ def chunk_file(file_info: dict, source_code: str) -> list[dict]:
         else:
             for func in functions:
                 code = func["code"]
+                # Prepended to every function/function_part chunk's content
+                # (embedded and stored, not just metadata) -- see
+                # chunk_context_header's docstring for the two real
+                # retrieval failures this fixes.
+                header = chunk_context_header(func["name"], func["class"], func["class_docstring"])
                 if estimate_tokens(code) > MAX_CHUNK_TOKENS:
                     sub_chunks = fixed_token_split(code, MAX_CHUNK_TOKENS)
                     for i, sub in enumerate(sub_chunks):
                         chunks.append(build_chunk(
-                            content=sub, file_info=file_info,
+                            content=header + sub, file_info=file_info,
                             func_name=func["name"], class_name=func["class"],
                             start_line=func["start_line"],
                             chunk_type="function_part", part_index=i
                         ))
                 else:
                     chunks.append(build_chunk(
-                        content=code, file_info=file_info,
+                        content=header + code, file_info=file_info,
                         func_name=func["name"], class_name=func["class"],
                         start_line=func["start_line"],
                         chunk_type="function"
@@ -217,7 +230,7 @@ def store_chunks(chunks: list[dict], repo_id: str):
     for i in range(0, len(chunks), batch_size):
         batch = chunks[i:i + batch_size]
         collection.upsert(
-            ids=[str(uuid.uuid4()) for _ in batch],
+            ids=[chunk_id(c["metadata"]) for c in batch],
             documents=[c["content"] for c in batch],
             embeddings=[c["embedding"] for c in batch],
             metadatas=[c["metadata"] for c in batch]
