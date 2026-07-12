@@ -82,6 +82,11 @@ jobs:
       AWS_DEFAULT_REGION: us-east-1
       S3_BUCKET: codelens-bucket
       OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      # GENERATOR_MODEL defaults to qwen3-coder-30b (app/retrieval.py's
+      # GENERATOR_MODELS registry), served via ASU Research Computing --
+      # needed by evaluate_answers()'s real answer_query() calls, not just
+      # OpenAI-routed judge/embedding calls.
+      ASU_RC_API_KEY: ${{ secrets.ASU_RC_API_KEY }}
       # GitHub's own per-run token is enough for the public metadata read
       # app.sourcing.get_repo_metadata does (GET /repos/{owner}/{repo}) —
       # no personal PAT needed as a repo secret for this.

@@ -259,10 +259,11 @@ Not built yet. This section will cover taking CodeLens from the local-only setup
 │   ├── run_ragas_eval.py  CLI entry point for the RAGAS answer-quality gate (real LLM cost)
 │   ├── run_all.py         orchestrates all four stages, skipping encoding when nothing changed
 │   ├── inspect_answers.py manual cross-check: generated answers next to retrieved chunks, no judge involved
-│   └── smoke_tests/
-│       ├── deployment_smoke_test.py     black-box HTTP smoke test for a running containerized deploy
-│       ├── judge_calibration.py         validates judge output quality against hand-labeled cases
-│       ├── judge_endpoints_smoke_test.py  cheap connectivity check for every registered judge/embedding endpoint
+│   ├── smoke_tests/
+│   │   ├── deployment_smoke_test.py     black-box HTTP smoke test for a running containerized deploy
+│   │   ├── judge_calibration.py         validates judge output quality against hand-labeled cases
+│   │   └── judge_endpoints_smoke_test.py  cheap connectivity check for every registered judge/embedding endpoint
+│   └── verifier_tests/
 │       ├── validate_golden_set.py       sanity-checks GOLDEN_SET itself before spending money on run_ragas_eval.py
 │       └── grep_verify_golden_set.py    AST-based deep check: every expected_functions claim is a real def, reports live line/args
 ├── worker/
