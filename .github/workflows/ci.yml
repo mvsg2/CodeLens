@@ -140,6 +140,7 @@ jobs:
           docker run -d --name ci-api -p 8000:8000 \
             -e OPENAI_API_KEY=ci-placeholder \
             -e GITHUB_TOKEN=ci-placeholder \
+            -e ASU_RC_API_KEY=ci-placeholder \
             codelens-api:ci
 
       - name: Wait for /health
