@@ -1,3 +1,4 @@
+import os
 from functools import lru_cache
 from pathlib import Path
 import chromadb
@@ -27,8 +28,63 @@ embedding_fn = HuggingFaceEmbeddings(
 # ── Reranker ──────────────────────────────────────────
 reranker = CrossEncoder("cross-encoder/ms-marco-MiniLM-L-6-v2")
 
-# ── OpenAI client ─────────────────────────────────────
-client = OpenAI(api_key=OPENAI_API_KEY)
+# ── Answer-generation model ───────────────────────────
+# Swappable via GENERATOR_MODEL env var (defaults to the ASU RC candidate
+# below) -- temporary measure while the OpenAI account's credit balance is
+# unresolved (see notes/ and codelens.md's Aspect 4 addendum for the real
+# insufficient_quota investigation). Kept as a small registry, same shape
+# as app/eval.py's JUDGE_MODELS, so switching back to gpt-4o/gpt-5.2 once
+# credit is available is a one-line env var change, not a code change --
+# this is meant to be reversible, not a permanent architecture decision.
+# qwen3-coder-30b-a3b-instruct chosen deliberately over ASU's larger
+# general-purpose models: coder-specialized (better domain fit for a
+# code-Q&A system), MoE with ~3B active params (cheaper/faster to serve
+# than a same-size dense model), 131K context (far more than the ~5
+# retrieved chunks per query actually need).
+GENERATOR_MODELS = {
+    "gpt-4o": {"model": "gpt-4o", "base_url": None, "api_key_env": "OPENAI_API_KEY"},
+    "gpt-5.2": {"model": "gpt-5.2", "base_url": None, "api_key_env": "OPENAI_API_KEY"},
+    "qwen3-coder-30b": {"model": "qwen3-coder-30b-a3b-instruct",
+                        "base_url": "https://openai.rc.asu.edu/v1", "api_key_env": "ASU_RC_API_KEY"},
+    # 0.8B dense model -- smallest ASU RC candidate, tried as a
+    # lower-latency alternative to the 30B MoE coder model above after a
+    # /query timeout (root cause turned out to be a dropped VPN connection,
+    # not model speed). Not used as default: its responses come back with
+    # message.content == null (text lands in message.reasoning_content
+    # instead), which call_llm() doesn't read -- would silently return
+    # empty answers without a code change. Kept registered for reference.
+    "qwen35-0p8b": {"model": "qwen35-0p8b",
+                    "base_url": "https://openai.rc.asu.edu/v1", "api_key_env": "ASU_RC_API_KEY"},
+    # Default generator as of this change. Chosen over qwen3-coder-30b for
+    # latency: both are ~0.4-0.7s per call once warm (confirmed via direct
+    # curl against the endpoint), but e2b-it is Gemma's distilled/matformer
+    # "effective 2B" checkpoint -- meaningfully more real capacity than the
+    # 0.8B dense model above, and returns a normal message.content (no
+    # reasoning_content quirk, works with call_llm() unmodified). First
+    # call to any ASU RC model after it's been idle pays a one-time cold
+    # start (~29s observed for gemma4-e2b-it) -- not a per-request cost.
+    "gemma4-e2b-it": {"model": "gemma4-e2b-it",
+                      "base_url": "https://openai.rc.asu.edu/v1", "api_key_env": "ASU_RC_API_KEY"},
+}
+GENERATOR_MODEL_NAME = os.environ.get("GENERATOR_MODEL", "qwen3-coder-30b")
+
+
+def _build_generator_client() -> tuple[OpenAI, str]:
+    if GENERATOR_MODEL_NAME not in GENERATOR_MODELS:
+        raise ValueError(f"Unknown GENERATOR_MODEL '{GENERATOR_MODEL_NAME}'. Choices: {list(GENERATOR_MODELS)}")
+    cfg = GENERATOR_MODELS[GENERATOR_MODEL_NAME]
+    api_key = os.environ.get(cfg["api_key_env"]) if cfg["api_key_env"] != "OPENAI_API_KEY" else OPENAI_API_KEY
+    if not api_key:
+        raise RuntimeError(
+            f"Generator '{GENERATOR_MODEL_NAME}' needs {cfg['api_key_env']} set in the environment."
+        )
+    kwargs = {"api_key": api_key}
+    if cfg["base_url"]:
+        kwargs["base_url"] = cfg["base_url"]
+    return OpenAI(**kwargs), cfg["model"]
+
+
+client, GENERATOR_MODEL = _build_generator_client()
 
 
 # ── Load documents from Chroma ────────────────────────
@@ -60,29 +116,42 @@ def load_documents(repo_id: str) -> list[Document]:
 # above. Takes only hashable args (no documents list) so lru_cache can key
 # on them directly; it fetches documents itself via the cached function.
 @lru_cache(maxsize=32)
-def build_retriever(repo_id: str, source_type: str = "code",
+def build_retriever(repo_id: str, source_type: str | None = None,
                     path_type: str | None = None) -> EnsembleRetriever:
     documents = load_documents(repo_id)
 
-    # Semantic retriever, filtered at the Chroma level
-    conditions = [{"source_type": source_type}]
+    # Semantic retriever, filtered at the Chroma level. Both filters are
+    # optional -- None means "don't restrict on this dimension," so the
+    # default (both None) searches the whole collection: code and docs,
+    # library and tests and examples, all together, ranked purely on
+    # relevance rather than pre-excluded by a bucket the caller didn't ask
+    # to exclude.
+    conditions = []
+    if source_type:
+        conditions.append({"source_type": source_type})
     if path_type:
         conditions.append({"path_type": path_type})
-    chroma_filter = conditions[0] if len(conditions) == 1 else {"$and": conditions}
+    if not conditions:
+        chroma_filter = None
+    elif len(conditions) == 1:
+        chroma_filter = conditions[0]
+    else:
+        chroma_filter = {"$and": conditions}
 
     vectorstore = Chroma(
         collection_name="codebase",
         persist_directory=str(CHROMA_DIR / repo_id),
         embedding_function=embedding_fn
     )
-    semantic = vectorstore.as_retriever(
-        search_kwargs={"k": 10, "filter": chroma_filter}
-    )
+    search_kwargs = {"k": 10}
+    if chroma_filter:
+        search_kwargs["filter"] = chroma_filter
+    semantic = vectorstore.as_retriever(search_kwargs=search_kwargs)
 
     # Keyword retriever over the same subset
     filtered = [
         d for d in documents
-        if d.metadata.get("source_type") == source_type
+        if (not source_type or d.metadata.get("source_type") == source_type)
         and (not path_type or d.metadata.get("path_type") == path_type)
     ]
     keyword = BM25Retriever.from_documents(filtered or documents)
@@ -96,21 +165,71 @@ def build_retriever(repo_id: str, source_type: str = "code",
 
 
 # ── Rerank ────────────────────────────────────────────
-def rerank(query: str, chunks: list[dict], top_k: int = 5) -> list[dict]:
+def _cosine_sim(a: list[float], b: list[float]) -> float:
+    dot = sum(x * y for x, y in zip(a, b))
+    norm_a = sum(x * x for x in a) ** 0.5
+    norm_b = sum(y * y for y in b) ** 0.5
+    return dot / (norm_a * norm_b) if norm_a and norm_b else 0.0
+
+
+def rerank(query: str, chunks: list[dict], top_k: int = 5,
+          diversity_lambda: float = 0.7) -> list[dict]:
+    """Maximal Marginal Relevance reranking, not a plain top-k-by-score sort.
+
+    Plain top-k lets a cluster of near-duplicate chunks collectively crowd
+    out one genuinely distinct, more useful result -- confirmed as a real
+    problem once source_type/path_type filtering became optional (see
+    codelens.md): searching a repo's whole collection unfiltered surfaced
+    several near-identical translated doc pages (same content, different
+    language) ranked above the actual relevant code. This isn't specific to
+    translation -- the same failure mode applies to versioned docs, vendored
+    dependency copies, or repeated boilerplate in a monorepo, none of which
+    this function assumes anything about.
+
+    Each candidate is scored as (diversity_lambda * relevance) - ((1 -
+    diversity_lambda) * max_similarity_to_already_selected), picking one
+    chunk at a time greedily. The similarity term uses the same semantic
+    embeddings used for indexing (not literal text overlap), specifically
+    because that's what catches near-duplicates whose literal text barely
+    overlaps at all -- e.g. the same doc page translated into Turkish,
+    English, and Chinese share almost no tokens, but should embed close
+    together if the embedding model captures the content's meaning.
+    diversity_lambda=0.7 keeps relevance dominant while still penalizing
+    near-duplicates; 1.0 would reduce to the old plain top-k-by-score
+    behavior, 0.0 would ignore relevance entirely and pick only for spread.
+    """
     pairs = [(query, c["content"]) for c in chunks]
-    scores = reranker.predict(pairs)
-    ranked = sorted(
-        zip(scores, chunks),
-        key=lambda x: x[0],
-        reverse=True
-    )
+    raw_scores = [float(s) for s in reranker.predict(pairs)]
+
+    # Min-max normalize onto [0, 1] -- the cross-encoder's raw scores and
+    # cosine similarity live on different scales, so combining them
+    # unnormalized would let one term dominate regardless of
+    # diversity_lambda instead of expressing the intended trade-off.
+    lo, hi = min(raw_scores), max(raw_scores)
+    span = hi - lo or 1.0
+    norm_scores = [(s - lo) / span for s in raw_scores]
+
+    embeddings = embedding_fn.embed_documents([c["content"] for c in chunks])
+
+    remaining = list(range(len(chunks)))
+    selected: list[int] = []
+    while remaining and len(selected) < top_k:
+        def mmr_score(i: int) -> float:
+            if not selected:
+                return norm_scores[i]
+            penalty = max(_cosine_sim(embeddings[i], embeddings[j]) for j in selected)
+            return diversity_lambda * norm_scores[i] - (1 - diversity_lambda) * penalty
+        best = max(remaining, key=mmr_score)
+        selected.append(best)
+        remaining.remove(best)
+
     top = []
-    for score, chunk in ranked[:top_k]:
-        # Cross-encoder relevance score, previously computed then discarded —
-        # kept here so callers can judge confidence, not just get an
-        # unqualified top-5 regardless of whether any of them are any good.
-        chunk["rerank_score"] = float(score)
-        top.append(chunk)
+    for i in selected:
+        # Real cross-encoder relevance score (not the MMR-adjusted value) —
+        # callers judging confidence should see the same scale as before,
+        # not a number that's already been penalized for diversity.
+        chunks[i]["rerank_score"] = raw_scores[i]
+        top.append(chunks[i])
     return top
 
 
@@ -161,7 +280,7 @@ ANSWER:"""
 # ── LLM call ─────────────────────────────────────────
 def call_llm(prompt: str) -> str:
     response = client.chat.completions.create(
-        model="gpt-4o",
+        model=GENERATOR_MODEL,
         messages=[{"role": "user", "content": prompt}],
         max_tokens=1024
     )
@@ -169,14 +288,14 @@ def call_llm(prompt: str) -> str:
 
 
 # ── Main answer function ──────────────────────────────
-def answer_query(query: str, repo_id: str, source_type: str = "code",
-                 path_type: str | None = "auto", include_answer: bool = True,
+def answer_query(query: str, repo_id: str, source_type: str | None = None,
+                 path_type: str | None = None, include_answer: bool = True,
                  include_context: bool = False) -> dict:
-    # "auto": code queries answer from library source; doc queries search all docs.
-    # Pass None to disable the path filter, or e.g. "examples" to target docs_src/.
-    if path_type == "auto":
-        path_type = "library" if source_type == "code" else None
-
+    # Both filters default to None: no restriction, search code + docs,
+    # library + tests + examples, all together. Pass an explicit value for
+    # either (e.g. source_type="code", path_type="tests") to narrow the
+    # search the way the old "code"/"auto" defaults used to narrow it
+    # implicitly.
     print(f"Building retriever for: {repo_id} (cached after first call)...")
     retriever = build_retriever(repo_id, source_type=source_type, path_type=path_type)
 

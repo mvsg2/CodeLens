@@ -56,8 +56,9 @@ from app.eval import JUDGE_MODELS, build_judge
 # (qwen3-8b, gemma-4-31b) work here exactly like OpenAI-hosted ones, using
 # whichever API key each needs. This also means this script can validate a
 # judge using only OPENROUTER_API_KEY, independent of OpenAI quota/billing
-# -- unlike a full scripts.run_ragas_eval run, which always needs gpt-4o
-# (OpenAI) for answer generation regardless of which model judges it.
+# -- unlike a full scripts.run_ragas_eval run, which still needs whichever
+# model app/retrieval.py's GENERATOR_MODEL currently points to for answer
+# generation, regardless of which model judges it.
 DEFAULT_MODELS = list(JUDGE_MODELS)
 # "Near perfect" per the goal of this script: every unambiguous case must
 # pass. known_limitation cases are reported but excluded from the gate --

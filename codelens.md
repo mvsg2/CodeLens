@@ -971,12 +971,23 @@ embedding model (the same "silent default" trap `llm=` originally had).
 `build_answer_relevancy_embeddings()` now routes through ASU Research
 Computing's `qwen3-vl-embedding-8b` instead of OpenAI's default, confirmed
 working with a real embedding call. This removes one of the two OpenAI
-dependencies. **Still blocked, and cannot be routed around:** `gpt-4o`
-answer generation itself, since that's the fixed thing every judge is
-being compared against, not a swappable variable. Full golden-set runs for
-any judge remain on hold until the OpenAI account balance is resolved —
-the embeddings fix reduces cost once that happens, it doesn't unblock
-anything on its own.
+dependencies. **Was fully blocked, and could not be routed around:** `gpt-4o`
+answer generation itself, since it was the fixed thing every judge was
+being compared against, not a swappable variable.
+
+**Update — the generator is no longer permanently fixed to `gpt-4o`.**
+`app/retrieval.py`'s `call_llm` now reads the model from a
+`GENERATOR_MODEL` env var (see that module's `GENERATOR_MODELS` registry),
+defaulting to ASU RC's `qwen3-coder-30b-a3b-instruct` — a temporary,
+reversible measure specifically to unblock shipping/serving real queries
+while the OpenAI credit situation above is unresolved, not a decision to
+abandon `gpt-4o` for the judge comparison. This does mean: any
+`evaluate_answers()` run from this point forward is generating answers
+with whichever model `GENERATOR_MODEL` currently points to, not `gpt-4o` —
+the historical numbers in this document (faithfulness 0.803 etc.) were
+measured against `gpt-4o`-generated answers specifically, and are not
+directly comparable to a future run unless `GENERATOR_MODEL` is set back
+to `gpt-4o` first.
 
 **Judge calibration (`judge_calibration.py`) results — not blocked**, since
 it tests judges directly against hand-labeled cases without calling
@@ -999,6 +1010,64 @@ than a near-exact quote match. Full golden-set results for `qwen3-8b` and
 answers, not just calibration cases) still pending — calibration passing
 is necessary but not sufficient to know how a judge performs on the real,
 harder golden-set answers.
+
+### Flexible source_type/path_type filtering and MMR reranking
+
+`source_type`/`path_type` on `/query` were originally hard, narrow
+defaults (`source_type="code"`, `path_type` auto-mapped to `"library"`
+only) — a caller who wanted a doc-only or cross-cutting answer had to know
+to override them explicitly. Changed both to genuinely optional filters
+(`None` = no restriction, search the whole indexed collection — code and
+docs, library and tests and examples, together) in `app/retrieval.py`'s
+`build_retriever()`/`answer_query()` and `app/main.py`'s `QueryRequest`.
+`"auto"` is still accepted on `path_type` for backward compatibility, but
+now means "no filter" rather than its old "library-only for code queries"
+meaning — a real behavior change for any caller still sending it. Every
+`GOLDEN_SET` item passes its own explicit `source_type`/`path_type`, so
+`evaluate_retrieval()`'s gate is fully insulated from this default change
+— confirmed via a real re-run: `hit_rate@5` unchanged at `0.900`.
+
+**Real problem found once filtering became optional**: running an
+unfiltered query ("Where is request routing implemented?") surfaced
+several near-identical translated doc pages (`docs/tr`, `docs/en`,
+`docs/ja`, `docs/zh` — FastAPI's docs are mirrored into ~15 languages)
+crowding out the actual relevant code, including one literal duplicate
+entry. Fixed the literal-duplicate part with Maximal Marginal Relevance
+reranking (`app/retrieval.py`'s `rerank()`, `_cosine_sim()`) — greedily
+selects each next chunk by `(diversity_lambda * relevance) -
+((1-diversity_lambda) * max_similarity_to_already_selected)`, using the
+same semantic embeddings used for indexing (not literal text overlap,
+since translated text shares almost no literal tokens but should embed
+close together). `diversity_lambda=0.7` keeps relevance dominant.
+Deliberately general, not FastAPI-specific — the identical failure mode
+(near-duplicate chunks collectively crowding out one distinct, useful
+result) applies to versioned docs, vendored dependency copies, or repeated
+monorepo boilerplate, none of which the fix assumes anything about.
+Confirmed no regression: `hit_rate@5` unchanged at `0.900`, `MRR@5`
+actually improved slightly (`0.804` → `0.810`).
+
+**But MMR didn't fully fix the demo query** — re-running it after the fix
+still showed 4 translated doc pages ahead of real code. Traced this to the
+*pre-rerank* candidate pool directly (`build_retriever(...).invoke(...)`,
+20 raw candidates): real code chunks (`fastapi/dependencies/utils.py:598
+solve_dependencies`, `fastapi/applications.py:58 __init__`,
+`fastapi/routing.py:2171 _solve_dependencies`) were genuinely present, but
+the cross-encoder itself scored them *below* test files named things like
+`test_router_include_context.py` and doc pages that literally discuss
+"route"/"routing" configuration — likely because test/doc surface text is
+packed with the literal query terms while real implementation code uses
+more abstract internal naming. This is a relevance-*calibration* problem
+in the reranker itself, not a duplication problem — MMR can only
+diversify among candidates that already scored well; it can't rescue one
+the cross-encoder is underrating relative to lexically-flashier matches.
+
+**Decision: accept this as a known limitation of unfiltered search,
+rather than keep engineering around it.** `source_type`/`path_type`
+filters remain the right tool for a query that's clearly about
+implementation specifically — "flexible" (searching everything) is a
+genuine capability for cross-cutting or exploratory questions, not a
+strictly-better replacement for a caller who already knows they want code.
+No further changes made to chase this specific query's ranking.
 
 ---
 

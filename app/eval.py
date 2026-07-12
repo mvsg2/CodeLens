@@ -266,6 +266,28 @@ GOLDEN_SET = [
         "source_type": "code",
         "category": "explanation",
     },
+    {
+        "query": "How are path operations configured?",
+        # Verified directly against source, not copied from a generated
+        # answer -- confirmed api_route() is defined in both routing.py
+        # (APIRouter) and applications.py (FastAPI), and confirmed the
+        # HTTP-verb decorators (get/post/put/delete/patch/options/head)
+        # each internally call `self.api_route(...)`, passing the
+        # appropriate `methods` list -- 9 call sites of `self.api_route(`
+        # found in routing.py alone.
+        "expected_answer": "Decorator methods (@app.get, @app.post, @app.put, "
+                           "@app.delete, @app.patch, @app.options, @app.head) on both "
+                           "APIRouter (fastapi/routing.py) and FastAPI (fastapi/applications.py) "
+                           "each internally call api_route(), passing the appropriate HTTP "
+                           "methods list -- api_route is the actual shared registration logic",
+        "expected_sources": ["fastapi/routing.py", "fastapi/applications.py"],
+        "expected_functions": [
+            {"rel_path": "fastapi/routing.py", "class_name": "APIRouter", "func_name": "api_route"},
+            {"rel_path": "fastapi/applications.py", "class_name": "FastAPI", "func_name": "api_route"},
+        ],
+        "source_type": "code",
+        "category": "explanation",
+    },
 
     # ── doc queries (source_type=doc, pinned to English docs) ──
     {
@@ -441,9 +463,17 @@ def evaluate_answers(repo_id: str, limit: int | None = None, judge: str = DEFAUL
     to bound cost while iterating.
 
     `judge` selects which model grades the answers -- see JUDGE_MODELS.
-    This is a separate choice from the model that generates the answers
-    (always gpt-4o, per app/retrieval.py's call_llm); comparing judges here
-    is specifically about calibrating the grader, not the generator.
+    This is a separate choice from the model that generates the answers,
+    controlled independently via app/retrieval.py's GENERATOR_MODEL env var
+    (defaults to an ASU RC model as of this writing -- see that module's
+    GENERATOR_MODELS registry for why, and codelens.md's Aspect 4 addendum
+    for the OpenAI credit situation that motivated it). Historical
+    faithfulness/context_recall numbers documented in codelens.md were
+    measured against gpt-4o-generated answers specifically -- comparing
+    judges here is about calibrating the grader, not the generator, but
+    changing the generator does mean future runs aren't perfectly
+    apples-to-apples with those earlier numbers unless GENERATOR_MODEL is
+    set back to gpt-4o.
 
     ground_truth is the golden set's expected_answer (a short, hand-verified
     reference), and contexts is the actual retrieved chunk text (not file

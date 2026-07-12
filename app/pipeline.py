@@ -12,7 +12,7 @@ from app.config import (
     S3_BUCKET, AWS_ENDPOINT_URL, AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY,
     AWS_DEFAULT_REGION, EMBEDDING_MODEL_NAME
 )
-from app.classify import get_source_type, get_path_type, chunk_id, chunk_context_header
+from app.classify import get_source_type, get_path_type, chunk_id
 import boto3
 
 # ── Setup ─────────────────────────────────────────────
@@ -34,8 +34,11 @@ MAX_CHUNK_TOKENS = 512
 # Bump whenever chunking, metadata, or embedding logic changes in a way that
 # makes previously-indexed chunks stale (e.g. adding source_type/path_type).
 # v3: chunk_context_header() prepended to function/function_part content --
-# changes what gets embedded, not just metadata, so old chunks are stale.
-PIPELINE_VERSION = 3
+#     reverted (see chunk_file's comment) after measuring a net regression
+#     on the real golden set. Bumping past it to v4 rather than reusing v2,
+#     so any index actually built under v3 is correctly detected as stale
+#     too, not silently treated as equivalent to the pre-v3 state.
+PIPELINE_VERSION = 4
 
 # ── Token counting ────────────────────────────────────
 def estimate_tokens(text: str) -> int:
@@ -148,23 +151,32 @@ def chunk_file(file_info: dict, source_code: str) -> list[dict]:
         else:
             for func in functions:
                 code = func["code"]
-                # Prepended to every function/function_part chunk's content
-                # (embedded and stored, not just metadata) -- see
-                # chunk_context_header's docstring for the two real
-                # retrieval failures this fixes.
-                header = chunk_context_header(func["name"], func["class"], func["class_docstring"])
+                # NOT prepending chunk_context_header() here -- reverted.
+                # Measured as a net regression on the real golden set
+                # (file-level hit_rate 0.950 -> 0.900) despite fixing the
+                # two cases it was designed for. Root cause: three distinct
+                # failure modes documented in codelens.md's Aspect 4
+                # addendum and notes/contextual-retrieval.md -- module-level
+                # functions get no equivalent boost (asymmetric), any
+                # method sharing vocabulary with its class docstring gets
+                # boosted regardless of actual relevance (false positives),
+                # and classes with many structurally similar methods (e.g.
+                # FastAPI's get/put/post/... HTTP-verb decorators) flood the
+                # candidate pool by sheer count. chunk_context_header()
+                # itself is left defined and tested in app/classify.py for
+                # a future redesign, just not called from here anymore.
                 if estimate_tokens(code) > MAX_CHUNK_TOKENS:
                     sub_chunks = fixed_token_split(code, MAX_CHUNK_TOKENS)
                     for i, sub in enumerate(sub_chunks):
                         chunks.append(build_chunk(
-                            content=header + sub, file_info=file_info,
+                            content=sub, file_info=file_info,
                             func_name=func["name"], class_name=func["class"],
                             start_line=func["start_line"],
                             chunk_type="function_part", part_index=i
                         ))
                 else:
                     chunks.append(build_chunk(
-                        content=header + code, file_info=file_info,
+                        content=code, file_info=file_info,
                         func_name=func["name"], class_name=func["class"],
                         start_line=func["start_line"],
                         chunk_type="function"
@@ -249,6 +261,18 @@ def upload_chroma_to_s3(repo_id: str):
         aws_secret_access_key=AWS_SECRET_ACCESS_KEY,
         region_name=AWS_DEFAULT_REGION
     )
+
+    # app.sourcing.upload_to_s3 already does this bucket-exists check; this
+    # function didn't, so calling scripts.run_pipeline directly (skipping
+    # the sourcing step that normally creates the bucket as a side effect)
+    # against a fresh LocalStack instance failed with NoSuchBucket. Real
+    # bug, not a one-off environment issue -- this function shouldn't
+    # depend on some other code path having run first.
+    try:
+        s3.head_bucket(Bucket=S3_BUCKET)
+    except Exception:
+        s3.create_bucket(Bucket=S3_BUCKET)
+        print(f"Created bucket: {S3_BUCKET}")
 
     chroma_path = CHROMA_DIR / repo_id
     for file in chroma_path.rglob("*"):

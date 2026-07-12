@@ -11,9 +11,14 @@ app = FastAPI(title="CodeLens API", version="1.0.0")
 class QueryRequest(BaseModel):
     repo_url: str
     question: str
-    source_type: Literal["code", "doc"] = "code"
-    # "auto" = library source for code queries, all docs for doc queries
-    path_type: Literal["auto", "library", "tests", "examples", "docs"] | None = "auto"
+    # None (default) = no restriction -- search code and docs together,
+    # ranked purely on relevance. Set explicitly to narrow the search.
+    # "auto" is accepted for backward compatibility with callers still
+    # sending it -- it's now just an alias for None (no filter), not its
+    # old meaning ("library source for code queries"). A caller relying on
+    # the old narrowing behavior needs to pass path_type="library" explicitly.
+    source_type: Literal["code", "doc"] | None = None
+    path_type: Literal["auto", "library", "tests", "examples", "docs"] | None = None
     # False = skip the LLM call and return sources only (faster, free)
     include_answer: bool = True
 
@@ -36,10 +41,11 @@ def repo_id_from_url(repo_url: str) -> str:
 @app.post("/query", response_model=QueryResponse)
 async def query_repo(request: QueryRequest):
     repo_id = repo_id_from_url(request.repo_url)
+    path_type = None if request.path_type == "auto" else request.path_type
     try:
         return answer_query(request.question, repo_id,
                             source_type=request.source_type,
-                            path_type=request.path_type,
+                            path_type=path_type,
                             include_answer=request.include_answer)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

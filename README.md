@@ -262,7 +262,9 @@ Not built yet. This section will cover taking CodeLens from the local-only setup
 │   └── smoke_tests/
 │       ├── deployment_smoke_test.py     black-box HTTP smoke test for a running containerized deploy
 │       ├── judge_calibration.py         validates judge output quality against hand-labeled cases
-│       └── judge_endpoints_smoke_test.py  cheap connectivity check for every registered judge/embedding endpoint
+│       ├── judge_endpoints_smoke_test.py  cheap connectivity check for every registered judge/embedding endpoint
+│       ├── validate_golden_set.py       sanity-checks GOLDEN_SET itself before spending money on run_ragas_eval.py
+│       └── grep_verify_golden_set.py    AST-based deep check: every expected_functions claim is a real def, reports live line/args
 ├── worker/
 │   └── reindex_worker.py   (planned) background worker that re-indexes a repo when
 │                           notified of a new commit, without blocking the API
