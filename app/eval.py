@@ -17,7 +17,7 @@ Two independent scorers sit on top of the same golden set:
 
 import os
 
-from langchain_openai import ChatOpenAI, OpenAIEmbeddings
+from langchain_openai import ChatOpenAI
 from ragas import evaluate as ragas_evaluate
 from ragas.embeddings import LangchainEmbeddingsWrapper
 from ragas.llms import LangchainLLMWrapper
@@ -56,6 +56,23 @@ JUDGE_MODELS = {
                  "api_key_env": "OPENROUTER_API_KEY"},
     "gemma-4-31b": {"model": "gemma4-31b-it", "base_url": "https://openai.rc.asu.edu/v1",
                      "api_key_env": "ASU_RC_API_KEY"},
+    # Same model as "gemma-4-31b" above, hosted via OpenRouter instead of
+    # ASU RC -- added because ASU RC's endpoint (openai.rc.asu.edu)
+    # resolves to private RFC1918 addresses (confirmed via direct curl:
+    # 10.139.126.22x), reachable only from ASU's own network/VPN.
+    # GitHub-hosted CI runners have no route there, so any real CI run
+    # using "gemma-4-31b" fails with a ConnectTimeout every time,
+    # deterministically -- this is the entry CI actually uses (see
+    # .github/workflows/ci.yml). "gemma-4-31b" stays available for local
+    # use, where ASU RC works fine on the VPN.
+    "gemma-4-31b-openrouter": {"model": "google/gemma-4-31b-it", "base_url": "https://openrouter.ai/api/v1",
+                               "api_key_env": "OPENROUTER_API_KEY"},
+    # Free-tier variant on OpenRouter -- zero cost, but confirmed live to be
+    # unreliable: a direct curl test returned 429 "temporarily rate-limited
+    # upstream" on first try, same as the free generator variant above.
+    # Registered as an available option, not a recommended default.
+    "gemma-4-31b-openrouter-free": {"model": "google/gemma-4-31b-it:free", "base_url": "https://openrouter.ai/api/v1",
+                                    "api_key_env": "OPENROUTER_API_KEY"},
 }
 DEFAULT_JUDGE = "gpt-4o"
 
@@ -79,26 +96,22 @@ def build_judge(judge_name: str) -> LangchainLLMWrapper:
 # answer_relevancy needs its own embedding model, separate from the judge
 # LLM -- ragas_evaluate()'s embeddings= param also silently defaults to
 # OpenAI if never passed, the same silent-default trap the judge llm= had.
-# Routed through ASU RC (same gateway as the gemma-4-31b judge) so
-# answer_relevancy no longer depends on OpenAI credit at all -- the only
-# remaining hard OpenAI dependency in the whole eval is gpt-4o for answer
-# generation itself (app/retrieval.py's call_llm), which is fixed by
-# design, not a swappable judge-comparison variable.
-EMBEDDING_MODEL = "qwen3-vl-embedding-8b"
-EMBEDDING_BASE_URL = "https://openai.rc.asu.edu/v1"
-EMBEDDING_API_KEY_ENV = "ASU_RC_API_KEY"
-
-
+# Previously routed through ASU RC's qwen3-vl-embedding-8b -- moved to
+# reusing app.retrieval's own local HuggingFace embedding model instead,
+# after ASU RC's endpoint (openai.rc.asu.edu) was confirmed to resolve to
+# private RFC1918 addresses (10.139.126.22x), unreachable from GitHub-hosted
+# CI runners. OpenRouter (the fix used for the generator and judge above)
+# doesn't offer embeddings at all -- confirmed directly, its /embeddings
+# endpoint returns a plain 404 and no embedding models appear in its
+# catalog -- so there's no equivalent swap available there. Reusing the
+# local model instead of finding a third external provider is not a
+# workaround: the retrieval pipeline already downloads and runs this exact
+# model locally (confirmed working in CI via the retrieval-only eval gate),
+# so this removes an external network dependency this step never actually
+# needed, rather than trading one remote provider for another.
 def build_answer_relevancy_embeddings() -> LangchainEmbeddingsWrapper:
-    api_key = os.environ.get(EMBEDDING_API_KEY_ENV)
-    if not api_key:
-        raise RuntimeError(
-            f"answer_relevancy's embedding model needs {EMBEDDING_API_KEY_ENV} "
-            f"set in the environment -- not currently set."
-        )
-    return LangchainEmbeddingsWrapper(OpenAIEmbeddings(
-        model=EMBEDDING_MODEL, base_url=EMBEDDING_BASE_URL, api_key=api_key,
-    ))
+    from app.retrieval import embedding_fn
+    return LangchainEmbeddingsWrapper(embedding_fn)
 
 # ── Golden test set ───────────────────────────────────
 # category: localization | identifier | explanation | doc | negative | boundary

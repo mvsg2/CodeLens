@@ -28,10 +28,19 @@ env:
   # stable across runs. Bump deliberately (and re-verify the golden set)
   # if this is ever moved forward.
   CODELENS_PIN_COMMIT: dd17e4f723a23854cfe4b9b6258e31efd86ea523
-  # Bump the trailing number whenever app/pipeline.py's PIPELINE_VERSION
-  # changes, so a stale cache never gets reused across an incompatible
-  # chunking/metadata format.
-  INDEX_CACHE_KEY: index-v2-dd17e4f
+  # Bump the leading v-number to match app/pipeline.py's PIPELINE_VERSION
+  # whenever it changes, so a stale cache never gets reused across an
+  # incompatible chunking/metadata format. This was missed when
+  # PIPELINE_VERSION moved 3 -> 4 (commit 7325f1e) -- the key stayed
+  # "index-v2-...", and since GitHub Actions cache keys are write-once
+  # (an existing key's entry is never overwritten, only ever restored),
+  # every run since then restored a stale version-3 cache, saw the
+  # mismatch, paid the full ~3h re-embed, then failed to save a fresh
+  # cache afterward because the old key was already taken -- so every
+  # single run repeated the full cost with nothing ever actually getting
+  # cached. Bumping the key to v4 here starts a fresh key the next run can
+  # actually populate and reuse.
+  INDEX_CACHE_KEY: index-v4-dd17e4f
 
 jobs:
   lint:
@@ -82,11 +91,18 @@ jobs:
       AWS_DEFAULT_REGION: us-east-1
       S3_BUCKET: codelens-bucket
       OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-      # GENERATOR_MODEL defaults to qwen3-coder-30b (app/retrieval.py's
-      # GENERATOR_MODELS registry), served via ASU Research Computing --
-      # needed by evaluate_answers()'s real answer_query() calls, not just
-      # OpenAI-routed judge/embedding calls.
-      ASU_RC_API_KEY: ${{ secrets.ASU_RC_API_KEY }}
+      # ASU RC's endpoint (openai.rc.asu.edu, used by app/retrieval.py's
+      # default "qwen3-coder-30b" generator and app/eval.py's "gemma-4-31b"
+      # judge/embeddings) resolves to private RFC1918 addresses -- reachable
+      # only from ASU's own network/VPN, never from a GitHub-hosted runner.
+      # Confirmed via direct curl (10.139.126.22x, ConnectTimeout from any
+      # public host). CI routes generator + judge through OpenRouter instead
+      # (see GENERATOR_MODEL below and --judge gemma-4-31b-openrouter),
+      # and answer_relevancy's embeddings now reuse the local HuggingFace
+      # model instead of any external endpoint -- so ASU_RC_API_KEY is not
+      # needed here at all anymore; the local dev default still uses it.
+      OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+      GENERATOR_MODEL: qwen3-coder-30b-openrouter
       # GitHub's own per-run token is enough for the public metadata read
       # app.sourcing.get_repo_metadata does (GET /repos/{owner}/{repo}) —
       # no personal PAT needed as a repo secret for this.
@@ -124,7 +140,7 @@ jobs:
         run: python -m scripts.run_all --require-gate --no-llm # only retrieval, no LLM cost
 
       - name: RAGAS answer-quality eval gate (real LLM cost)
-        run: python -m scripts.run_ragas_eval --judge gemma-4-31b
+        run: python -m scripts.run_ragas_eval --judge gemma-4-31b-openrouter
 
   docker-build:
     needs: unit-test

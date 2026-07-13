@@ -55,16 +55,35 @@ GENERATOR_MODELS = {
     # empty answers without a code change. Kept registered for reference.
     "qwen35-0p8b": {"model": "qwen35-0p8b",
                     "base_url": "https://openai.rc.asu.edu/v1", "api_key_env": "ASU_RC_API_KEY"},
-    # Default generator as of this change. Chosen over qwen3-coder-30b for
-    # latency: both are ~0.4-0.7s per call once warm (confirmed via direct
-    # curl against the endpoint), but e2b-it is Gemma's distilled/matformer
-    # "effective 2B" checkpoint -- meaningfully more real capacity than the
-    # 0.8B dense model above, and returns a normal message.content (no
-    # reasoning_content quirk, works with call_llm() unmodified). First
-    # call to any ASU RC model after it's been idle pays a one-time cold
-    # start (~29s observed for gemma4-e2b-it) -- not a per-request cost.
+    # Tried briefly as the default (fast, no reasoning_content quirk), then
+    # reverted: real /query test showed reproducible garbled output (stray
+    # non-English tokens mid-answer across two separate runs) -- a genuine
+    # generation-quality defect, not a fluke. Kept registered for reference,
+    # not the default.
     "gemma4-e2b-it": {"model": "gemma4-e2b-it",
                       "base_url": "https://openai.rc.asu.edu/v1", "api_key_env": "ASU_RC_API_KEY"},
+    # Same underlying model as "qwen3-coder-30b" above, hosted via
+    # OpenRouter instead of ASU RC -- added specifically because ASU RC's
+    # endpoint (openai.rc.asu.edu) resolves to private RFC1918 addresses
+    # (confirmed via direct curl: 10.139.126.22x), reachable only from
+    # ASU's own network/VPN. GitHub-hosted CI runners have no route there
+    # at all, so any eval step depending on the ASU RC entry fails with a
+    # ConnectTimeout every single run, deterministically -- not something
+    # retries or a longer timeout can fix. This entry is what CI actually
+    # uses (see .github/workflows/ci.yml's GENERATOR_MODEL override);
+    # "qwen3-coder-30b" above stays the local-dev default since ASU RC
+    # works fine from a machine that's actually on the VPN.
+    "qwen3-coder-30b-openrouter": {"model": "qwen/qwen3-coder-30b-a3b-instruct",
+                                   "base_url": "https://openrouter.ai/api/v1", "api_key_env": "OPENROUTER_API_KEY"},
+    # Free-tier variant of the larger qwen3-coder model on OpenRouter --
+    # zero cost, no credit balance needed, but confirmed live (not
+    # hypothetical) to be unreliable: a direct curl test returned 429
+    # "temporarily rate-limited upstream" on first try. Registered as an
+    # available option, not a recommended default -- something CI depends
+    # on to pass reproducibly shouldn't lean on a free tier already
+    # observed rate-limiting under light, one-off testing.
+    "qwen3-coder-openrouter-free": {"model": "qwen/qwen3-coder:free",
+                                    "base_url": "https://openrouter.ai/api/v1", "api_key_env": "OPENROUTER_API_KEY"},
 }
 GENERATOR_MODEL_NAME = os.environ.get("GENERATOR_MODEL", "qwen3-coder-30b")
 

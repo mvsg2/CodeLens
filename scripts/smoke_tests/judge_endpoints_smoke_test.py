@@ -45,8 +45,13 @@ def check_judge(judge_name: str) -> bool:
 
 
 def check_embeddings() -> bool:
-    from app.eval import EMBEDDING_MODEL, EMBEDDING_BASE_URL
-    label = f"answer_relevancy embeddings ({EMBEDDING_MODEL} via {EMBEDDING_BASE_URL})"
+    # No external endpoint anymore -- answer_relevancy now reuses
+    # app.retrieval's local HuggingFace embedding model (see
+    # app/eval.py's build_answer_relevancy_embeddings for why: ASU RC's
+    # endpoint is unreachable from CI, and OpenRouter doesn't offer
+    # embeddings at all).
+    from app.config import EMBEDDING_MODEL_NAME
+    label = f"answer_relevancy embeddings (local: {EMBEDDING_MODEL_NAME})"
     try:
         emb = build_answer_relevancy_embeddings()
         vec = emb.embeddings.embed_query("test query")
