@@ -74,6 +74,13 @@ JUDGE_MODELS = {
     "gemma-4-31b-openrouter-free": {"model": "google/gemma-4-31b-it:free", "base_url": "https://openrouter.ai/api/v1",
                                     "api_key_env": "OPENROUTER_API_KEY"},
 }
+# Back to gpt-4o now that the OpenAI account has real credit again ($4.62
+# as of this change) -- gpt-4o is the original, most-calibrated judge
+# (100% on judge_calibration.py, and the reference the ANSWER_QUALITY_
+# THRESHOLDS values in app/scoring.py were calibrated against), and unlike
+# ASU RC it's normal public infrastructure -- reachable from CI directly,
+# not just from a VPN-connected machine. gemma-4-31b/gemma-4-31b-openrouter
+# stay registered as free fallbacks if credit runs out again.
 DEFAULT_JUDGE = "gpt-4o"
 
 
@@ -87,7 +94,16 @@ def build_judge(judge_name: str) -> LangchainLLMWrapper:
             f"Judge '{judge_name}' needs {cfg['api_key_env']} set in the environment "
             f"(.env locally, or a repo secret in CI) -- not currently set."
         )
-    kwargs = {"model": cfg["model"], "timeout": 120, "api_key": api_key}
+    # max_tokens capped explicitly, same as app/retrieval.py's call_llm --
+    # without it, ChatOpenAI lets the request default to the model's full
+    # context window (gemma-4-31b: 262K), and OpenRouter tries to reserve
+    # that many completion tokens up front. Confirmed as a real failure via
+    # a live CI run: a 402 "requested up to 40960 tokens, can only afford
+    # 2954" even though RAGAS's actual judge task (classify each atomic
+    # claim as supported/unsupported, or generate a short reverse-engineered
+    # question for answer_relevancy) only ever produces a short, bounded
+    # response -- the huge token reservation was never actually needed.
+    kwargs = {"model": cfg["model"], "timeout": 120, "api_key": api_key, "max_tokens": 1024}
     if cfg["base_url"]:
         kwargs["base_url"] = cfg["base_url"]
     return LangchainLLMWrapper(ChatOpenAI(**kwargs))

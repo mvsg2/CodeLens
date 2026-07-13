@@ -140,7 +140,7 @@ jobs:
         run: python -m scripts.run_all --require-gate --no-llm # only retrieval, no LLM cost
 
       - name: RAGAS answer-quality eval gate (real LLM cost)
-        run: python -m scripts.run_ragas_eval --judge gemma-4-31b-openrouter
+        run: python -m scripts.run_ragas_eval --judge gpt-4o
 
   docker-build:
     needs: unit-test
