@@ -121,7 +121,7 @@ jobs:
       - run: pip install -r requirements.txt
 
       - name: Retrieval-only eval gate (free) + demo query
-        run: python -m scripts.run_all --require-gate
+        run: python -m scripts.run_all --require-gate --no-llm # only retrieval, no LLM cost
 
       - name: RAGAS answer-quality eval gate (real LLM cost)
         run: python -m scripts.run_ragas_eval --judge gemma-4-31b
