@@ -26,7 +26,7 @@ from ragas.run_config import RunConfig
 from datasets import Dataset
 
 from app.retrieval import build_retriever, rerank, answer_query
-from app.scoring import norm_path, is_translation_miss, function_hit, ANSWER_QUALITY_THRESHOLDS, CONTEXT_RECALL_TARGET, check_answer_gate  # noqa: F401
+from app.scoring import norm_path, is_translation_miss, function_hit, ANSWER_QUALITY_THRESHOLDS, check_answer_gate  # noqa: F401
 
 # Candidate judge models under evaluation -- see
 # scripts/smoke_tests/judge_calibration.py for the calibration process behind
