@@ -19,7 +19,7 @@ Usage:
 """
 import argparse
 
-from app.eval import evaluate_answers, check_answer_gate, ANSWER_QUALITY_THRESHOLDS, CONTEXT_RECALL_TARGET, JUDGE_MODELS, DEFAULT_JUDGE
+from app.eval import evaluate_answers, check_answer_gate, ANSWER_QUALITY_THRESHOLDS, JUDGE_MODELS, DEFAULT_JUDGE
 
 REPO_ID = "fastapi__fastapi"
 
