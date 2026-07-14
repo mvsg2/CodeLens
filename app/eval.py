@@ -531,16 +531,21 @@ def evaluate_answers(repo_id: str, limit: int | None = None, judge: str = DEFAUL
     judge_llm = build_judge(judge)
     judge_embeddings = build_answer_relevancy_embeddings()
     # Default max_workers=16 fires that many concurrent judge calls at once --
-    # real run hit a hard 429 (gpt-4o TPM cap for this org) because RAGAS's
-    # default retry/backoff doesn't reduce concurrency between attempts, so
-    # each retry re-saturates the same per-minute ceiling. Lower concurrency
-    # trades wall-clock time for actually staying under the real limit.
+    # a real run hit a hard 429 (gpt-4o TPM cap for this org is 30,000 --
+    # a tier-1 default) even at max_workers=3: 3 concurrent judge calls
+    # (faithfulness alone makes 2 calls/item) plus tenacity's own retries
+    # re-saturate the same per-minute ceiling faster than it drains, so a
+    # long enough run always eventually catches a request landing on an
+    # already-near-full window. Fully serializing (max_workers=1) means at
+    # most one in-flight request at a time, so total tokens/min tracks the
+    # judge's own call rate instead of being multiplied by concurrency --
+    # slower wall-clock, but actually bounded by the real TPM limit.
     ragas_result = ragas_evaluate(
         dataset,
         metrics=[faithfulness, answer_relevancy, context_recall],
         llm=judge_llm,
         embeddings=judge_embeddings,
-        run_config=RunConfig(max_workers=3),
+        run_config=RunConfig(max_workers=1),
     )
 
     df = ragas_result.to_pandas()
