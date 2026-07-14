@@ -383,14 +383,19 @@ GOLDEN_SET = [
         "query": "How does `Depends` work and how do the docs recommend using it?",
         "expected_answer": "fastapi/param_functions.py defines Depends; docs/en/docs/tutorial/dependencies/index.md shows usage",
         "expected_sources": ["fastapi/param_functions.py", "docs/en/docs/tutorial/dependencies/index.md"],
-        "source_type": "code",
+        # None (not "code") -- this item's own ground truth spans both code
+        # and docs, so pinning source_type here would filter out the docs
+        # half of the answer before retrieval even runs, guaranteeing a low
+        # context_recall/faithfulness regardless of system quality. Search
+        # everything, matching what "boundary" is meant to stress-test.
+        "source_type": None,
         "category": "boundary",
     },
     {
         "query": "What does OAuth2PasswordBearer do and how is it used in the security tutorial?",
         "expected_answer": "fastapi/security/oauth2.py defines it; docs/en/docs/tutorial/security/first-steps.md shows the tutorial flow",
         "expected_sources": ["fastapi/security/oauth2.py", "docs/en/docs/tutorial/security/first-steps.md"],
-        "source_type": "code",
+        "source_type": None,
         "category": "boundary",
     },
 ]
