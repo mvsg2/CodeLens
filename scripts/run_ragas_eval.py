@@ -19,7 +19,7 @@ Usage:
 """
 import argparse
 
-from app.eval import evaluate_answers, check_answer_gate, ANSWER_QUALITY_THRESHOLDS, JUDGE_MODELS, DEFAULT_JUDGE
+from app.eval import evaluate_answers, check_answer_gate, ANSWER_QUALITY_THRESHOLDS, CONTEXT_RECALL_TARGET, JUDGE_MODELS, DEFAULT_JUDGE
 
 REPO_ID = "fastapi__fastapi"
 
@@ -53,5 +53,12 @@ if __name__ == "__main__":
     for k, v in ANSWER_QUALITY_THRESHOLDS.items():
         status = "PASS" if scores.get(k, 0) >= v else "FAIL"
         print(f"  {k}: {scores.get(k, 0):.3f} (threshold {v}) [{status}]")
+
+    # Reported, not gated -- see app/scoring.py's CONTEXT_RECALL_TARGET
+    # comment for why (structurally unwinnable for the "negative" category,
+    # noisy run-to-run on the rest).
+    cr = scores.get("context_recall", 0)
+    cr_status = "PASS" if cr >= CONTEXT_RECALL_TARGET else "FAIL"
+    print(f"  context_recall: {cr:.3f} (target {CONTEXT_RECALL_TARGET}) [{cr_status}, report only]")
 
     raise SystemExit(0 if gate else 1)

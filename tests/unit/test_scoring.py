@@ -36,7 +36,7 @@ def test_answer_gate_fails_when_one_metric_below_threshold():
 
 
 def test_answer_gate_fails_when_metric_missing():
-    scores = {"faithfulness": 1.0, "answer_relevancy": 1.0}  # context_recall absent
+    scores = {"faithfulness": 1.0}  # answer_relevancy absent
     assert check_answer_gate(scores) is False
 
 
