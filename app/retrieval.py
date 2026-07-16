@@ -1,4 +1,5 @@
 import os
+import time
 from functools import lru_cache
 from pathlib import Path
 import chromadb
@@ -297,13 +298,31 @@ ANSWER:"""
 
 
 # ── LLM call ─────────────────────────────────────────
-def call_llm(prompt: str) -> str:
-    response = client.chat.completions.create(
-        model=GENERATOR_MODEL,
-        messages=[{"role": "user", "content": prompt}],
-        max_tokens=1024
+def call_llm(prompt: str, max_attempts: int = 3) -> str:
+    # OpenRouter occasionally returns HTTP 200 with choices=None instead of
+    # raising -- a transient hiccup in whichever backend it routed this
+    # model to that round (OpenRouter fans a single model name out across
+    # multiple actual providers), not an auth/quota/rate-limit problem
+    # (those raise real openai.* exceptions instead). Retrying a fresh
+    # request is enough to route around it in practice; only give up and
+    # surface a real diagnostic after repeated failures.
+    last_response = None
+    for attempt in range(max_attempts):
+        response = client.chat.completions.create(
+            model=GENERATOR_MODEL,
+            messages=[{"role": "user", "content": prompt}],
+            max_tokens=1024
+        )
+        if response.choices:
+            return response.choices[0].message.content
+        last_response = response
+        if attempt < max_attempts - 1:
+            time.sleep(2 ** attempt)
+
+    raise RuntimeError(
+        f"Generator '{GENERATOR_MODEL_NAME}' returned no choices after "
+        f"{max_attempts} attempts -- raw response: {last_response!r}"
     )
-    return response.choices[0].message.content
 
 
 # ── Main answer function ──────────────────────────────
