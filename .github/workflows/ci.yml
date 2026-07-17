@@ -102,13 +102,16 @@ jobs:
       # model instead of any external endpoint -- so ASU_RC_API_KEY is not
       # needed here at all anymore; the local dev default still uses it.
       OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
-      # Free tier (no OpenRouter credit balance needed) -- the paid
-      # qwen3-coder-30b-openrouter variant kept failing CI with real 402s
-      # once the account's balance ran low from repeated test runs. The
-      # free tier is rate-limited under load (confirmed live, real 429s),
-      # but call_llm()'s retry/backoff in app/retrieval.py now handles
-      # that instead of crashing the run.
-      GENERATOR_MODEL: qwen3-coder-openrouter-free
+      # Tried the free OpenRouter tier (qwen3-coder-openrouter-free) to
+      # dodge a low-balance 402 on the paid variant -- confirmed live,
+      # twice, that it's not viable even with call_llm()'s retry/backoff:
+      # real 429 "temporarily rate-limited upstream" errors. Switched to
+      # DeepSeek's own hosted API instead -- a separate paid account, no
+      # OpenRouter/ASU RC dependency, verified live via a direct call_llm()
+      # smoke test ("OK" in 2.1s). Different vendor family from the gpt-4o
+      # judge, so no generator/judge circularity concern either.
+      GENERATOR_MODEL: deepseek-v4-flash
+      DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
       # GitHub's own per-run token is enough for the public metadata read
       # app.sourcing.get_repo_metadata does (GET /repos/{owner}/{repo}) —
       # no personal PAT needed as a repo secret for this.
