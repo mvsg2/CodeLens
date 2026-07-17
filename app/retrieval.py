@@ -10,7 +10,7 @@ from langchain.retrievers import EnsembleRetriever
 from langchain_community.vectorstores import Chroma
 from langchain_huggingface import HuggingFaceEmbeddings
 from sentence_transformers import CrossEncoder
-from openai import OpenAI
+from openai import OpenAI, RateLimitError
 
 from app.config import OPENAI_API_KEY, EMBEDDING_MODEL_NAME
 
@@ -85,6 +85,14 @@ GENERATOR_MODELS = {
     # observed rate-limiting under light, one-off testing.
     "qwen3-coder-openrouter-free": {"model": "qwen/qwen3-coder:free",
                                     "base_url": "https://openrouter.ai/api/v1", "api_key_env": "OPENROUTER_API_KEY"},
+    # Hosted directly by DeepSeek (not via OpenRouter) -- own paid account,
+    # no OpenRouter/ASU RC dependency at all. "-flash" is the fast,
+    # non-thinking mode (vs. "-pro"'s thinking mode) -- the right fit here
+    # since generator calls are capped at max_tokens=1024 for concise RAG
+    # answers, not long reasoning chains. Different vendor family from the
+    # gpt-4o judge, so no generator/judge circularity concern.
+    "deepseek-v4-flash": {"model": "deepseek-v4-flash",
+                          "base_url": "https://api.deepseek.com", "api_key_env": "DEEPSEEK_API_KEY"},
 }
 GENERATOR_MODEL_NAME = os.environ.get("GENERATOR_MODEL", "qwen3-coder-30b")
 
@@ -298,21 +306,32 @@ ANSWER:"""
 
 
 # ── LLM call ─────────────────────────────────────────
-def call_llm(prompt: str, max_attempts: int = 3) -> str:
-    # OpenRouter occasionally returns HTTP 200 with choices=None instead of
-    # raising -- a transient hiccup in whichever backend it routed this
-    # model to that round (OpenRouter fans a single model name out across
-    # multiple actual providers), not an auth/quota/rate-limit problem
-    # (those raise real openai.* exceptions instead). Retrying a fresh
-    # request is enough to route around it in practice; only give up and
-    # surface a real diagnostic after repeated failures.
+def call_llm(prompt: str, max_attempts: int = 5) -> str:
+    # Two distinct transient failure modes handled here, both worth
+    # retrying rather than crashing the whole eval run:
+    #  1. OpenRouter occasionally returns HTTP 200 with choices=None -- a
+    #     hiccup in whichever backend it routed this model to that round
+    #     (OpenRouter fans a single model name out across multiple actual
+    #     providers). A fresh request usually routes around it.
+    #  2. RateLimitError (429) -- expected and routine on free-tier
+    #     generators like qwen3-coder-openrouter-free, which share limited
+    #     capacity across everyone using it for free. Back off longer here
+    #     than case 1 since the limiting window is usually
+    #     seconds-to-a-minute, not an instant backend fluke.
     last_response = None
     for attempt in range(max_attempts):
-        response = client.chat.completions.create(
-            model=GENERATOR_MODEL,
-            messages=[{"role": "user", "content": prompt}],
-            max_tokens=1024
-        )
+        try:
+            response = client.chat.completions.create(
+                model=GENERATOR_MODEL,
+                messages=[{"role": "user", "content": prompt}],
+                max_tokens=1024
+            )
+        except RateLimitError:
+            if attempt == max_attempts - 1:
+                raise
+            time.sleep(min(60, 5 * 2 ** attempt))
+            continue
+
         if response.choices:
             return response.choices[0].message.content
         last_response = response
