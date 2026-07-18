@@ -1459,6 +1459,68 @@ async def github_webhook(request: Request):
 - GitHub webhook triggers re-index on new commits to tracked repos
 - Full audit trail in GitHub Actions logs
 
+### What's actually built vs. this blueprint
+
+The workflow above (`deploy.yml`, AWS/ECR/ECS deploy job, `ANTHROPIC_API_KEY`,
+GitHub webhook re-indexing) was the original design sketch, written before
+any of it existed. The real, currently-running workflow
+(`.github/workflows/ci.yml`) is meaningfully different, because this
+project only has CI so far — Aspect 7 (AWS deployment) hasn't been built
+yet, so there's no `deploy` job, no ECR push, and no webhook. What's real
+today: `lint → unit-test → {eval, docker-build}` (the fan-out — `eval` and
+`docker-build` both depend only on `unit-test`, so they run in parallel
+once it passes), a free retrieval-only gate plus a paid RAGAS
+answer-quality gate in the `eval` job, and a `docker-build` job that
+builds and health-checks the real `Dockerfile` (no push anywhere yet,
+since there's no registry to push to).
+
+Getting that real workflow green took considerably more debugging than
+the blueprint suggests, entirely around **making the pipeline's external
+dependencies actually reachable from a GitHub-hosted runner** and
+**making the expensive index-build step's cache reliably survive**, not
+around the retrieval/eval logic itself (which worked essentially as
+designed once it could run at all). Full details live in
+`notes/ci-cd-pipeline.md` (the debugging history, in order) and
+`notes/cicd_basics.md` (the underlying CI/CD vocabulary each fix
+depended on) — summarized here:
+
+- **ASU Research Computing's LLM endpoint (`openai.rc.asu.edu`) is
+  unreachable from CI, permanently** — it resolves to private RFC1918
+  addresses, reachable only from ASU's own network. This is the default
+  generator/judge for **local** dev (free, and works fine over VPN), but
+  CI needed genuinely public endpoints: the generator now routes through
+  OpenRouter or, currently, **DeepSeek's own hosted API**
+  (`deepseek-v4-flash`) after OpenRouter's free tier proved too
+  rate-limited and its paid tier's balance ran out mid-session; the judge
+  settled on `gpt-4o` directly against OpenAI; `answer_relevancy`'s
+  embeddings were switched to reuse the same local HuggingFace model
+  already used for retrieval instead of any external embedding endpoint.
+- **The index-build cache silently never worked, for three separate
+  reasons, found one at a time**: (1) the repo's default read-only
+  Actions permissions made the cache's save step silently no-op — fixed
+  by an explicit `actions: write` permission; (2) `PIPELINE_VERSION`
+  moved 3→4 in a later commit but the cache key's `v`-number was never
+  bumped to match, so every run restored a stale, incompatible cache,
+  detected it as outdated, and re-embedded anyway — fixed by bumping the
+  key; (3) even after both fixes, a *combined* `actions/cache@v4` step's
+  save only runs as a job-level post-hook, and GitHub Actions skips all
+  post-hooks in a job once any step fails — so a flaky *later* step (the
+  RAGAS eval, failing on generator/judge issues) was silently preventing
+  the *already-successfully-built* index from ever being saved. Fixed by
+  splitting into `actions/cache/restore@v4` + `actions/cache/save@v4`,
+  with the save placed immediately after the index-build step succeeds,
+  before the flaky step that follows it.
+- **`ANSWER_QUALITY_THRESHOLDS`** (the blueprint's `THRESHOLDS` dict above)
+  no longer includes `context_recall` as a hard gate — see Aspect 4's
+  "CI cost/reliability fixes" addendum for why (a structural mismatch for
+  a third of the golden set, plus real run-to-run judge noise). It's still
+  measured and reported every run, just not blocking.
+
+None of this changes the eval logic, the retrieval pipeline, or the
+metrics themselves — it's entirely about the mechanics of running someone
+else's code reliably on infrastructure you don't control, which turned
+out to be most of the actual work.
+
 ---
 
 ## Aspect 7 — AWS Deployment

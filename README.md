@@ -28,7 +28,7 @@ Everything here runs on your own machine. No AWS account needed, no public URL �
 - Python 3.11
 - Docker Desktop (for LocalStack, which stands in for AWS S3 locally)
 - An NVIDIA GPU is strongly recommended for the embedding step (the pipeline will fall back to CPU, but embedding ~20,000 chunks will be much slower)
-- An OpenAI API key (used for the answer-generation LLM call)
+- An LLM API key for the answer-generation call — **which one depends on which generator you use** (see the `.env` section below); the default requires ASU network access, so most external contributors will want to override it
 - A GitHub personal access token (used to fetch repo metadata — stars, description, default branch)
 
 ### Setup
@@ -61,6 +61,24 @@ If you skip this, `sentence-transformers` will fall back to CPU automatically �
 
 ```
 GITHUB_TOKEN=ghp_your_token_here
+
+# The answer-generation (generator) LLM call — see app/retrieval.py's
+# GENERATOR_MODELS registry for every registered option. The code default
+# (GENERATOR_MODEL unset) is "qwen3-coder-30b", hosted on ASU Research
+# Computing's endpoint (openai.rc.asu.edu) — reachable ONLY from ASU's own
+# network/VPN. If you're not on that network, the demo query and any eval
+# script will fail with a connection timeout, not a helpful error. Most
+# contributors should instead set GENERATOR_MODEL to something publicly
+# reachable and provide the matching key, e.g.:
+GENERATOR_MODEL=deepseek-v4-flash
+DEEPSEEK_API_KEY=sk-your_key_here
+# ...or GENERATOR_MODEL=qwen3-coder-30b-openrouter with OPENROUTER_API_KEY,
+# or GENERATOR_MODEL=gpt-4o with OPENAI_API_KEY — any GENERATOR_MODELS
+# entry works, as long as its api_key_env is set.
+
+# The RAGAS judge (scripts/run_ragas_eval.py only) — separate model choice
+# from the generator above, see app/eval.py's JUDGE_MODELS. Defaults to
+# gpt-4o, which needs:
 OPENAI_API_KEY=sk-your_key_here
 
 # Optional — only needed if you change the LocalStack defaults below
@@ -104,7 +122,7 @@ python -m scripts.run_all --skip-eval
 # skip the quality check step
 
 python -m scripts.run_all --no-llm
-# skip the OpenAI call in the demo question — just print which files/functions were retrieved, for free
+# skip the generator LLM call in the demo question — just print which files/functions were retrieved, for free
 
 python -m scripts.run_all --query "Where is authentication handled?"
 # ask a different demo question
@@ -173,9 +191,9 @@ The request body supports a few optional fields beyond `repo_url` and `question`
 
 | Field | Values | Default | What it does |
 |---|---|---|---|
-| `source_type` | `"code"` / `"doc"` | `"code"` | Search source code chunks, or documentation/markdown chunks |
-| `path_type` | `"auto"` / `"library"` / `"tests"` / `"examples"` / `"docs"` | `"auto"` | Restrict retrieval to a part of the repo. `"auto"` searches only the library's own source for code questions, and all docs for doc questions — this avoids test files or tutorial snippets outranking the real implementation |
-| `include_answer` | `true` / `false` | `true` | Set to `false` to skip the OpenAI call and get back just the ranked source files — instant and free |
+| `source_type` | `"code"` / `"doc"` / omitted | `None` (unset) | Restrict to source code chunks, or documentation/markdown chunks. Leave unset to search both together — the default is deliberately unfiltered, not `"code"` (changed from an earlier hard default; see `codelens.md`'s Aspect 4 notes on flexible filtering for why) |
+| `path_type` | `"auto"` / `"library"` / `"tests"` / `"examples"` / `"docs"` / omitted | `None` (unset) | Restrict retrieval to a part of the repo. Leave unset to search everything. `"auto"` is accepted for backward compatibility and is treated identically to leaving it unset (it no longer means "library-only") |
+| `include_answer` | `true` / `false` | `true` | Set to `false` to skip the generator LLM call and get back just the ranked source files — instant and free |
 
 Each entry in the response's `sources` list also carries a `relevance_score` — the cross-encoder's raw relevance score for that chunk against the question. This is a transparency signal, not a calibrated confidence percentage: it's only meaningful *relative to other sources in the same response*, not comparable across different questions. A fixed "below this number = untrustworthy" cutoff was tested against real queries and rejected — a genuinely unanswerable question scored *higher* than a genuinely correct answer to a different question, so no single threshold reliably separates good from bad matches.
 

@@ -324,7 +324,18 @@ def call_llm(prompt: str, max_attempts: int = 5) -> str:
             response = client.chat.completions.create(
                 model=GENERATOR_MODEL,
                 messages=[{"role": "user", "content": prompt}],
-                max_tokens=1024
+                # Was 1024 -- confirmed too tight for deepseek-v4-flash's
+                # answer style via a real /query test: a genuine answer got
+                # cut off mid-word ("...via `get_parameterless_sub_depend
+                # ant") instead of finishing, which drags both faithfulness
+                # (an incomplete claim can't be verified) and
+                # answer_relevancy down. 4096 gives ~4x headroom over what
+                # just proved insufficient -- the prompt already asks for
+                # "concise and technical" answers, so this is slack for a
+                # more verbose model, not an invitation to ramble; cost
+                # impact is negligible regardless (DeepSeek: ~$0.001 for a
+                # full 4096-token completion).
+                max_tokens=4096
             )
         except RateLimitError:
             if attempt == max_attempts - 1:

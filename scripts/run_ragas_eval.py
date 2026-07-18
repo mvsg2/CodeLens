@@ -18,10 +18,24 @@ Usage:
   python -m scripts.run_ragas_eval --judge qwen3-8b --limit 5
 """
 import argparse
+import json
+import math
+from pathlib import Path
 
 from app.eval import evaluate_answers, check_answer_gate, ANSWER_QUALITY_THRESHOLDS, CONTEXT_RECALL_TARGET, JUDGE_MODELS, DEFAULT_JUDGE
 
 REPO_ID = "fastapi__fastapi"
+RESULTS_FILE = Path("data/ragas_eval_last_run.json")
+
+
+def _json_safe(value):
+    # RAGAS leaves a NaN in a metric column when its judge call failed to
+    # parse ("Failed to parse output. Returning None." in the eval logs) --
+    # float('nan') isn't valid JSON, json.dump would emit the literal
+    # token `NaN`, which plenty of JSON parsers reject outright.
+    if isinstance(value, float) and math.isnan(value):
+        return None
+    return value
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -60,5 +74,19 @@ if __name__ == "__main__":
     cr = scores.get("context_recall", 0)
     cr_status = "PASS" if cr >= CONTEXT_RECALL_TARGET else "FAIL"
     print(f"  context_recall: {cr:.3f} (target {CONTEXT_RECALL_TARGET}) [{cr_status}, report only]")
+
+    # Every generated answer + its per-item scores, saved so a later "what
+    # did it actually say" investigation (e.g. why answer_relevancy is
+    # low) can read this instead of paying for a fresh set of LLM calls
+    # just to look. Overwrites on each run -- last run's answers only, not
+    # a history.
+    RESULTS_FILE.parent.mkdir(parents=True, exist_ok=True)
+    safe_results = [
+        {k: _json_safe(v) for k, v in row.items()}
+        for row in result["results"]
+    ]
+    with open(RESULTS_FILE, "w", encoding="utf-8") as f:
+        json.dump({"judge": args.judge, "scores": scores, "results": safe_results}, f, indent=2, ensure_ascii=False)
+    print(f"\nPer-item answers + scores saved to {RESULTS_FILE}")
 
     raise SystemExit(0 if gate else 1)
