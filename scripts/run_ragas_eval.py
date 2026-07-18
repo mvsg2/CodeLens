@@ -22,6 +22,8 @@ import json
 import math
 from pathlib import Path
 
+import numpy as np
+
 from app.eval import evaluate_answers, check_answer_gate, ANSWER_QUALITY_THRESHOLDS, CONTEXT_RECALL_TARGET, JUDGE_MODELS, DEFAULT_JUDGE
 
 REPO_ID = "fastapi__fastapi"
@@ -29,12 +31,24 @@ RESULTS_FILE = Path("data/ragas_eval_last_run.json")
 
 
 def _json_safe(value):
-    # RAGAS leaves a NaN in a metric column when its judge call failed to
-    # parse ("Failed to parse output. Returning None." in the eval logs) --
-    # float('nan') isn't valid JSON, json.dump would emit the literal
-    # token `NaN`, which plenty of JSON parsers reject outright.
+    # df.to_dict(orient="records") doesn't fully convert every column to
+    # plain Python types -- confirmed live: the "contexts" column (each
+    # item's list of retrieved chunk texts) came through as a numpy
+    # ndarray, which json.dump doesn't know how to serialize at all
+    # (TypeError: Object of type ndarray is not JSON serializable) --
+    # crashed the save step on a real CI run, after the eval itself had
+    # already passed. Handles nested structures (a list containing
+    # ndarrays or numpy scalars) recursively, not just the top level.
     if isinstance(value, float) and math.isnan(value):
         return None
+    if isinstance(value, np.ndarray):
+        return [_json_safe(v) for v in value.tolist()]
+    if isinstance(value, np.generic):  # numpy scalar, e.g. np.float64
+        return _json_safe(value.item())
+    if isinstance(value, list):
+        return [_json_safe(v) for v in value]
+    if isinstance(value, dict):
+        return {k: _json_safe(v) for k, v in value.items()}
     return value
 
 if __name__ == "__main__":
