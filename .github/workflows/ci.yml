@@ -182,6 +182,24 @@ jobs:
       - name: RAGAS answer-quality eval gate (real LLM cost)
         run: python -m scripts.run_ragas_eval --judge gpt-4o
 
+      # Uploaded regardless of whether the gate above passed or crashed --
+      # scripts/run_ragas_eval.py writes this file before its final
+      # SystemExit either way. Without this, a run's real per-item answers
+      # only ever exist in the runner's log output for as long as the
+      # progress-bar printing shows them, then are gone the moment the
+      # runner is destroyed -- inspecting "what did it actually say" after
+      # the fact previously meant paying for a fresh set of LLM calls just
+      # to look (confirmed real cost estimate: ~$0.002 per small
+      # inspection run). Downloadable from the Actions UI for 90 days.
+      - name: Upload RAGAS eval results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ragas-eval-results
+          path: data/ragas_eval_last_run.json
+          retention-days: 90
+          if-no-files-found: warn
+
   docker-build:
     needs: unit-test
     runs-on: ubuntu-latest

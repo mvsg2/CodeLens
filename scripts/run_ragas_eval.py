@@ -20,11 +20,16 @@ Usage:
 import argparse
 import json
 import math
+import os
+import tempfile
+from datetime import datetime, timezone
 from pathlib import Path
 
 import numpy as np
 
 from app.eval import evaluate_answers, check_answer_gate, ANSWER_QUALITY_THRESHOLDS, CONTEXT_RECALL_TARGET, JUDGE_MODELS, DEFAULT_JUDGE
+from app.retrieval import GENERATOR_MODEL_NAME
+from app.sourcing import upload_to_s3
 
 REPO_ID = "fastapi__fastapi"
 RESULTS_FILE = Path("data/ragas_eval_last_run.json")
@@ -102,5 +107,31 @@ if __name__ == "__main__":
     with open(RESULTS_FILE, "w", encoding="utf-8") as f:
         json.dump({"judge": args.judge, "scores": scores, "results": safe_results}, f, indent=2, ensure_ascii=False)
     print(f"\nPer-item answers + scores saved to {RESULTS_FILE}")
+
+    # Score history -- data/ragas_eval_last_run.json above only ever holds
+    # the most recent run, and doesn't survive a GitHub-hosted runner being
+    # destroyed after the job ends anyway. Uploading one small object per
+    # run to S3 (real durable storage, not the ephemeral runner disk --
+    # reuses app.sourcing's existing upload_to_s3 helper, same bucket
+    # manifests already go to) is what actually makes "did this get
+    # better or worse over time" answerable later, instead of only ever
+    # having whatever happens to still be visible in a CI log.
+    timestamp = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H%M%SZ")
+    history_entry = {
+        "timestamp": timestamp,
+        "commit": os.environ.get("CODELENS_PIN_COMMIT"),
+        "judge": args.judge,
+        "generator": GENERATOR_MODEL_NAME,
+        "golden_set_size": len(safe_results),
+        "scores": scores,
+        "gate_passed": gate,
+    }
+    with tempfile.NamedTemporaryFile("w", suffix=".json", delete=False, encoding="utf-8") as tmp:
+        json.dump(history_entry, tmp, indent=2, ensure_ascii=False)
+        tmp_path = Path(tmp.name)
+    try:
+        upload_to_s3(tmp_path, f"eval-history/{REPO_ID}/{timestamp}.json")
+    finally:
+        tmp_path.unlink(missing_ok=True)
 
     raise SystemExit(0 if gate else 1)
