@@ -64,22 +64,23 @@ ANSWER_QUALITY_THRESHOLDS = {
     "answer_relevancy": 0.75,
 }
 
-# context_recall is deliberately NOT in ANSWER_QUALITY_THRESHOLDS -- report
-# only, not gated. Two real runs after fixing a concrete bug (the
-# "boundary" golden-set items wrongly pinning source_type: "code" on
-# questions whose ground truth needs both code and docs) both still failed
-# on context_recall alone, with faithfulness/answer_relevancy comfortably
-# passing -- and the failure is broad, not isolated to one category:
-# "negative" items score a structural 0 for any system (the ground truth
-# is "not in this repo," an absence claim no retrieved text can ever
-# support), and the remaining categories vary 0.0-0.4 run to run against
-# the same golden set with nothing else changed, pointing to judge-scoring
-# noise as much as real system weakness. Faithfulness and answer_relevancy
-# already cover grounding and topicality; keeping a metric gated once it's
-# been shown structurally unwinnable for a third of the golden set and
-# noisy on the rest just trains people to ignore red gates. Still reported
-# every run (see CONTEXT_RECALL_TARGET) so a real regression is visible.
-CONTEXT_RECALL_TARGET = 0.50
+# context_recall was measured for a while (never gated -- see git history
+# for the CONTEXT_RECALL_TARGET report-only era) then dropped from
+# app/eval.py's RAGAS metrics entirely. Two real runs after fixing a
+# concrete bug (the "boundary" golden-set items wrongly pinning
+# source_type: "code" on questions whose ground truth needs both code and
+# docs) both still failed on context_recall alone, with
+# faithfulness/answer_relevancy comfortably passing -- and the failure was
+# broad, not isolated to one category: "negative" items score a
+# structural 0 for any system (the ground truth is "not in this repo," an
+# absence claim no retrieved text can ever support), and the remaining
+# categories varied 0.0-0.4 run to run against the same golden set with
+# nothing else changed, pointing to judge-scoring noise as much as real
+# system weakness. It was also ~25% of judge call volume per run for a
+# signal that could never fail the build and wasn't being acted on.
+# Faithfulness and answer_relevancy already cover grounding and
+# topicality; not worth paying to keep measuring a mostly-noisy metric
+# nobody was gating on.
 
 
 def check_answer_gate(scores: dict) -> bool:

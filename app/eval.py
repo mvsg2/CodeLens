@@ -16,17 +16,19 @@ Two independent scorers sit on top of the same golden set:
 """
 
 import os
+import time
 
 from langchain_openai import ChatOpenAI
 from ragas import evaluate as ragas_evaluate
 from ragas.embeddings import LangchainEmbeddingsWrapper
 from ragas.llms import LangchainLLMWrapper
-from ragas.metrics import faithfulness, answer_relevancy, context_recall
+from ragas.metrics import faithfulness, answer_relevancy
+from langchain_community.callbacks import get_openai_callback
 from ragas.run_config import RunConfig
 from datasets import Dataset
 
 from app.retrieval import build_retriever, rerank, answer_query
-from app.scoring import norm_path, is_translation_miss, function_hit, ANSWER_QUALITY_THRESHOLDS, CONTEXT_RECALL_TARGET, check_answer_gate  # noqa: F401
+from app.scoring import norm_path, is_translation_miss, function_hit, ANSWER_QUALITY_THRESHOLDS, check_answer_gate  # noqa: F401
 
 # Candidate judge models under evaluation -- see
 # scripts/smoke_tests/judge_calibration.py for the calibration process behind
@@ -82,6 +84,21 @@ JUDGE_MODELS = {
 # not just from a VPN-connected machine. gemma-4-31b/gemma-4-31b-openrouter
 # stay registered as free fallbacks if credit runs out again.
 DEFAULT_JUDGE = "gpt-4o"
+
+# langchain_community's get_openai_callback() tracks token counts
+# accurately (verified live: 12 prompt + 1 completion tokens for a
+# trivial "reply with OK" probe, matching expectations) but its own
+# total_cost came back 0.0 despite "gpt-4o" genuinely being present in
+# its internal MODEL_COST_PER_1K_TOKENS table -- a real gap in that
+# utility for chat-model responses in the installed langchain version,
+# not a config error here. Don't trust its cost field; compute cost
+# manually from the (verified-accurate) token counts instead, same
+# pattern as app/retrieval.py's GENERATOR_PRICING. Only entries actually
+# checked against a real pricing page -- not filled in for every
+# JUDGE_MODELS key.
+JUDGE_PRICING = {
+    "gpt-4o": {"input_per_1m": 2.50, "output_per_1m": 10.00},
+}
 
 
 def build_judge(judge_name: str) -> LangchainLLMWrapper:
@@ -491,10 +508,11 @@ def evaluate_retrieval(repo_id: str, top_k: int = 5) -> dict:
 
 # ── RAGAS answer-quality scoring ──────────────────────
 def evaluate_answers(repo_id: str, limit: int | None = None, judge: str = DEFAULT_JUDGE) -> dict:
-    """Score generated answers with RAGAS: faithfulness, answer relevancy,
-    context recall. Every item costs a real LLM call to generate the answer,
-    plus several more internally for RAGAS's own judge model — pass `limit`
-    to bound cost while iterating.
+    """Score generated answers with RAGAS: faithfulness, answer relevancy.
+    (context_recall was measured for a while, then dropped entirely -- see
+    app/scoring.py's comment for why.) Every item costs a real LLM call to
+    generate the answer, plus several more internally for RAGAS's own
+    judge model — pass `limit` to bound cost while iterating.
 
     `judge` selects which model grades the answers -- see JUDGE_MODELS.
     This is a separate choice from the model that generates the answers,
@@ -510,13 +528,22 @@ def evaluate_answers(repo_id: str, limit: int | None = None, judge: str = DEFAUL
     set back to gpt-4o.
 
     ground_truth is the golden set's expected_answer (a short, hand-verified
-    reference), and contexts is the actual retrieved chunk text (not file
-    paths — RAGAS needs real content to judge faithfulness/recall against).
+    reference, unused by either metric now that context_recall is gone --
+    kept in the dataset for whichever future metric might need it), and
+    contexts is the actual retrieved chunk text (not file paths — RAGAS
+    needs real content to judge faithfulness/relevancy against).
     """
     items = GOLDEN_SET[:limit] if limit else GOLDEN_SET
 
     rows = []
     categories = []
+    generator_usage = {"prompt_tokens": 0, "completion_tokens": 0, "total_tokens": 0, "estimated_cost_usd": 0.0}
+    # Timed as two separate phases, not one total -- they have genuinely
+    # different bottlenecks and failure sources (generation: per-item
+    # provider hiccups/rate limits; judging: RAGAS's own serialized judge
+    # calls, see the max_workers=1 comment below) -- collapsing them into
+    # one number would hide which phase is actually slow on a given run.
+    generation_start = time.monotonic()
     for item in items:
         result = answer_query(
             item["query"], repo_id,
@@ -531,6 +558,17 @@ def evaluate_answers(repo_id: str, limit: int | None = None, judge: str = DEFAUL
             "ground_truth": item["expected_answer"],
         })
         categories.append(item["category"])
+        usage = result.get("token_usage")
+        if usage:
+            generator_usage["prompt_tokens"] += usage["prompt_tokens"]
+            generator_usage["completion_tokens"] += usage["completion_tokens"]
+            generator_usage["total_tokens"] += usage["total_tokens"]
+            if usage["estimated_cost_usd"] is None:
+                generator_usage["estimated_cost_usd"] = None
+            elif generator_usage["estimated_cost_usd"] is not None:
+                generator_usage["estimated_cost_usd"] += usage["estimated_cost_usd"]
+
+    generation_seconds = time.monotonic() - generation_start
 
     dataset = Dataset.from_list(rows)
     judge_llm = build_judge(judge)
@@ -545,13 +583,40 @@ def evaluate_answers(repo_id: str, limit: int | None = None, judge: str = DEFAUL
     # most one in-flight request at a time, so total tokens/min tracks the
     # judge's own call rate instead of being multiplied by concurrency --
     # slower wall-clock, but actually bounded by the real TPM limit.
-    ragas_result = ragas_evaluate(
-        dataset,
-        metrics=[faithfulness, answer_relevancy, context_recall],
-        llm=judge_llm,
-        embeddings=judge_embeddings,
-        run_config=RunConfig(max_workers=1),
-    )
+    # context_recall dropped entirely (was already report-only, never
+    # gated) -- structurally unwinnable for the "negative" category (its
+    # ground truth is an absence claim no retrieved text can ever support)
+    # and noisy run-to-run on the rest (0.0-0.4 swings observed on
+    # identical code across real runs). Was ~25% of judge call volume for
+    # a signal that couldn't fail the build and wasn't being acted on --
+    # see app/scoring.py's ANSWER_QUALITY_THRESHOLDS comment for the full
+    # history (recalibrated -> demoted to report-only -> dropped here).
+    judging_start = time.monotonic()
+    with get_openai_callback() as cb:
+        ragas_result = ragas_evaluate(
+            dataset,
+            metrics=[faithfulness, answer_relevancy],
+            llm=judge_llm,
+            embeddings=judge_embeddings,
+            run_config=RunConfig(max_workers=1),
+        )
+    judging_seconds = time.monotonic() - judging_start
+
+    # cb's own total_cost is NOT used -- verified live it comes back 0.0
+    # even for "gpt-4o" (which genuinely is in langchain's pricing table),
+    # a real gap in that utility for chat-model responses. Its token
+    # counts ARE verified accurate; cost computed manually from those,
+    # same pattern as app/retrieval.py's GENERATOR_PRICING.
+    judge_pricing = JUDGE_PRICING.get(judge)
+    judge_usage = {
+        "prompt_tokens": cb.prompt_tokens,
+        "completion_tokens": cb.completion_tokens,
+        "total_tokens": cb.total_tokens,
+        "estimated_cost_usd": (
+            cb.prompt_tokens / 1_000_000 * judge_pricing["input_per_1m"]
+            + cb.completion_tokens / 1_000_000 * judge_pricing["output_per_1m"]
+        ) if judge_pricing else None,
+    }
 
     df = ragas_result.to_pandas()
     df["category"] = categories
@@ -559,7 +624,6 @@ def evaluate_answers(repo_id: str, limit: int | None = None, judge: str = DEFAUL
     scores = {
         "faithfulness": float(df["faithfulness"].mean()),
         "answer_relevancy": float(df["answer_relevancy"].mean()),
-        "context_recall": float(df["context_recall"].mean()),
     }
 
     by_category = {}
@@ -568,12 +632,18 @@ def evaluate_answers(repo_id: str, limit: int | None = None, judge: str = DEFAUL
         by_category[cat] = {
             "faithfulness": float(sub["faithfulness"].mean()),
             "answer_relevancy": float(sub["answer_relevancy"].mean()),
-            "context_recall": float(sub["context_recall"].mean()),
         }
 
     return {
         "judge": judge,
         "scores": scores,
         "by_category": by_category,
+        "generator_usage": generator_usage,
+        "judge_usage": judge_usage,
+        "timing": {
+            "generation_seconds": round(generation_seconds, 1),
+            "judging_seconds": round(judging_seconds, 1),
+            "total_seconds": round(generation_seconds + judging_seconds, 1),
+        },
         "results": df.to_dict(orient="records"),
     }

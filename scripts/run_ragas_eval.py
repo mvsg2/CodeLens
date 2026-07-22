@@ -22,17 +22,28 @@ import json
 import math
 import os
 import tempfile
+import traceback
 from datetime import datetime, timezone
 from pathlib import Path
 
 import numpy as np
 
-from app.eval import evaluate_answers, check_answer_gate, ANSWER_QUALITY_THRESHOLDS, CONTEXT_RECALL_TARGET, JUDGE_MODELS, DEFAULT_JUDGE
+from app.eval import evaluate_answers, check_answer_gate, ANSWER_QUALITY_THRESHOLDS, JUDGE_MODELS, DEFAULT_JUDGE
 from app.retrieval import GENERATOR_MODEL_NAME
 from app.sourcing import upload_to_s3
 
 REPO_ID = "fastapi__fastapi"
 RESULTS_FILE = Path("data/ragas_eval_last_run.json")
+
+
+def _upload_history_entry(entry: dict, timestamp: str) -> None:
+    with tempfile.NamedTemporaryFile("w", suffix=".json", delete=False, encoding="utf-8") as tmp:
+        json.dump(entry, tmp, indent=2, ensure_ascii=False)
+        tmp_path = Path(tmp.name)
+    try:
+        upload_to_s3(tmp_path, f"eval-history/{REPO_ID}/{timestamp}.json")
+    finally:
+        tmp_path.unlink(missing_ok=True)
 
 
 def _json_safe(value):
@@ -68,31 +79,75 @@ if __name__ == "__main__":
     print(f"Judge model: {args.judge}")
     print("This calls the real LLM for every item — expect real cost and real latency.\n")
 
-    result = evaluate_answers(REPO_ID, limit=args.limit, judge=args.judge)
+    # Captured once, at the start of the attempt -- reused for both the
+    # success and crash paths below, so a history entry's timestamp means
+    # "when this run happened," not "when it happened to finish" (some
+    # runs take 8+ minutes; start time is the more meaningful anchor).
+    timestamp = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H%M%SZ")
+
+    try:
+        result = evaluate_answers(REPO_ID, limit=args.limit, judge=args.judge)
+    except Exception as e:
+        # Previously, a mid-run crash (a real, recurring failure mode this
+        # project has hit repeatedly -- 402s, 429s, None-choices) meant
+        # NO history entry ever got written at all: everything below this
+        # point, including the S3 upload, only ran after evaluate_answers()
+        # returned successfully. "The run crashed" and "the run never ran"
+        # were indistinguishable in the history -- there was no way to see
+        # an error rate over time, only silence. Recording a minimal entry
+        # here closes that gap, then re-raises so CI still fails loudly,
+        # exactly as before.
+        print(f"\nCRASHED: {type(e).__name__}: {e}")
+        crash_entry = {
+            "timestamp": timestamp,
+            "commit": os.environ.get("CODELENS_PIN_COMMIT"),
+            "judge": args.judge,
+            "generator": GENERATOR_MODEL_NAME,
+            "crashed": True,
+            "error_type": type(e).__name__,
+            "error_message": str(e)[:500],
+        }
+        try:
+            _upload_history_entry(crash_entry, timestamp)
+            print(f"Crash recorded to eval-history/{REPO_ID}/{timestamp}.json")
+        except Exception as upload_err:
+            print(f"(also failed to record the crash to S3: {upload_err})")
+        traceback.print_exc()
+        raise
+
     scores = result["scores"]
 
     print(f"Faithfulness:     {scores['faithfulness']:.3f}")
     print(f"Answer relevancy: {scores['answer_relevancy']:.3f}")
-    print(f"Context recall:   {scores['context_recall']:.3f}")
+
+    gen_usage = result["generator_usage"]
+    judge_usage = result["judge_usage"]
+    timing = result["timing"]
+
+    print(f"\nTiming: generation={timing['generation_seconds']:.1f}s  "
+          f"judging={timing['judging_seconds']:.1f}s  "
+          f"total={timing['total_seconds']:.1f}s")
+
+    def _fmt_cost(usage):
+        return f"${usage['estimated_cost_usd']:.4f}" if usage["estimated_cost_usd"] is not None else "unknown (no verified pricing for this model)"
+
+    print(f"\nGenerator tokens: {gen_usage['total_tokens']:,} "
+          f"({gen_usage['prompt_tokens']:,} prompt + {gen_usage['completion_tokens']:,} completion) "
+          f"-- {_fmt_cost(gen_usage)}")
+    print(f"Judge tokens:     {judge_usage['total_tokens']:,} "
+          f"({judge_usage['prompt_tokens']:,} prompt + {judge_usage['completion_tokens']:,} completion) "
+          f"-- {_fmt_cost(judge_usage)}")
 
     print("\nBy category:")
     for cat, cat_scores in result["by_category"].items():
         print(f"  {cat:<12} faithfulness={cat_scores['faithfulness']:.3f}  "
-              f"answer_relevancy={cat_scores['answer_relevancy']:.3f}  "
-              f"context_recall={cat_scores['context_recall']:.3f}")
+              f"answer_relevancy={cat_scores['answer_relevancy']:.3f}")
 
     gate = check_answer_gate(scores)
     print(f"\nEVAL GATE: {'PASS' if gate else 'FAIL'}")
     for k, v in ANSWER_QUALITY_THRESHOLDS.items():
         status = "PASS" if scores.get(k, 0) >= v else "FAIL"
         print(f"  {k}: {scores.get(k, 0):.3f} (threshold {v}) [{status}]")
-
-    # Reported, not gated -- see app/scoring.py's CONTEXT_RECALL_TARGET
-    # comment for why (structurally unwinnable for the "negative" category,
-    # noisy run-to-run on the rest).
-    cr = scores.get("context_recall", 0)
-    cr_status = "PASS" if cr >= CONTEXT_RECALL_TARGET else "FAIL"
-    print(f"  context_recall: {cr:.3f} (target {CONTEXT_RECALL_TARGET}) [{cr_status}, report only]")
 
     # Every generated answer + its per-item scores, saved so a later "what
     # did it actually say" investigation (e.g. why answer_relevancy is
@@ -105,7 +160,14 @@ if __name__ == "__main__":
         for row in result["results"]
     ]
     with open(RESULTS_FILE, "w", encoding="utf-8") as f:
-        json.dump({"judge": args.judge, "scores": scores, "results": safe_results}, f, indent=2, ensure_ascii=False)
+        json.dump({
+            "judge": args.judge,
+            "scores": scores,
+            "generator_usage": gen_usage,
+            "judge_usage": judge_usage,
+            "timing": timing,
+            "results": safe_results,
+        }, f, indent=2, ensure_ascii=False)
     print(f"\nPer-item answers + scores saved to {RESULTS_FILE}")
 
     # Score history -- data/ragas_eval_last_run.json above only ever holds
@@ -116,7 +178,6 @@ if __name__ == "__main__":
     # manifests already go to) is what actually makes "did this get
     # better or worse over time" answerable later, instead of only ever
     # having whatever happens to still be visible in a CI log.
-    timestamp = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H%M%SZ")
     history_entry = {
         "timestamp": timestamp,
         "commit": os.environ.get("CODELENS_PIN_COMMIT"),
@@ -125,13 +186,11 @@ if __name__ == "__main__":
         "golden_set_size": len(safe_results),
         "scores": scores,
         "gate_passed": gate,
+        "crashed": False,
+        "generator_usage": gen_usage,
+        "judge_usage": judge_usage,
+        "timing": timing,
     }
-    with tempfile.NamedTemporaryFile("w", suffix=".json", delete=False, encoding="utf-8") as tmp:
-        json.dump(history_entry, tmp, indent=2, ensure_ascii=False)
-        tmp_path = Path(tmp.name)
-    try:
-        upload_to_s3(tmp_path, f"eval-history/{REPO_ID}/{timestamp}.json")
-    finally:
-        tmp_path.unlink(missing_ok=True)
+    _upload_history_entry(history_entry, timestamp)
 
     raise SystemExit(0 if gate else 1)

@@ -47,10 +47,36 @@ if __name__ == "__main__":
         body = s3.get_object(Bucket=S3_BUCKET, Key=key)["Body"].read()
         entries.append(json.loads(body))
 
-    print(f"{'Timestamp':<20} {'Judge':<10} {'Generator':<28} {'Faith.':>7} {'Rel.':>7} {'Recall':>7}  Gate")
+    # .get() throughout -- older history entries predate context_recall
+    # being dropped (app/scoring.py has the why), predate
+    # generator_usage/judge_usage/timing being added, and predate crashed
+    # runs getting recorded at all (previously a mid-run crash wrote no
+    # entry whatsoever -- see run_ragas_eval.py's crash-handling comment).
+    # Keeps this script working across all of those boundaries instead of
+    # a KeyError on old entries.
+    print(f"{'Timestamp':<20} {'Judge':<10} {'Generator':<28} {'Faith.':>7} {'Rel.':>7}  {'Cost':>10}  {'Time':>7}  Status")
+    crashed_count = 0
     for e in entries:
+        if e.get("crashed"):
+            crashed_count += 1
+            print(f"{e['timestamp']:<20} {e.get('judge', '?'):<10} {e.get('generator', '?'):<28} "
+                  f"{'--':>7} {'--':>7}  {'--':>10}  {'--':>7}  "
+                  f"CRASHED ({e.get('error_type', 'unknown error')})")
+            continue
+
         scores = e["scores"]
         gate = "PASS" if e["gate_passed"] else "FAIL"
+        gen_cost = (e.get("generator_usage") or {}).get("estimated_cost_usd")
+        judge_cost = (e.get("judge_usage") or {}).get("estimated_cost_usd")
+        if gen_cost is not None and judge_cost is not None:
+            cost_str = f"${gen_cost + judge_cost:.4f}"
+        else:
+            cost_str = "n/a"
+        total_seconds = (e.get("timing") or {}).get("total_seconds")
+        time_str = f"{total_seconds:.0f}s" if total_seconds is not None else "n/a"
         print(f"{e['timestamp']:<20} {e['judge']:<10} {e['generator']:<28} "
-              f"{scores['faithfulness']:>7.3f} {scores['answer_relevancy']:>7.3f} "
-              f"{scores['context_recall']:>7.3f}  {gate}")
+              f"{scores['faithfulness']:>7.3f} {scores['answer_relevancy']:>7.3f}  "
+              f"{cost_str:>10}  {time_str:>7}  {gate}")
+
+    if crashed_count:
+        print(f"\n{crashed_count}/{len(entries)} runs crashed outright ({crashed_count / len(entries) * 100:.0f}%)")

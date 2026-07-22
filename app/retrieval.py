@@ -88,13 +88,40 @@ GENERATOR_MODELS = {
     # Hosted directly by DeepSeek (not via OpenRouter) -- own paid account,
     # no OpenRouter/ASU RC dependency at all. "-flash" is the fast,
     # non-thinking mode (vs. "-pro"'s thinking mode) -- the right fit here
-    # since generator calls are capped at max_tokens=1024 for concise RAG
+    # since generator calls are capped at max_tokens=4096 for concise RAG
     # answers, not long reasoning chains. Different vendor family from the
     # gpt-4o judge, so no generator/judge circularity concern.
     "deepseek-v4-flash": {"model": "deepseek-v4-flash",
                           "base_url": "https://api.deepseek.com", "api_key_env": "DEEPSEEK_API_KEY"},
 }
 GENERATOR_MODEL_NAME = os.environ.get("GENERATOR_MODEL", "qwen3-coder-30b")
+
+# Only entries actually verified against a real pricing page this session
+# -- deliberately not filled in for every GENERATOR_MODELS key. Guessing a
+# number here would be worse than reporting "unknown": a wrong estimate
+# looks authoritative and nobody would think to double-check it. Dollars
+# per 1M tokens.
+GENERATOR_PRICING = {
+    "deepseek-v4-flash": {"input_per_1m": 0.14, "output_per_1m": 0.28},  # cache-miss pricing
+    "gpt-4o": {"input_per_1m": 2.50, "output_per_1m": 10.00},
+}
+
+
+def _usage_dict(response) -> dict:
+    usage = getattr(response, "usage", None)
+    prompt_tokens = getattr(usage, "prompt_tokens", 0) or 0
+    completion_tokens = getattr(usage, "completion_tokens", 0) or 0
+    pricing = GENERATOR_PRICING.get(GENERATOR_MODEL_NAME)
+    cost = None
+    if pricing:
+        cost = (prompt_tokens / 1_000_000 * pricing["input_per_1m"]
+                + completion_tokens / 1_000_000 * pricing["output_per_1m"])
+    return {
+        "prompt_tokens": prompt_tokens,
+        "completion_tokens": completion_tokens,
+        "total_tokens": prompt_tokens + completion_tokens,
+        "estimated_cost_usd": cost,
+    }
 
 
 def _build_generator_client() -> tuple[OpenAI, str]:
@@ -306,7 +333,12 @@ ANSWER:"""
 
 
 # ── LLM call ─────────────────────────────────────────
-def call_llm(prompt: str, max_attempts: int = 5) -> str:
+def call_llm(prompt: str, max_attempts: int = 5) -> tuple[str, dict]:
+    """Returns (answer_text, usage_dict). usage_dict has prompt_tokens/
+    completion_tokens/total_tokens (always populated -- every OpenAI-
+    compatible response includes these) and estimated_cost_usd (None
+    unless GENERATOR_PRICING has a verified entry for the current model).
+    """
     # Two distinct transient failure modes handled here, both worth
     # retrying rather than crashing the whole eval run:
     #  1. OpenRouter occasionally returns HTTP 200 with choices=None -- a
@@ -344,7 +376,7 @@ def call_llm(prompt: str, max_attempts: int = 5) -> str:
             continue
 
         if response.choices:
-            return response.choices[0].message.content
+            return response.choices[0].message.content, _usage_dict(response)
         last_response = response
         if attempt < max_attempts - 1:
             time.sleep(2 ** attempt)
@@ -379,15 +411,17 @@ def answer_query(query: str, repo_id: str, source_type: str | None = None,
     top_chunks = rerank(query, candidates, top_k=5)
 
     answer = None
+    token_usage = None
     if include_answer:
         print("Calling LLM...")
         prompt = build_prompt(query, top_chunks)
-        answer = call_llm(prompt)
+        answer, token_usage = call_llm(prompt)
     else:
         print("Skipping LLM call (--no-llm)")
 
     result = {
         "answer": answer,
+        "token_usage": token_usage,
         "sources": [
             {
                 "file": c["metadata"]["rel_path"],
