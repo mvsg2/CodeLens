@@ -1,0 +1,239 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch: {}
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+# Repo default is read-only (Settings > Actions > General > Workflow
+# permissions), so actions/cache's save step silently no-ops without this —
+# confirmed via a real run where the ~3h cold-embed cache never got saved
+# (GET /repos/.../actions/caches returned zero entries afterward).
+# actions: write is the exact scope actions/cache needs; nothing broader.
+permissions:
+  contents: read
+  actions: write
+
+env:
+  # The commit the golden set in app/eval.py was hand-verified against
+  # (see GOLDEN_SET's docstring). Pinning here — instead of letting
+  # app.sourcing.clone_repo pull whatever fastapi/fastapi's HEAD currently
+  # is — keeps eval results reproducible and keeps the index cache below
+  # stable across runs. Bump deliberately (and re-verify the golden set)
+  # if this is ever moved forward.
+  CODELENS_PIN_COMMIT: dd17e4f723a23854cfe4b9b6258e31efd86ea523
+  # Bump the leading v-number to match app/pipeline.py's PIPELINE_VERSION
+  # whenever it changes, so a stale cache never gets reused across an
+  # incompatible chunking/metadata format. This was missed when
+  # PIPELINE_VERSION moved 3 -> 4 (commit 7325f1e) -- the key stayed
+  # "index-v2-...", and since GitHub Actions cache keys are write-once
+  # (an existing key's entry is never overwritten, only ever restored),
+  # every run since then restored a stale version-3 cache, saw the
+  # mismatch, paid the full ~3h re-embed, then failed to save a fresh
+  # cache afterward because the old key was already taken -- so every
+  # single run repeated the full cost with nothing ever actually getting
+  # cached. Bumping the key to v4 here starts a fresh key the next run can
+  # actually populate and reuse.
+  INDEX_CACHE_KEY: index-v4-dd17e4f
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - run: pip install -r requirements-dev.txt
+      - run: ruff check app/ scripts/ tests/
+
+  unit-test:
+    needs: lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - run: pip install -r requirements-dev.txt
+      # `python -m pytest` (not bare `pytest`) so the repo root is on
+      # sys.path — otherwise `from app.classify import ...` fails with
+      # ModuleNotFoundError on a clean runner with no editable install.
+      # No API keys, no model downloads: tests/unit only imports
+      # app/classify.py and app/scoring.py, both dependency-free by design.
+      - run: python -m pytest tests/unit/ -v
+
+  eval:
+    needs: unit-test
+    runs-on: ubuntu-latest
+    services:
+      localstack:
+        image: localstack/localstack:3.0
+        ports:
+          - 4566:4566
+        env:
+          SERVICES: s3,sqs,secretsmanager
+          DEFAULT_REGION: us-east-1
+    env:
+      AWS_ENDPOINT_URL: http://localhost:4566
+      AWS_ACCESS_KEY_ID: test
+      AWS_SECRET_ACCESS_KEY: test
+      AWS_DEFAULT_REGION: us-east-1
+      S3_BUCKET: codelens-bucket
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      # ASU RC's endpoint (openai.rc.asu.edu, used by app/retrieval.py's
+      # default "qwen3-coder-30b" generator and app/eval.py's "gemma-4-31b"
+      # judge/embeddings) resolves to private RFC1918 addresses -- reachable
+      # only from ASU's own network/VPN, never from a GitHub-hosted runner.
+      # Confirmed via direct curl (10.139.126.22x, ConnectTimeout from any
+      # public host). CI routes generator + judge through OpenRouter instead
+      # (see GENERATOR_MODEL below and --judge gemma-4-31b-openrouter),
+      # and answer_relevancy's embeddings now reuse the local HuggingFace
+      # model instead of any external endpoint -- so ASU_RC_API_KEY is not
+      # needed here at all anymore; the local dev default still uses it.
+      OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+      # Tried the free OpenRouter tier (qwen3-coder-openrouter-free) to
+      # dodge a low-balance 402 on the paid variant -- confirmed live,
+      # twice, that it's not viable even with call_llm()'s retry/backoff:
+      # real 429 "temporarily rate-limited upstream" errors. Switched to
+      # DeepSeek's own hosted API instead -- a separate paid account, no
+      # OpenRouter/ASU RC dependency, verified live via a direct call_llm()
+      # smoke test ("OK" in 2.1s). Different vendor family from the gpt-4o
+      # judge, so no generator/judge circularity concern either.
+      GENERATOR_MODEL: deepseek-v4-flash
+      DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
+      # GitHub's own per-run token is enough for the public metadata read
+      # app.sourcing.get_repo_metadata does (GET /repos/{owner}/{repo}) —
+      # no personal PAT needed as a repo secret for this.
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      # Encoding ~20k chunks is the expensive step (see scripts/run_all.py's
+      # docstring) — cache the already-built index so runs after the first
+      # only re-embed when CODELENS_PIN_COMMIT or INDEX_CACHE_KEY actually
+      # changes, matching app.pipeline.needs_reindex's own change detection.
+      #
+      # Split into restore/save (not the combined actions/cache@v4) on
+      # purpose: a combined cache step's save only runs as a job-level
+      # post-hook, and GitHub Actions skips ALL post-hooks in a job once
+      # any step in it fails -- confirmed via a real run's logs (index
+      # built fine, RAGAS failed later in the same job, zero caches ever
+      # got saved: `gh api repos/{owner}/{repo}/actions/caches` returned
+      # total_count 0 despite the "fixed" v4 key). Saving explicitly right
+      # after the index is built, before the RAGAS step that's failed
+      # repeatedly this project's whole debugging history, decouples "did
+      # the expensive index get cached" from "did the unrelated judge/
+      # generator call succeed" -- the two were incorrectly coupled before.
+      - uses: actions/cache/restore@v4
+        with:
+          path: |
+            data/repos
+            data/manifests
+            data/chroma
+            data/index_state
+          key: ${{ env.INDEX_CACHE_KEY }}
+
+      # Cached separately since this survives even an index-cache bump
+      # (same embedding model, just re-run against new chunks).
+      - uses: actions/cache/restore@v4
+        with:
+          path: ~/.cache/huggingface
+          key: hf-models-jina-v2-base-code-msmarco-minilm
+
+      - run: pip install -r requirements.txt
+
+      - name: Retrieval-only eval gate (free) + demo query
+        run: python -m scripts.run_all --require-gate --no-llm # only retrieval, no LLM cost
+
+      # Saved here -- right after the expensive index-build step succeeds
+      # -- not left to the job-level post-hook, which never fires once the
+      # RAGAS step below fails (see the restore step's comment above).
+      - uses: actions/cache/save@v4
+        if: always()
+        with:
+          path: |
+            data/repos
+            data/manifests
+            data/chroma
+            data/index_state
+          key: ${{ env.INDEX_CACHE_KEY }}
+
+      - uses: actions/cache/save@v4
+        if: always()
+        with:
+          path: ~/.cache/huggingface
+          key: hf-models-jina-v2-base-code-msmarco-minilm
+
+      - name: RAGAS answer-quality eval gate (real LLM cost)
+        run: python -m scripts.run_ragas_eval --judge gpt-4o
+
+      # Uploaded regardless of whether the gate above passed or crashed --
+      # scripts/run_ragas_eval.py writes this file before its final
+      # SystemExit either way. Without this, a run's real per-item answers
+      # only ever exist in the runner's log output for as long as the
+      # progress-bar printing shows them, then are gone the moment the
+      # runner is destroyed -- inspecting "what did it actually say" after
+      # the fact previously meant paying for a fresh set of LLM calls just
+      # to look (confirmed real cost estimate: ~$0.002 per small
+      # inspection run). Downloadable from the Actions UI for 90 days.
+      - name: Upload RAGAS eval results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ragas-eval-results
+          path: data/ragas_eval_last_run.json
+          retention-days: 90
+          if-no-files-found: warn
+
+  docker-build:
+    needs: unit-test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build image
+        run: docker build -t codelens-api:ci .
+
+      - name: Start container
+        run: |
+          docker run -d --name ci-api -p 8000:8000 \
+            -e OPENAI_API_KEY=ci-placeholder \
+            -e GITHUB_TOKEN=ci-placeholder \
+            -e ASU_RC_API_KEY=ci-placeholder \
+            codelens-api:ci
+
+      - name: Wait for /health
+        run: |
+          for i in $(seq 1 30); do
+            if curl -sf http://localhost:8000/health; then
+              echo "healthy"
+              exit 0
+            fi
+            sleep 5
+          done
+          echo "container never became healthy"
+          docker logs ci-api
+          exit 1
+
+      - name: Container logs
+        if: always()
+        run: docker logs ci-api
+
+      - name: Stop container
+        if: always()
+        run: docker rm -f ci-api

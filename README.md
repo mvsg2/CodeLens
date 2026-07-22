@@ -13,7 +13,7 @@ There are four stages, and each one solves a different problem:
 1. **Sourcing**: clone the target GitHub repo, filter down to indexable source files, record a manifest (file list, commit SHA), and mirror the manifest to S3 (LocalStack locally).
 2. **Pipeline (encoding)**: parse each Python file with tree-sitter, chunk it function-by-function (not naive fixed-size splitting, which would cut a function in half), embed every chunk with a code-aware embedding model, and store the vectors + metadata in a Chroma database. This is the slow, GPU-bound step, and it only needs to re-run when the repo has a new commit or the chunking/embedding logic itself changes.
 3. **Retrieval**: given a question, search the Chroma index two ways at once (semantic vector search + BM25 keyword search), merge the results, rerank the top candidates with a cross-encoder, and optionally hand the final 5 snippets to an LLM to synthesize a cited answer. This runs on every single question, in seconds.
-4. **Eval**: a hand-built set of question/answer pairs with verified correct source files, scored two ways — a free, LLM-free retrieval check (hit rate, MRR), and a RAGAS-based answer-quality check (faithfulness, answer relevancy, context recall) that calls the real LLM. Run the free one after any change to chunking, retrieval, or filtering logic; run the RAGAS one before a release.
+4. **Eval**: a hand-built set of question/answer pairs with verified correct source files, scored two ways — a free, LLM-free retrieval check (hit rate, MRR, function-level hit rate), and a RAGAS-based answer-quality check (faithfulness, answer relevancy — both hard-gated) that calls the real LLM, plus token usage/cost, timing, and pass/fail history tracked per run. Run the free one after any change to chunking, retrieval, or filtering logic; run the RAGAS one before a release.
 
 Sourcing and the pipeline only need to run again when the repo changes or you change how chunks are built. Retrieval runs per-question. Eval runs whenever you want to check quality.
 
@@ -28,7 +28,7 @@ Everything here runs on your own machine. No AWS account needed, no public URL �
 - Python 3.11
 - Docker Desktop (for LocalStack, which stands in for AWS S3 locally)
 - An NVIDIA GPU is strongly recommended for the embedding step (the pipeline will fall back to CPU, but embedding ~20,000 chunks will be much slower)
-- An OpenAI API key (used for the answer-generation LLM call)
+- An LLM API key for the answer-generation call — **which one depends on which generator you use** (see the `.env` section below); the default requires ASU network access, so most external contributors will want to override it
 - A GitHub personal access token (used to fetch repo metadata — stars, description, default branch)
 
 ### Setup
@@ -61,6 +61,24 @@ If you skip this, `sentence-transformers` will fall back to CPU automatically �
 
 ```
 GITHUB_TOKEN=ghp_your_token_here
+
+# The answer-generation (generator) LLM call — see app/retrieval.py's
+# GENERATOR_MODELS registry for every registered option. The code default
+# (GENERATOR_MODEL unset) is "qwen3-coder-30b", hosted on ASU Research
+# Computing's endpoint (openai.rc.asu.edu) — reachable ONLY from ASU's own
+# network/VPN. If you're not on that network, the demo query and any eval
+# script will fail with a connection timeout, not a helpful error. Most
+# contributors should instead set GENERATOR_MODEL to something publicly
+# reachable and provide the matching key, e.g.:
+GENERATOR_MODEL=deepseek-v4-flash
+DEEPSEEK_API_KEY=sk-your_key_here
+# ...or GENERATOR_MODEL=qwen3-coder-30b-openrouter with OPENROUTER_API_KEY,
+# or GENERATOR_MODEL=gpt-4o with OPENAI_API_KEY — any GENERATOR_MODELS
+# entry works, as long as its api_key_env is set.
+
+# The RAGAS judge (scripts/run_ragas_eval.py only) — separate model choice
+# from the generator above, see app/eval.py's JUDGE_MODELS. Defaults to
+# gpt-4o, which needs:
 OPENAI_API_KEY=sk-your_key_here
 
 # Optional — only needed if you change the LocalStack defaults below
@@ -104,7 +122,7 @@ python -m scripts.run_all --skip-eval
 # skip the quality check step
 
 python -m scripts.run_all --no-llm
-# skip the OpenAI call in the demo question — just print which files/functions were retrieved, for free
+# skip the generator LLM call in the demo question — just print which files/functions were retrieved, for free
 
 python -m scripts.run_all --query "Where is authentication handled?"
 # ask a different demo question
@@ -132,10 +150,14 @@ python -m scripts.run_retrieval --no-llm     # same, but skip the LLM call and j
 # Stage 4a — score retrieval quality against the golden test set (no LLM cost)
 python -m scripts.run_eval
 
-# Stage 4b — score answer quality with RAGAS: faithfulness, answer relevancy,
-# context recall (real LLM cost — one call per item to generate the answer,
+# Stage 4b — score answer quality with RAGAS: faithfulness, answer relevancy
+# (both hard-gated; real LLM cost — one call per item to generate the answer,
 # plus several more for RAGAS's own judge model; use --limit to bound cost)
 python -m scripts.run_ragas_eval --limit 5
+
+# See the score/cost/duration trend across past runs (free, no LLM calls —
+# reads from S3, where scripts/run_ragas_eval.py uploads one entry per run)
+python -m scripts.show_eval_history
 ```
 
 The ground truth these two eval stages score against lives in `app/eval.py`'s `GOLDEN_SET` — hand-written, and verifiable yourself with a plain `grep` against the cloned repo (e.g. `grep -n "def add_api_route" -r data/repos/fastapi__fastapi/fastapi/`). The generated *answers* being scored, on the other hand, come from real LLM calls — never canned or precomputed.
@@ -173,9 +195,9 @@ The request body supports a few optional fields beyond `repo_url` and `question`
 
 | Field | Values | Default | What it does |
 |---|---|---|---|
-| `source_type` | `"code"` / `"doc"` | `"code"` | Search source code chunks, or documentation/markdown chunks |
-| `path_type` | `"auto"` / `"library"` / `"tests"` / `"examples"` / `"docs"` | `"auto"` | Restrict retrieval to a part of the repo. `"auto"` searches only the library's own source for code questions, and all docs for doc questions — this avoids test files or tutorial snippets outranking the real implementation |
-| `include_answer` | `true` / `false` | `true` | Set to `false` to skip the OpenAI call and get back just the ranked source files — instant and free |
+| `source_type` | `"code"` / `"doc"` / omitted | `None` (unset) | Restrict to source code chunks, or documentation/markdown chunks. Leave unset to search both together — the default is deliberately unfiltered, not `"code"` (changed from an earlier hard default; see `codelens.md`'s Aspect 4 notes on flexible filtering for why) |
+| `path_type` | `"auto"` / `"library"` / `"tests"` / `"examples"` / `"docs"` / omitted | `None` (unset) | Restrict retrieval to a part of the repo. Leave unset to search everything. `"auto"` is accepted for backward compatibility and is treated identically to leaving it unset (it no longer means "library-only") |
+| `include_answer` | `true` / `false` | `true` | Set to `false` to skip the generator LLM call and get back just the ranked source files — instant and free |
 
 Each entry in the response's `sources` list also carries a `relevance_score` — the cross-encoder's raw relevance score for that chunk against the question. This is a transparency signal, not a calibrated confidence percentage: it's only meaningful *relative to other sources in the same response*, not comparable across different questions. A fixed "below this number = untrustworthy" cutoff was tested against real queries and rejected — a genuinely unanswerable question scored *higher* than a genuinely correct answer to a different question, so no single threshold reliably separates good from bad matches.
 
@@ -198,14 +220,14 @@ Once `Dockerfile` and `docker-compose.yml` are wired up, bring up the containeri
 
 ```bash
 docker compose up --build -d
-python -m scripts.smoke_test
+python -m scripts.smoke_tests.deployment_smoke_test
 ```
 
-`smoke_test.py` treats the running API as a black box — it never imports `app/` code, it only makes real HTTP requests to `http://localhost:8000`, the same way a real client would. It polls `/health` until the container is ready, then checks that a code query and a doc query both return correctly-typed sources with no LLM cost.
+`deployment_smoke_test.py` (in `scripts/smoke_tests/`, alongside the other smoke-test scripts) treats the running API as a black box — it never imports `app/` code, it only makes real HTTP requests to `http://localhost:8000`, the same way a real client would. It polls `/health` until the container is ready, then checks that a code query and a doc query both return correctly-typed sources with no LLM cost.
 
-**Known issue on Windows + Docker Desktop**: during development, `scripts/smoke_test.py` occasionally hit an intermittent `ReadTimeout` on one of the two `/query` calls, even though the container had already answered correctly and fast — confirmed directly from the container's own logs. Multiple fixes were tried (forcing IPv4 over `localhost`, restarting the WSL2/Docker network bridge, switching the script to a shared `requests.Session()`), and none reliably eliminated it. The pattern strongly points to flakiness in Docker Desktop's Windows↔WSL2 network bridge itself, not the application — every request the server received was processed correctly in a couple of milliseconds, with zero exceptions, every single time. This is expected to not reproduce in CI or real AWS deployment, since neither runs through that Windows/WSL2 translation layer at all.
+**Known issue on Windows + Docker Desktop**: during development, `deployment_smoke_test.py` occasionally hit an intermittent `ReadTimeout` on one of the two `/query` calls, even though the container had already answered correctly and fast — confirmed directly from the container's own logs. Multiple fixes were tried (forcing IPv4 over `localhost`, restarting the WSL2/Docker network bridge, switching the script to a shared `requests.Session()`), and none reliably eliminated it. The pattern strongly points to flakiness in Docker Desktop's Windows↔WSL2 network bridge itself, not the application — every request the server received was processed correctly in a couple of milliseconds, with zero exceptions, every single time. This is expected to not reproduce in CI or real AWS deployment, since neither runs through that Windows/WSL2 translation layer at all.
 
-If `smoke_test.py` hangs on your machine, verify the app itself is actually fine with a few manual `curl` calls instead. Note PowerShell aliases `curl` to `Invoke-WebRequest` — use `curl.exe` to get the real binary:
+If `deployment_smoke_test.py` hangs on your machine, verify the app itself is actually fine with a few manual `curl` calls instead. Note PowerShell aliases `curl` to `Invoke-WebRequest` — use `curl.exe` to get the real binary:
 
 ```powershell
 # Code question — expect fastapi/param_functions.py, fastapi/dependencies/utils.py
@@ -234,7 +256,7 @@ Then query it with that same URL in `repo_url` — the server converts it intern
 
 ## Production-Grade Deployment
 
-Not built yet. This section will cover taking CodeLens from the local-only setup above to a real, publicly reachable deployment: automated CI/CD, real AWS infrastructure (ECR, ECS Fargate, an Application Load Balancer, RDS with pgvector, S3, SQS, IAM), a public API endpoint, and production monitoring. See the TODO list below for the current plan.
+**CI is real and running** (`.github/workflows/ci.yml`) — every push runs `lint → unit-test → {eval, docker-build}` (the last two run in parallel once `unit-test` passes): the free retrieval-only gate plus the paid RAGAS answer-quality gate in `eval`, and a real `docker build` + container health-check in `docker-build`. No CD yet, though — there's no `deploy` job, no image push to a registry, and no live, publicly reachable deployment. Real AWS infrastructure (ECR, ECS Fargate, an Application Load Balancer, RDS with pgvector, S3, SQS, IAM), a public API endpoint, and production monitoring are still ahead. See the TODO list below for the current plan, and `codelens.md`'s Aspect 6 addendum / `notes/ci-cd-pipeline.md` for the real debugging history behind the CI pipeline that does exist.
 
 ---
 
@@ -247,6 +269,8 @@ Not built yet. This section will cover taking CodeLens from the local-only setup
 │   ├── pipeline.py       AST parsing, chunking, embedding, Chroma storage, change-detection state
 │   ├── retrieval.py      hybrid search (semantic + BM25), reranking, prompt building, LLM call
 │   ├── eval.py           golden test set + retrieval-only scoring (hit rate, MRR) and RAGAS answer-quality scoring
+│   ├── classify.py       pure, dependency-free chunk classification/identity (source_type, path_type, chunk_id)
+│   ├── scoring.py        pure, dependency-free eval-scoring helpers (answer-gate thresholds, path normalization)
 │   ├── main.py           the FastAPI server — exposes /query and /health
 │   └── config.py         environment variables and shared constants (e.g. embedding model name)
 ├── scripts/
@@ -255,7 +279,16 @@ Not built yet. This section will cover taking CodeLens from the local-only setup
 │   ├── run_retrieval.py   CLI entry point for asking sample questions
 │   ├── run_eval.py        CLI entry point for the free retrieval-only quality gate
 │   ├── run_ragas_eval.py  CLI entry point for the RAGAS answer-quality gate (real LLM cost)
-│   └── run_all.py         orchestrates all four stages, skipping encoding when nothing changed
+│   ├── show_eval_history.py  prints the score/cost/duration/crash trend across past runs (free, reads from S3)
+│   ├── run_all.py         orchestrates all four stages, skipping encoding when nothing changed
+│   ├── inspect_answers.py manual cross-check: generated answers next to retrieved chunks, no judge involved
+│   ├── smoke_tests/
+│   │   ├── deployment_smoke_test.py     black-box HTTP smoke test for a running containerized deploy
+│   │   ├── judge_calibration.py         validates judge output quality against hand-labeled cases
+│   │   └── judge_endpoints_smoke_test.py  cheap connectivity check for every registered judge/embedding endpoint
+│   └── verifier_tests/
+│       ├── validate_golden_set.py       sanity-checks GOLDEN_SET itself before spending money on run_ragas_eval.py
+│       └── grep_verify_golden_set.py    AST-based deep check: every expected_functions claim is a real def, reports live line/args
 ├── worker/
 │   └── reindex_worker.py   (planned) background worker that re-indexes a repo when
 │                           notified of a new commit, without blocking the API
@@ -267,10 +300,12 @@ Not built yet. This section will cover taking CodeLens from the local-only setup
 
 ## TODO
 
-- [x] LLM-based answer-quality evaluation (faithfulness / answer relevancy / context recall via RAGAS — `app/eval.py`'s `evaluate_answers()`, `scripts/run_ragas_eval.py`)
+- [x] LLM-based answer-quality evaluation (faithfulness / answer relevancy, both hard-gated, via RAGAS — `app/eval.py`'s `evaluate_answers()`, `scripts/run_ragas_eval.py`; `context_recall` was tried, then removed — see `codelens.md`'s Aspect 4 addendum for why)
 - [x] Containerize the app (Dockerfile) — reindex worker still needs one
-- [x] Local "deployment rehearsal": containerized stack running against LocalStack, `scripts/smoke_test.py` checks `/health` and `/query`
-- [ ] Automated CI/CD (lint → unit tests → integration tests → eval gate → smoke test → build → push → deploy)
+- [x] Local "deployment rehearsal": containerized stack running against LocalStack, `scripts/smoke_tests/deployment_smoke_test.py` checks `/health` and `/query`
+- [x] Automated CI (`.github/workflows/ci.yml`: `lint → unit-test → {eval, docker-build}`) — no integration tests, smoke test, push, or deploy steps in CI yet, see below
+- [x] Cost/duration/failure-rate tracking per eval run, with history persisted (`scripts/run_ragas_eval.py`/`show_eval_history.py`) — **known gap**: CI's `eval` job uploads history to LocalStack, not real S3, so none of it actually persists across CI runs yet (works correctly for local runs against real AWS credentials)
+- [ ] CD: push the built image to a registry and actually deploy it (currently `docker-build` only builds + health-checks, never pushes anywhere)
 - [ ] Migrate the vector store from local Chroma files to pgvector on RDS (needed before running more than one API instance)
 - [ ] Real AWS deployment (ECR, ECS Fargate, ALB, RDS, S3, SQS, IAM) and a public API endpoint
 - [ ] GitHub webhook → SQS → `worker/reindex_worker.py` for automatic re-indexing on new commits

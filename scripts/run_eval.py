@@ -9,17 +9,29 @@ if __name__ == "__main__":
 
     for r in scores["results"]:
         status = "HIT " if r["hit"] else ("LANG" if r["translation_miss"] else "MISS")
-        print(f"[{status}] ({r['category']}/{r['source_type']}) {r['query']}")
-        if not r["hit"]:
+        func_tag = ""
+        if r["function_hit"] is not None:
+            func_tag = " [FUNC-HIT]" if r["function_hit"] else " [FUNC-MISS]"
+        print(f"[{status}]{func_tag} ({r['category']}/{r['source_type']}) {r['query']}")
+        if not r["hit"] or r["function_hit"] is False:
             print(f"       expected:  {r['expected']}")
             print(f"       retrieved: {r['retrieved']}")
 
-    print(f"\nHit rate @5: {scores['hit_rate']:.3f}  (boundary excluded)")
+    print(f"\nHit rate @5: {scores['hit_rate']:.3f}  (boundary excluded, file-level)")
     print(f"MRR @5:      {scores['mrr']:.3f}")
-    print("By category:")
+    print("By category (file-level hit rate):")
     for cat, rate in scores["by_category"].items():
         print(f"  {cat:<12} {rate:.3f}")
 
+    if scores["function_hit_rate"] is not None:
+        print(f"\nFunction hit rate @5: {scores['function_hit_rate']:.3f}  "
+              f"(stricter than file-level -- right function, not just right file; "
+              f"only scored for localization/identifier/explanation categories)")
+        print("By category (function-level hit rate):")
+        for cat, rate in scores["function_hit_rate_by_category"].items():
+            print(f"  {cat:<12} {rate:.3f}")
+
     gate = scores["hit_rate"] >= HIT_RATE_THRESHOLD
-    print(f"\nEVAL GATE: {'PASS' if gate else 'FAIL'} (threshold {HIT_RATE_THRESHOLD})")
+    print(f"\nEVAL GATE: {'PASS' if gate else 'FAIL'} (threshold {HIT_RATE_THRESHOLD}, file-level hit_rate only -- "
+          f"function_hit_rate is reported, not yet gating)")
     raise SystemExit(0 if gate else 1)

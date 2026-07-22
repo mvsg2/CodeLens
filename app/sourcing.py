@@ -34,11 +34,34 @@ def clone_repo(github_url: str) -> Path:
     dest_path = REPOS_DIR / f"{owner}__{repo_name}"
 
     if dest_path.exists():
-        print(f"Repo exists, pulling latest: {dest_path}")
-        subprocess.run(["git", "-C", str(dest_path), "pull"], check=True)
+        print(f"Repo exists, fetching latest: {dest_path}")
+        subprocess.run(["git", "-C", str(dest_path), "fetch"], check=True)
+        # `git pull` needs an actual branch to merge into -- fails outright
+        # on detached HEAD ("You are not currently on a branch"), which is
+        # exactly the state CODELENS_PIN_COMMIT leaves this repo in below.
+        # Only ever hit this path once caching actually started persisting
+        # data/repos across runs -- before that, every run re-cloned fresh
+        # (attached HEAD) and this branch never got exercised. `git
+        # symbolic-ref -q HEAD` exits 0 on a real branch, non-zero when
+        # detached -- pull only when it's actually meaningful; the
+        # CODELENS_PIN_COMMIT checkout below handles the pinned case.
+        on_branch = subprocess.run(
+            ["git", "-C", str(dest_path), "symbolic-ref", "-q", "HEAD"],
+            capture_output=True
+        ).returncode == 0
+        if on_branch:
+            subprocess.run(["git", "-C", str(dest_path), "pull"], check=True)
     else:
         print(f"Cloning {github_url} into {dest_path}")
         subprocess.run(["git", "clone", github_url, str(dest_path)], check=True)
+
+    # CI pins to the exact commit the golden set (app/eval.py) was hand-verified
+    # against, so eval results are reproducible instead of drifting whenever
+    # upstream fastapi gets a new commit.
+    pin = os.environ.get("CODELENS_PIN_COMMIT")
+    if pin:
+        print(f"CODELENS_PIN_COMMIT set — checking out {pin}")
+        subprocess.run(["git", "-C", str(dest_path), "checkout", pin], check=True)
 
     return dest_path
 

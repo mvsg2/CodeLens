@@ -25,6 +25,6 @@ if __name__ == "__main__":
         if result["answer"] is not None:
             print(f"\nANSWER:\n{result['answer']}")
 
-        print(f"\nSOURCES:")
+        print("\nSOURCES:")
         for s in result["sources"]:
             print(f"  {s['file']}:{s['line']} ({s['function']})")

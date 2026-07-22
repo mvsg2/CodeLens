@@ -7,8 +7,8 @@ the API container is up, e.g. via:
   docker compose up --build -d
 
 Usage:
-  python -m scripts.smoke_test
-  python -m scripts.smoke_test --base-url http://localhost:8000
+  python -m scripts.smoke_tests.deployment_smoke_test
+  python -m scripts.smoke_tests.deployment_smoke_test --base-url http://localhost:8000
 """
 import argparse
 import sys

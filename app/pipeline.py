@@ -1,5 +1,4 @@
 import json
-import uuid
 from pathlib import Path
 
 import tiktoken
@@ -13,6 +12,7 @@ from app.config import (
     S3_BUCKET, AWS_ENDPOINT_URL, AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY,
     AWS_DEFAULT_REGION, EMBEDDING_MODEL_NAME
 )
+from app.classify import get_source_type, get_path_type, chunk_id
 import boto3
 
 # ── Setup ─────────────────────────────────────────────
@@ -33,27 +33,12 @@ MAX_CHUNK_TOKENS = 512
 
 # Bump whenever chunking, metadata, or embedding logic changes in a way that
 # makes previously-indexed chunks stale (e.g. adding source_type/path_type).
-PIPELINE_VERSION = 2
-
-# Extensions treated as source code; everything else (.md, .txt) is documentation
-CODE_EXTENSIONS = {
-    ".py", ".js", ".ts", ".java", ".go",
-    ".cpp", ".c", ".h", ".rs", ".rb"
-}
-
-
-def get_source_type(extension: str) -> str:
-    return "code" if extension in CODE_EXTENSIONS else "doc"
-
-
-# Where a chunk lives in the repo: library source vs tests vs example snippets vs docs
-PATH_TYPE_DIRS = {"tests": "tests", "docs_src": "examples", "docs": "docs"}
-
-
-def get_path_type(rel_path: str) -> str:
-    top = rel_path.replace("\\", "/").split("/")[0]
-    return PATH_TYPE_DIRS.get(top, "library")
-
+# v3: chunk_context_header() prepended to function/function_part content --
+#     reverted (see chunk_file's comment) after measuring a net regression
+#     on the real golden set. Bumping past it to v4 rather than reusing v2,
+#     so any index actually built under v3 is correctly detected as stale
+#     too, not silently treated as equivalent to the pre-v3 state.
+PIPELINE_VERSION = 4
 
 # ── Token counting ────────────────────────────────────
 def estimate_tokens(text: str) -> int:
@@ -83,28 +68,35 @@ def extract_functions(source_code: str) -> list[dict]:
     root = tree.root_node
     functions = []
 
-    def walk(node, class_name=None):
+    def _leading_docstring(body_node) -> str:
+        if body_node and body_node.child_count > 0:
+            first = body_node.children[0]
+            if first.type == "expression_statement" and first.children:
+                inner = first.children[0]
+                if inner.type == "string":
+                    return inner.text.decode().strip("\"' ")
+        return ""
+
+    def walk(node, class_name=None, class_docstring=""):
         if node.type == "class_definition":
             name_node = node.child_by_field_name("name")
             if name_node:
                 class_name = name_node.text.decode()
+            # Scoped to this class specifically -- used to prime method
+            # chunks with vocabulary that otherwise only lives in the class
+            # docstring / __init__'s Doc() annotations (see
+            # chunk_context_header's docstring for why this matters).
+            class_docstring = _leading_docstring(node.child_by_field_name("body"))
 
         if node.type in ("function_definition", "async_function_definition"):
             name_node = node.child_by_field_name("name")
             func_name = name_node.text.decode() if name_node else "unknown"
-
-            docstring = ""
-            body = node.child_by_field_name("body")
-            if body and body.child_count > 0:
-                first = body.children[0]
-                if first.type == "expression_statement" and first.children:
-                    inner = first.children[0]
-                    if inner.type == "string":
-                        docstring = inner.text.decode().strip("\"' ")
+            docstring = _leading_docstring(node.child_by_field_name("body"))
 
             functions.append({
                 "name": func_name,
                 "class": class_name,
+                "class_docstring": class_docstring,
                 "start_line": node.start_point[0] + 1,
                 "end_line": node.end_point[0] + 1,
                 "code": node.text.decode(),
@@ -112,7 +104,7 @@ def extract_functions(source_code: str) -> list[dict]:
             })
 
         for child in node.children:
-            walk(child, class_name)
+            walk(child, class_name, class_docstring)
 
     walk(root)
     return functions
@@ -159,6 +151,20 @@ def chunk_file(file_info: dict, source_code: str) -> list[dict]:
         else:
             for func in functions:
                 code = func["code"]
+                # NOT prepending chunk_context_header() here -- reverted.
+                # Measured as a net regression on the real golden set
+                # (file-level hit_rate 0.950 -> 0.900) despite fixing the
+                # two cases it was designed for. Root cause: three distinct
+                # failure modes documented in codelens.md's Aspect 4
+                # addendum and notes/contextual-retrieval.md -- module-level
+                # functions get no equivalent boost (asymmetric), any
+                # method sharing vocabulary with its class docstring gets
+                # boosted regardless of actual relevance (false positives),
+                # and classes with many structurally similar methods (e.g.
+                # FastAPI's get/put/post/... HTTP-verb decorators) flood the
+                # candidate pool by sheer count. chunk_context_header()
+                # itself is left defined and tested in app/classify.py for
+                # a future redesign, just not called from here anymore.
                 if estimate_tokens(code) > MAX_CHUNK_TOKENS:
                     sub_chunks = fixed_token_split(code, MAX_CHUNK_TOKENS)
                     for i, sub in enumerate(sub_chunks):
@@ -236,7 +242,7 @@ def store_chunks(chunks: list[dict], repo_id: str):
     for i in range(0, len(chunks), batch_size):
         batch = chunks[i:i + batch_size]
         collection.upsert(
-            ids=[str(uuid.uuid4()) for _ in batch],
+            ids=[chunk_id(c["metadata"]) for c in batch],
             documents=[c["content"] for c in batch],
             embeddings=[c["embedding"] for c in batch],
             metadatas=[c["metadata"] for c in batch]
@@ -255,6 +261,18 @@ def upload_chroma_to_s3(repo_id: str):
         aws_secret_access_key=AWS_SECRET_ACCESS_KEY,
         region_name=AWS_DEFAULT_REGION
     )
+
+    # app.sourcing.upload_to_s3 already does this bucket-exists check; this
+    # function didn't, so calling scripts.run_pipeline directly (skipping
+    # the sourcing step that normally creates the bucket as a side effect)
+    # against a fresh LocalStack instance failed with NoSuchBucket. Real
+    # bug, not a one-off environment issue -- this function shouldn't
+    # depend on some other code path having run first.
+    try:
+        s3.head_bucket(Bucket=S3_BUCKET)
+    except Exception:
+        s3.create_bucket(Bucket=S3_BUCKET)
+        print(f"Created bucket: {S3_BUCKET}")
 
     chroma_path = CHROMA_DIR / repo_id
     for file in chroma_path.rglob("*"):
