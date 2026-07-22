@@ -621,9 +621,28 @@ def evaluate_answers(repo_id: str, limit: int | None = None, judge: str = DEFAUL
     df = ragas_result.to_pandas()
     df["category"] = categories
 
+    # "negative" excluded from the answer_relevancy GATE average only --
+    # still fully computed and visible per-category below, just not
+    # allowed to sink the pass/fail number. Root-caused, not guessed: read
+    # RAGAS's actual instruction prompt for this metric
+    # (ragas/metrics/_answer_relevance.py) -- it names "I don't know" as
+    # the canonical example of a "noncommittal" answer, and noncommittal
+    # answers get their score hard-multiplied by 0
+    # (score = cosine_sim.mean() * int(not committal)), independent of
+    # how topically correct the answer actually was. "negative" items'
+    # ground truth IS "the system must say it cannot answer" -- i.e. the
+    # exact answer shape this metric is built to zero out. Confirmed live
+    # against a real run: 2 of 3 negative items scored an exact 0.0 (not
+    # low-but-nonzero) despite being clean, correct refusals -- a hard
+    # classifier artifact, not a real quality signal. faithfulness stays
+    # a full mean across all categories -- it showed real, non-trivial
+    # variance on these same items (1.0, 0.571, 0.875), unlike
+    # answer_relevancy's proven hard-zero, so there's no equivalent case
+    # to exclude it there too.
+    non_negative = df["category"] != "negative"
     scores = {
         "faithfulness": float(df["faithfulness"].mean()),
-        "answer_relevancy": float(df["answer_relevancy"].mean()),
+        "answer_relevancy": float(df.loc[non_negative, "answer_relevancy"].mean()),
     }
 
     by_category = {}
