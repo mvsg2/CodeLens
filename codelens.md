@@ -1122,8 +1122,9 @@ locally on ASU's VPN) took several separate real fixes, in order:
    there isn't retrieval-completeness, it's the same structural issue item
    5 below covers. One golden-set item's own filter setting was fighting
    the thing it was meant to test.
-5. **`context_recall` demoted from hard-gated to report-only.** Even after
-   fixing `boundary`, two consecutive full runs still failed the gate on
+5. **`context_recall` demoted from hard-gated to report-only, then later
+   removed entirely** (two separate steps, not one). Even after fixing
+   `boundary`, two consecutive full runs still failed the gate on
    `context_recall` alone (`0.404`, then `0.365`, against a `0.50`
    threshold) while faithfulness and answer_relevancy both passed cleanly.
    Root cause is structural, not a quality regression: the `negative`
@@ -1133,13 +1134,16 @@ locally on ASU's VPN) took several separate real fixes, in order:
    there for any system, including a perfect one. The remaining categories
    also swung noticeably between the two runs with nothing else changed
    (e.g. `negative` itself: `0.000` → `0.333`), pointing to real
-   judge-scoring noise on top of the structural issue. `ANSWER_QUALITY_THRESHOLDS`
-   (`app/scoring.py`) now only gates `faithfulness`/`answer_relevancy`;
-   `context_recall` is tracked separately via `CONTEXT_RECALL_TARGET`
-   (still `0.50`) and printed every run by `scripts/run_ragas_eval.py`
-   labeled `[..., report only]` — visible enough to catch a real
-   regression, without blocking CI on a metric that's unwinnable for a
-   third of its own golden set.
+   judge-scoring noise on top of the structural issue. First step:
+   `ANSWER_QUALITY_THRESHOLDS` (`app/scoring.py`) dropped it from gating,
+   tracked separately as report-only via a `CONTEXT_RECALL_TARGET`
+   constant. Second step, later: dropped from `app/eval.py`'s RAGAS
+   `metrics=[...]` list entirely — it was still ~25% of judge call
+   volume per run for a signal that could never fail the build and wasn't
+   being acted on even as report-only, so paying to keep measuring it
+   stopped being worth it. `CONTEXT_RECALL_TARGET` no longer exists in
+   the codebase; `evaluate_answers()` now only computes/returns
+   `faithfulness`/`answer_relevancy`.
 
 ---
 
@@ -1511,10 +1515,66 @@ depended on) — summarized here:
   with the save placed immediately after the index-build step succeeds,
   before the flaky step that follows it.
 - **`ANSWER_QUALITY_THRESHOLDS`** (the blueprint's `THRESHOLDS` dict above)
-  no longer includes `context_recall` as a hard gate — see Aspect 4's
-  "CI cost/reliability fixes" addendum for why (a structural mismatch for
-  a third of the golden set, plus real run-to-run judge noise). It's still
-  measured and reported every run, just not blocking.
+  no longer includes `context_recall` at all — first demoted to
+  report-only, then **removed entirely** from `app/eval.py`'s RAGAS
+  `metrics=[...]` list (see Aspect 4's "CI cost/reliability fixes"
+  addendum for the full history of why). `evaluate_answers()` now runs
+  exactly `faithfulness` + `answer_relevancy` — 26 golden-set items × 2
+  metrics = **52** RAGAS tasks per run (was 78 with `context_recall`
+  still included, a number visible directly in the progress bar of any
+  real run).
+- **`negative`-category items excluded from the `answer_relevancy` gate
+  average, not from being computed.** Root-caused, not guessed: RAGAS's
+  own instruction prompt for this metric (`ragas/metrics/_answer_relevance.py`)
+  names *"I don't know"* as the canonical example of a "noncommittal"
+  answer, and noncommittal answers get their score hard-multiplied by
+  `0` — `score = cosine_sim.mean() * int(not committal)` — regardless of
+  how topically correct the answer was. `negative`-category ground truth
+  *is* "the system must say it cannot answer," the exact shape this
+  metric zeroes out. Confirmed live: 2 of 3 `negative` items in one real
+  run scored an exact `0.0`, not low-but-nonzero, despite being clean,
+  correct refusals. `faithfulness` stays a full mean across every
+  category — a live diagnostic call showed it genuinely discriminating
+  real (if minor) answer imprecision on the same items (scores `1.0`,
+  `0.571`, `0.875`, not a trivial ceiling), so there's no equivalent case
+  to exclude it there.
+- **Generator responses were getting truncated.** `call_llm()`'s
+  `max_tokens` was `1024`, confirmed too tight for `deepseek-v4-flash`'s
+  answer style via a real `/query` test (an answer cut off mid-word).
+  Bumped to `4096`.
+- **A detached-HEAD git bug that could only surface once caching
+  actually started working.** `app/sourcing.py`'s `clone_repo()` used an
+  unconditional `git pull` whenever `data/repos/<repo>` already existed
+  — but `CODELENS_PIN_COMMIT` leaves that checkout in detached-HEAD
+  state, where `pull` has no branch to merge into and fails outright.
+  This bug existed from the day commit-pinning was added, but never
+  triggered before, because the cache never actually persisted
+  `data/repos` across runs until the fixes above. Fixed by `git fetch`
+  (safe on any HEAD state) plus only attempting `pull` when
+  `git symbolic-ref -q HEAD` confirms an actual branch.
+- **Cost, duration, and failure-rate are now tracked per run, not just
+  scores.** `evaluate_answers()` returns real token counts + computed
+  cost for both generator and judge (manually computed from verified
+  per-model pricing — `langchain_community`'s `get_openai_callback()` was
+  found, via live verification, to silently report `$0.00` cost due to a
+  stale internal pricing table, so its cost field is never trusted, only
+  its token counts), plus `generation_seconds`/`judging_seconds` (batch
+  job duration — explicitly *not* the same thing as production request
+  latency, see `notes/metrics.md`). `scripts/run_ragas_eval.py` also now
+  catches any crash and records it (`crashed: true`, error type/message)
+  instead of the previous behavior of writing nothing at all on failure
+  — a DORA-style pipeline Change Failure Rate, tracked over time.
+- **Known, currently real limitation: none of this history persists
+  across CI runs yet.** The score-history feature above uploads to S3
+  via `app.sourcing.upload_to_s3()` — but `ci.yml`'s `eval` job points
+  `AWS_ENDPOINT_URL` at the `localstack` service container, which is
+  destroyed the moment the job ends. Every `"Uploaded to s3://..."` line
+  a real CI run prints is writing to a bucket that's already gone by the
+  time the next run starts. `scripts/show_eval_history.py` works
+  correctly against real, persistent S3 (or LocalStack kept alive
+  locally) — it just has nothing durable to read back in CI as currently
+  configured. Not yet fixed; would need the `eval` job wired to real AWS
+  credentials and a real bucket, separate from LocalStack.
 
 None of this changes the eval logic, the retrieval pipeline, or the
 metrics themselves — it's entirely about the mechanics of running someone
@@ -1802,8 +1862,7 @@ def weekly_check():
     wandb.init(project="codelens-monitoring")
     wandb.log({
         "faithfulness": scores["faithfulness"],
-        "answer_relevancy": scores["answer_relevancy"],
-        "context_recall": scores["context_recall"]
+        "answer_relevancy": scores["answer_relevancy"]
     })
 
     if not check_eval_gate(scores):

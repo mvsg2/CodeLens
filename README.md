@@ -13,7 +13,7 @@ There are four stages, and each one solves a different problem:
 1. **Sourcing**: clone the target GitHub repo, filter down to indexable source files, record a manifest (file list, commit SHA), and mirror the manifest to S3 (LocalStack locally).
 2. **Pipeline (encoding)**: parse each Python file with tree-sitter, chunk it function-by-function (not naive fixed-size splitting, which would cut a function in half), embed every chunk with a code-aware embedding model, and store the vectors + metadata in a Chroma database. This is the slow, GPU-bound step, and it only needs to re-run when the repo has a new commit or the chunking/embedding logic itself changes.
 3. **Retrieval**: given a question, search the Chroma index two ways at once (semantic vector search + BM25 keyword search), merge the results, rerank the top candidates with a cross-encoder, and optionally hand the final 5 snippets to an LLM to synthesize a cited answer. This runs on every single question, in seconds.
-4. **Eval**: a hand-built set of question/answer pairs with verified correct source files, scored two ways — a free, LLM-free retrieval check (hit rate, MRR), and a RAGAS-based answer-quality check (faithfulness, answer relevancy, context recall) that calls the real LLM. Run the free one after any change to chunking, retrieval, or filtering logic; run the RAGAS one before a release.
+4. **Eval**: a hand-built set of question/answer pairs with verified correct source files, scored two ways — a free, LLM-free retrieval check (hit rate, MRR, function-level hit rate), and a RAGAS-based answer-quality check (faithfulness, answer relevancy — both hard-gated) that calls the real LLM, plus token usage/cost, timing, and pass/fail history tracked per run. Run the free one after any change to chunking, retrieval, or filtering logic; run the RAGAS one before a release.
 
 Sourcing and the pipeline only need to run again when the repo changes or you change how chunks are built. Retrieval runs per-question. Eval runs whenever you want to check quality.
 
@@ -150,10 +150,14 @@ python -m scripts.run_retrieval --no-llm     # same, but skip the LLM call and j
 # Stage 4a — score retrieval quality against the golden test set (no LLM cost)
 python -m scripts.run_eval
 
-# Stage 4b — score answer quality with RAGAS: faithfulness, answer relevancy,
-# context recall (real LLM cost — one call per item to generate the answer,
+# Stage 4b — score answer quality with RAGAS: faithfulness, answer relevancy
+# (both hard-gated; real LLM cost — one call per item to generate the answer,
 # plus several more for RAGAS's own judge model; use --limit to bound cost)
 python -m scripts.run_ragas_eval --limit 5
+
+# See the score/cost/duration trend across past runs (free, no LLM calls —
+# reads from S3, where scripts/run_ragas_eval.py uploads one entry per run)
+python -m scripts.show_eval_history
 ```
 
 The ground truth these two eval stages score against lives in `app/eval.py`'s `GOLDEN_SET` — hand-written, and verifiable yourself with a plain `grep` against the cloned repo (e.g. `grep -n "def add_api_route" -r data/repos/fastapi__fastapi/fastapi/`). The generated *answers* being scored, on the other hand, come from real LLM calls — never canned or precomputed.
@@ -252,7 +256,7 @@ Then query it with that same URL in `repo_url` — the server converts it intern
 
 ## Production-Grade Deployment
 
-Not built yet. This section will cover taking CodeLens from the local-only setup above to a real, publicly reachable deployment: automated CI/CD, real AWS infrastructure (ECR, ECS Fargate, an Application Load Balancer, RDS with pgvector, S3, SQS, IAM), a public API endpoint, and production monitoring. See the TODO list below for the current plan.
+**CI is real and running** (`.github/workflows/ci.yml`) — every push runs `lint → unit-test → {eval, docker-build}` (the last two run in parallel once `unit-test` passes): the free retrieval-only gate plus the paid RAGAS answer-quality gate in `eval`, and a real `docker build` + container health-check in `docker-build`. No CD yet, though — there's no `deploy` job, no image push to a registry, and no live, publicly reachable deployment. Real AWS infrastructure (ECR, ECS Fargate, an Application Load Balancer, RDS with pgvector, S3, SQS, IAM), a public API endpoint, and production monitoring are still ahead. See the TODO list below for the current plan, and `codelens.md`'s Aspect 6 addendum / `notes/ci-cd-pipeline.md` for the real debugging history behind the CI pipeline that does exist.
 
 ---
 
@@ -275,6 +279,7 @@ Not built yet. This section will cover taking CodeLens from the local-only setup
 │   ├── run_retrieval.py   CLI entry point for asking sample questions
 │   ├── run_eval.py        CLI entry point for the free retrieval-only quality gate
 │   ├── run_ragas_eval.py  CLI entry point for the RAGAS answer-quality gate (real LLM cost)
+│   ├── show_eval_history.py  prints the score/cost/duration/crash trend across past runs (free, reads from S3)
 │   ├── run_all.py         orchestrates all four stages, skipping encoding when nothing changed
 │   ├── inspect_answers.py manual cross-check: generated answers next to retrieved chunks, no judge involved
 │   ├── smoke_tests/
@@ -295,10 +300,12 @@ Not built yet. This section will cover taking CodeLens from the local-only setup
 
 ## TODO
 
-- [x] LLM-based answer-quality evaluation (faithfulness / answer relevancy / context recall via RAGAS — `app/eval.py`'s `evaluate_answers()`, `scripts/run_ragas_eval.py`)
+- [x] LLM-based answer-quality evaluation (faithfulness / answer relevancy, both hard-gated, via RAGAS — `app/eval.py`'s `evaluate_answers()`, `scripts/run_ragas_eval.py`; `context_recall` was tried, then removed — see `codelens.md`'s Aspect 4 addendum for why)
 - [x] Containerize the app (Dockerfile) — reindex worker still needs one
 - [x] Local "deployment rehearsal": containerized stack running against LocalStack, `scripts/smoke_tests/deployment_smoke_test.py` checks `/health` and `/query`
-- [ ] Automated CI/CD (lint → unit tests → integration tests → eval gate → smoke test → build → push → deploy)
+- [x] Automated CI (`.github/workflows/ci.yml`: `lint → unit-test → {eval, docker-build}`) — no integration tests, smoke test, push, or deploy steps in CI yet, see below
+- [x] Cost/duration/failure-rate tracking per eval run, with history persisted (`scripts/run_ragas_eval.py`/`show_eval_history.py`) — **known gap**: CI's `eval` job uploads history to LocalStack, not real S3, so none of it actually persists across CI runs yet (works correctly for local runs against real AWS credentials)
+- [ ] CD: push the built image to a registry and actually deploy it (currently `docker-build` only builds + health-checks, never pushes anywhere)
 - [ ] Migrate the vector store from local Chroma files to pgvector on RDS (needed before running more than one API instance)
 - [ ] Real AWS deployment (ECR, ECS Fargate, ALB, RDS, S3, SQS, IAM) and a public API endpoint
 - [ ] GitHub webhook → SQS → `worker/reindex_worker.py` for automatic re-indexing on new commits
